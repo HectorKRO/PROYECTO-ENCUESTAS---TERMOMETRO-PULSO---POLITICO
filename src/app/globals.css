@@ -1,0 +1,75 @@
+/* globals.css */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:           #07100a;
+  --surface:      #0f1d12;
+  --surface-el:   #172619;
+  --border:       #264030;
+  --border-act:   #c9a227;
+  --green-dark:   #1a4d26;
+  --green:        #2d7a3a;
+  --green-light:  #3ea84a;
+  --green-acc:    #56d465;
+  --gold:         #c9a227;
+  --gold-light:   #e4be45;
+  --gold-dim:     #7a5f14;
+  --text-pri:     #e8f2ea;
+  --text-sec:     #8dab94;
+  --text-mut:     #4d6b54;
+  --danger:       #e05252;
+  --amber:        #e07c10;
+
+  --font-display: 'Syne', sans-serif;
+  --font-body:    'DM Sans', sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text-pri);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--gold);
+  color: var(--bg);
+}
+
+::-webkit-scrollbar          { width: 6px; height: 6px; }
+::-webkit-scrollbar-track    { background: var(--surface); }
+::-webkit-scrollbar-thumb    { background: var(--green-dark); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--green); }
+
+/* ── Leaflet reset ── */
+.leaflet-container { background: var(--bg) !important; }
+.leaflet-tile-pane { filter: brightness(0.9) saturate(0.8); }
+
+/* ── Utility classes ── */
+.glass {
+  background: rgba(15, 29, 18, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(38, 64, 48, 0.5);
+}
+
+.font-display { font-family: var(--font-display); }
+.font-mono    { font-family: var(--font-mono); }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse-gold {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(201,162,39,.3); }
+  50%       { box-shadow: 0 0 0 8px rgba(201,162,39,0); }
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.animate-fade-up { animation: fadeUp .5s ease forwards; }
+.animate-pulse-gold { animation: pulse-gold 2s infinite; }
