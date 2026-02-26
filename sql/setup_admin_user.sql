@@ -26,7 +26,7 @@ BEGIN
   -- Obtener el auth_user_id
   SELECT id INTO v_auth_user_id
   FROM auth.users 
-  WHERE email = 'Lae.kevin.rosas@gmail.com';
+  WHERE email ILIKE 'lae.kevin.rosas@gmail.com';
   
   IF v_auth_user_id IS NULL THEN
     RAISE EXCEPTION 'Usuario no encontrado en auth.users. Crea el usuario primero en Authentication.';
@@ -73,7 +73,7 @@ BEGIN
   SELECT c.id INTO v_candidato_id
   FROM candidatos c
   JOIN auth.users u ON c.auth_user_id = u.id
-  WHERE u.email = 'Lae.kevin.rosas@gmail.com';
+  WHERE u.email ILIKE 'lae.kevin.rosas@gmail.com';
   
   IF v_candidato_id IS NULL THEN
     RAISE EXCEPTION 'Candidato no encontrado. Ejecuta el Paso 2 primero.';
@@ -118,7 +118,7 @@ BEGIN
   FROM campanas cp
   JOIN candidatos c ON cp.candidato_id = c.id
   JOIN auth.users u ON c.auth_user_id = u.id
-  WHERE u.email = 'Lae.kevin.rosas@gmail.com'
+  WHERE u.email ILIKE 'lae.kevin.rosas@gmail.com'
   LIMIT 1;
   
   IF v_campana_id IS NULL THEN
@@ -156,13 +156,13 @@ DECLARE
   v_campana_id UUID;
 BEGIN
   -- Verificar usuario auth
-  SELECT EXISTS(SELECT 1 FROM auth.users WHERE email = 'Lae.kevin.rosas@gmail.com') INTO v_user_exists;
+  SELECT EXISTS(SELECT 1 FROM auth.users WHERE email ILIKE 'lae.kevin.rosas@gmail.com') INTO v_user_exists;
   
   -- Verificar candidato
   SELECT EXISTS(
     SELECT 1 FROM candidatos c 
     JOIN auth.users u ON c.auth_user_id = u.id 
-    WHERE u.email = 'Lae.kevin.rosas@gmail.com'
+    WHERE u.email ILIKE 'lae.kevin.rosas@gmail.com'
   ) INTO v_candidato_exists;
   
   -- Verificar campaña y obtener ID
@@ -170,7 +170,7 @@ BEGIN
   FROM campanas cp
   JOIN candidatos c ON cp.candidato_id = c.id
   JOIN auth.users u ON c.auth_user_id = u.id
-  WHERE u.email = 'Lae.kevin.rosas@gmail.com'
+  WHERE u.email ILIKE 'lae.kevin.rosas@gmail.com'
   LIMIT 1;
   
   v_campana_exists := (v_campana_id IS NOT NULL);
