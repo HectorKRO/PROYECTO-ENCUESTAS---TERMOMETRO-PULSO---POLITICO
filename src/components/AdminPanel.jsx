@@ -54,15 +54,12 @@ export default function AdminPanel() {
   const [encuestadores, setEncuestadores] = useState([]);
   const [syncLog, setSyncLog] = useState([]);
   
-  // Obtener campana_id de la URL o usar demo
-  const [campanaId, setCampanaId] = useState(null);
-  
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const params = new URLSearchParams(window.location.search);
-      setCampanaId(params.get('campana'));
-    }
-  }, []);
+  // ✅ FIX M1: Leer campana_id de la URL directamente en el estado inicial
+  // Antes: se inicializaba en null y se actualizaba en useEffect → doble render + loadData con null
+  const [campanaId, setCampanaId] = useState(() => {
+    if (typeof window === 'undefined') return null;
+    return new URLSearchParams(window.location.search).get('campana') || null;
+  });
 
   // Cargar datos iniciales
   useEffect(() => {
@@ -163,13 +160,15 @@ export default function AdminPanel() {
             activa: campana.activa,
           })
           .eq('id', campanaId);
-        
+
         if (error) throw error;
       }
       showSaved();
     } catch (err) {
       console.error('Error guardando:', err);
-      alert('Error al guardar: ' + err.message);
+      // ✅ FIX M4: Mostrar error en UI en lugar de alert() nativo
+      setError('Error al guardar: ' + (err.message || 'Error desconocido'));
+      setTimeout(() => setError(null), 5000);
     }
   };
 
@@ -178,12 +177,16 @@ export default function AdminPanel() {
     if (!encuestador) return;
 
     try {
-      if (campanaId && campanaId !== 'demo' && typeof id === 'string') {
+      // ✅ FIX M2: Condición simplificada — los IDs de mock son números enteros,
+      // los IDs reales de Supabase son UUIDs (strings). Solo llamar a Supabase si
+      // tenemos una campaña real (no 'demo') y el ID es un UUID válido.
+      const isRealId = campanaId && campanaId !== 'demo' && typeof id === 'string' && id.includes('-');
+      if (isRealId) {
         const { error } = await supabase
           .from('encuestadores')
           .update({ activo: !encuestador.activo })
           .eq('id', id);
-        
+
         if (error) throw error;
       }
       

@@ -14,9 +14,11 @@ function sanitize(raw) {
 // ✅ FIX: Validación básica de tipos
 function validate(enc) {
   if (!enc.campana_id || typeof enc.campana_id !== 'string') return 'campana_id requerido';
-  if (enc.intencion_voto !== undefined && (enc.intencion_voto < 1 || enc.intencion_voto > 5)) return 'intencion_voto fuera de rango';
-  if (enc.simpatia !== undefined && (enc.simpatia < 1 || enc.simpatia > 5)) return 'simpatia fuera de rango';
-  if (enc.duracion_segundos !== undefined && enc.duracion_segundos < 45) return 'duracion_segundos muy corta';
+  // ✅ FIX A2: El rango válido es 0-5 (0 = "No responde"), antes excluía 0 incorrectamente
+  if (enc.intencion_voto !== undefined && (enc.intencion_voto < 0 || enc.intencion_voto > 5)) return 'intencion_voto fuera de rango';
+  if (enc.simpatia       !== undefined && (enc.simpatia       < 0 || enc.simpatia       > 5)) return 'simpatia fuera de rango';
+  // ✅ FIX M3: Umbral reducido a 30s (antes 45s era demasiado restrictivo para encuestadores expertos)
+  if (enc.duracion_segundos !== undefined && enc.duracion_segundos < 30) return 'duracion_segundos muy corta';
   return null;
 }
 

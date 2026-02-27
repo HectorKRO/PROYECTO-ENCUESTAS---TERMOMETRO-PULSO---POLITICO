@@ -1,5 +1,7 @@
 'use client';
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { useOrganizacion } from '@/hooks/useOrganizacion';
 import {
   AreaChart, Area,
   BarChart, Bar,
@@ -14,14 +16,18 @@ import { exportEncuestasToCSV, exportResumenToCSV, fetchEncuestasForExport } fro
 import { MOCK, TEMAS_SENT, MOCK_ANALISIS } from '@/lib/mockData';
 
 // ─── HOOK DE DATOS REALES ───────────────────────────────────────────────────────
-function useDashboardData(campanaId) {
+// v3.0: Ahora acepta municipioId para filtrar datos
+function useDashboardData(campanaId, municipioId) {
   const [data, setData]     = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError]   = useState(null);
   const abortControllerRef = useRef(null);
 
   const fetchAll = useCallback(async () => {
-    if (!campanaId || IS_DEMO) { setLoading(false); return; }
+    if (!campanaId || !municipioId || IS_DEMO) { 
+      setLoading(false); 
+      return; 
+    }
     
     // ✅ FIX: Cancelar petición anterior si existe
     if (abortControllerRef.current) {
@@ -33,12 +39,13 @@ function useDashboardData(campanaId) {
       setLoading(true);
       setError(null); // ✅ FIX: Limpiar error anterior
       
+      // v3.0: Filtrar por campana_id Y municipio_id
       const [kpisRes, tendRes, demoRes, agendaRes, seccionesRes] = await Promise.all([
-        supabase.from('v_kpis_campana').select('*').eq('campana_id', campanaId).single(),
-        supabase.from('v_tendencia_semanal').select('*').eq('campana_id', campanaId).order('semana'),
-        supabase.from('v_demograficos').select('*').eq('campana_id', campanaId),
-        supabase.from('v_agenda_ciudadana').select('*').eq('campana_id', campanaId).limit(10),
-        supabase.from('v_resultados_por_seccion').select('*').eq('campana_id', campanaId),
+        supabase.from('v_metricas_por_campana').select('*').eq('campana_id', campanaId).eq('municipio_id', municipioId).single(),
+        supabase.from('v_tendencia_semanal').select('*').eq('campana_id', campanaId).eq('municipio_id', municipioId).order('semana'),
+        supabase.from('v_demograficos').select('*').eq('campana_id', campanaId).eq('municipio_id', municipioId),
+        supabase.from('v_agenda_ciudadana').select('*').eq('campana_id', campanaId).eq('municipio_id', municipioId).limit(10),
+        supabase.from('v_resultados_por_seccion').select('*').eq('campana_id', campanaId).eq('municipio_id', municipioId),
       ]);
       
       // ✅ FIX: Verificar errores de Supabase
@@ -51,8 +58,18 @@ function useDashboardData(campanaId) {
       // ✅ FIX: Verificar si el componente sigue montado
       if (abortControllerRef.current?.signal.aborted) return;
       
+      // DASH-1 FIX: Mapear campos de la vista SQL a nombres esperados por el Dashboard
+      const mapKpis = (row) => row ? {
+        reconocimiento: row.pct_reconocimiento ?? row.reconocimiento,
+        intencion: row.pct_intencion_positiva ?? row.intencion,
+        imagen: row.pct_imagen_positiva ?? row.imagen,
+        total: row.total_encuestas ?? row.total,
+        meta: row.meta_encuestas ?? row.meta,
+        ...row, // preservar campos originales también
+      } : row;
+
       setData({
-        kpis:      kpisRes.data,
+        kpis:      mapKpis(kpisRes.data),
         tendencia: tendRes.data,
         demo:      demoRes.data,
         agenda:    agendaRes.data,
@@ -64,7 +81,8 @@ function useDashboardData(campanaId) {
     } finally {
       setLoading(false);
     }
-  }, [campanaId]);
+  // D1 FIX: Agregar municipioId a las dependencias para recargar al cambiar municipio
+  }, [campanaId, municipioId]);
 
   useEffect(() => { 
     fetchAll(); 
@@ -96,6 +114,32 @@ function useDashboardData(campanaId) {
   }, [campanaId, fetchAll]);
 
   return { data, loading, error, refetch: fetchAll };
+}
+
+// Selector de municipio para el header
+function MunicipioSelector({ municipios, municipioActual, onChange }) {
+  return (
+    <select
+      value={municipioActual?.id || ''}
+      onChange={(e) => onChange?.(Number(e.target.value))}
+      style={{
+        padding: '6px 12px',
+        background: 'rgba(7, 16, 10, 0.6)',
+        color: C.goldLight,
+        border: `1px solid ${C.gold}`,
+        borderRadius: 6,
+        fontSize: 13,
+        cursor: 'pointer',
+        outline: 'none',
+      }}
+    >
+      {municipios.map((m) => (
+        <option key={m.id} value={m.id} style={{ background: C.surface }}>
+          📍 {m.nombre}
+        </option>
+      ))}
+    </select>
+  );
 }
 
 // ─── PALETA: importada de @/lib/theme ───────────────────────────────────────
@@ -211,12 +255,21 @@ export default function DashboardPolitico({ onNavigateToMapa }) {
   const [lastUpdate, setLastUpdate]   = useState('');
   const [exporting, setExporting]     = useState(false);
 
-  // Obtener campana_id de URL params (o usar DEMO)
-  const campanaId = typeof window !== 'undefined'
-    ? new URLSearchParams(window.location.search).get('campana')
-    : null;
+  // v3.0: Contexto multi-municipio
+  const { 
+    municipios, 
+    municipioActual, 
+    cambiarMunicipio,
+    organizacion,
+    loading: orgLoading 
+  } = useOrganizacion();
 
-  const { data: realData, loading, error } = useDashboardData(campanaId);
+  // D2 FIX: Usar useSearchParams para evitar hydration mismatch
+  const searchParams = useSearchParams();
+  const campanaId = searchParams.get('campana');
+
+  // v3.0: Pasar municipioId al hook
+  const { data: realData, loading, error } = useDashboardData(campanaId, municipioActual?.id);
 
   // Fusionar datos reales o mock según modo
   const D = useMemo(() => {
@@ -299,8 +352,19 @@ export default function DashboardPolitico({ onNavigateToMapa }) {
       <div style={{ background:`linear-gradient(90deg, ${C.greenDark}cc, ${C.bg}cc)`, backdropFilter:'blur(12px)', borderBottom:`1px solid ${C.border}`, padding:'0 28px', display:'flex', alignItems:'center', gap:16, height:64, position:'sticky', top:0, zIndex:100 }}>
         <div style={{ width:40, height:40, borderRadius:10, background:`linear-gradient(135deg, ${C.gold}, ${C.goldDim})`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:20, fontWeight:900, color:C.bg, flexShrink:0 }}>P</div>
         <div>
-          <div style={{ fontWeight:800, fontSize:15, color:C.goldLight }}>Dashboard Ejecutivo — {D.candidato.alias}</div>
-          <div style={{ fontSize:11, color:C.textMut }}>Campaña Municipal · {D.candidato.municipio}</div>
+          <div style={{ fontWeight:800, fontSize:15, color:C.goldLight }}>Dashboard Ejecutivo — {organizacion?.nombre || D.candidato.alias}</div>
+          <div style={{ fontSize:11, color:C.textMut, display:'flex', alignItems:'center', gap:8 }}>
+            <span>Campaña Municipal</span>
+            {municipios.length > 1 ? (
+              <MunicipioSelector 
+                municipios={municipios} 
+                municipioActual={municipioActual}
+                onChange={cambiarMunicipio}
+              />
+            ) : (
+              <span>· {municipioActual?.nombre || D.candidato.municipio}</span>
+            )}
+          </div>
         </div>
         <div style={{ marginLeft:'auto', textAlign:'right' }}>
           <div style={{ fontSize:11, color:C.textMut }}>Actualizado: {lastUpdate}</div>

@@ -1,36 +1,11 @@
--- Migración de datos de colonias desde Catálogo INE
--- Total: 417 colonias
+-- =============================================================================
+-- seed_colonias_atlixco.sql
+-- Datos de colonias de Atlixco, Puebla — Catálogo INE
+-- Total: 417 colonias, secciones 0154-0221
+-- Ejecutar DESPUÉS de migracion_v2.4_estructura.sql
+-- =============================================================================
 
--- Verificar que la tabla colonias existe
-DO $$
-BEGIN
-  IF NOT EXISTS (
-    SELECT 1 FROM information_schema.tables 
-    WHERE table_name='colonias'
-  ) THEN
-    RAISE EXCEPTION 'La tabla colonias no existe. Ejecuta migracion_v2.4_fix_colonias.sql primero.';
-  END IF;
-END $$;
-
--- ✅ FIX: Actualizar constraint para aceptar todos los tipos del INE
--- Eliminar constraint antiguo (si existe)
-ALTER TABLE colonias DROP CONSTRAINT IF EXISTS colonias_tipo_check;
-
--- Agregar nuevo constraint con todos los tipos
-ALTER TABLE colonias ADD CONSTRAINT colonias_tipo_check 
-  CHECK (tipo IN (
-    'COLONIA','FRACCIONAMIENTO','RANCHO','EJIDO','BARRIO',
-    'UNIDAD HABITACIONAL','CONJUNTO HABITACIONAL','PUEBLO',
-    'HACIENDA','VILLA','RESIDENCIAL','GRANJA','LOCALIDAD',
-    'PARAJE','PARQUE INDUSTRIAL','ZONA MILITAR','FRACCION','OTRO'
-  ));
-
-DO $$
-BEGIN
-  RAISE NOTICE '✓ Constraint colonias_tipo_check actualizado';
-END $$;
-
--- Insertar colonias
+-- Insertar colonias (ON CONFLICT para idempotencia)
 INSERT INTO colonias (nombre, seccion_id, tipo, codigo_postal) VALUES
   ('ANTORCHA POPULAR CAMPESINA', '0154', 'COLONIA', '74360'),
   ('CUARTA SECCION', '0154', 'COLONIA', '74360'),
@@ -450,3 +425,8 @@ INSERT INTO colonias (nombre, seccion_id, tipo, codigo_postal) VALUES
   ('SAN FELIPE XONACAYUCAN', '0221', 'PUEBLO', '74369'),
   ('SAN JERONIMO CALERAS', '0221', 'PUEBLO', '74369')
 ON CONFLICT (nombre, seccion_id) DO NOTHING;
+
+DO $$
+BEGIN
+  RAISE NOTICE '✓ seed_colonias_atlixco: datos cargados (ON CONFLICT DO NOTHING — idempotente)';
+END $$;

@@ -73,48 +73,100 @@ function createMockClient() {
       { genero: 'M', edad_rango: '25-34', total: 94, promedio_intencion: 4.1, pct_intencion_positiva: 51 },
       { genero: 'F', edad_rango: '35-44', total: 78, promedio_intencion: 4.3, pct_intencion_positiva: 54 },
     ],
-    respuestas: []
+    respuestas: [],
+    // DEMO-1 FIX: Mock data para organizacion_miembros
+    // Estructura con join a organizaciones (como espera useOrganizacion.js)
+    organizacion_miembros: [
+      { 
+        user_id: 'mock-user', 
+        organizacion_id: 'mock-org-1', 
+        rol: 'admin', 
+        activo: true,
+        organizaciones: {
+          id: 'mock-org-1', 
+          nombre: 'Organización Demo', 
+          tipo: 'candidato', 
+          plan: 'profesional', 
+          activa: true, 
+          limite_municipios: 5, 
+          limite_campanas: 10 
+        }
+      }
+    ],
+    organizaciones: [
+      { id: 'mock-org-1', nombre: 'Organización Demo', tipo: 'candidato', plan: 'profesional', activa: true, limite_municipios: 5, limite_campanas: 10 }
+    ],
+    // DEMO-1 FIX Parte 2: Mock data con join anidado para useOrganizacion.js:69-84
+    organizacion_municipios: [
+      { 
+        organizacion_id: 'mock-org-1', 
+        municipio_id: 1,
+        municipios: { id: 1, nombre: 'Atlixco', latitud_centro: 18.9088, longitud_centro: -98.4321 }
+      },
+      { 
+        organizacion_id: 'mock-org-1', 
+        municipio_id: 2,
+        municipios: { id: 2, nombre: 'San Martín Texmelucan', latitud_centro: 19.2847, longitud_centro: -98.4331 }
+      }
+    ],
+    municipios: [
+      { id: 1, nombre: 'Atlixco', latitud_centro: 18.9088, longitud_centro: -98.4321 },
+      { id: 2, nombre: 'San Martín Texmelucan', latitud_centro: 19.2847, longitud_centro: -98.4331 }
+    ]
   };
 
   // Builder pattern para queries mock
-  const createQueryBuilder = (table) => {
-    let filters = {};
+  const createQueryBuilder = (table, existingFilters = {}, existingLimit = null) => {
+    let filters = { ...existingFilters };
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     let ordering = null;
-    let limitCount = null;
+    let limitCount = existingLimit;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     let selecting = '*';
+    
+    // Función para aplicar filtros a los datos
+    const applyFilters = (data) => {
+      if (!Array.isArray(data)) return data;
+      let result = data;
+      for (const [col, val] of Object.entries(filters)) {
+        result = result.filter(row => row[col] === val);
+      }
+      if (limitCount) {
+        result = result.slice(0, limitCount);
+      }
+      return result;
+    };
     
     return {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       select: (cols) => {
-        return createQueryBuilder(table);
+        return createQueryBuilder(table, filters, limitCount);
       },
       eq: (col, val) => {
         filters[col] = val;
-        return createQueryBuilder(table);
+        return createQueryBuilder(table, filters, limitCount);
       },
       order: (col, opts) => {
         ordering = { col, ...opts };
-        return createQueryBuilder(table);
+        return createQueryBuilder(table, filters, limitCount);
       },
       limit: (n) => {
         limitCount = n;
-        return createQueryBuilder(table);
+        return createQueryBuilder(table, filters, limitCount);
       },
       single: async () => {
-        const data = mockData[table];
+        let data = mockData[table];
         if (!data) return { data: null, error: new Error(`Table ${table} not found in mock`) };
-        return { 
-          data: Array.isArray(data) ? data[0] : data, 
-          error: null 
-        };
+        if (Array.isArray(data)) {
+          data = applyFilters(data);
+          return { data: data[0] || null, error: null };
+        }
+        return { data, error: null };
       },
       then: (callback) => {
-        // Para soportar await directo
         let data = mockData[table];
-        if (Array.isArray(data) && limitCount) {
-          data = data.slice(0, limitCount);
+        if (Array.isArray(data)) {
+          data = applyFilters(data);
         }
         return Promise.resolve(callback({ data, error: null }));
       }
@@ -125,6 +177,19 @@ function createMockClient() {
     auth: {
       getSession: async () => ({ data: { session: { user: { id: 'mock-user', email: 'demo@ejemplo.com' } } }, error: null }),
       signInWithOtp: async () => ({ data: null, error: null }),
+      // BUG-C4 FIX: Agregar signInWithPassword para modo demo
+      signInWithPassword: async ({ email, password: _password }) => ({  // eslint-disable-line @typescript-eslint/no-unused-vars 
+        data: { 
+          user: { id: 'mock-user', email: email || 'demo@ejemplo.com' },
+          session: { access_token: 'mock-token', expires_at: Date.now() + 3600000 }
+        }, 
+        error: null 
+      }),
+      // F4-BUG-03 FIX: Agregar getUser para OrganizacionProvider
+      getUser: async () => ({ 
+        data: { user: { id: 'mock-user', email: 'demo@ejemplo.com' } }, 
+        error: null 
+      }),
       signOut: async () => ({ error: null }),
       onAuthStateChange: (cb) => {
         cb('SIGNED_IN', { user: { id: 'mock-user' } });
@@ -227,65 +292,96 @@ export async function fetchComentarios(campanaId, limite = 50) {
   return data;
 }
 
-// ─── COLONIAS con Cacheo Inteligente (v2.4) ────────────────────────────────────
-const COLONIAS_CACHE_KEY = 'colonias_atlixco_cache';
-const COLONIAS_CACHE_TIMESTAMP_KEY = 'colonias_atlixco_timestamp';
+// ─── COLONIAS con Cacheo Inteligente (v3.0 - Multi-municipio) ─────────────────
+const COLONIAS_CACHE_PREFIX = 'colonias_cache_v3_';
+const COLONIAS_CACHE_TIMESTAMP_PREFIX = 'colonias_ts_v3_';
 const CACHE_DURATION_MS = 24 * 60 * 60 * 1000; // 24 horas
 
 /**
- * Carga colonias desde Supabase con cacheo localStorage
- * Estrategia: 
- * 1. Primero devuelve cache local (respuesta instantánea)
+ * Carga colonias desde Supabase con cacheo localStorage (v3.0 - Multi-municipio)
+ * 
+ * @param {Object} options
+ * @param {number} options.municipioId - ID del municipio (REQUERIDO v3.0)
+ * @param {boolean} options.forceRefresh - Forzar recarga desde API
+ * @param {boolean} options.skipCache - Omitir cache completamente
+ * 
+ * Estrategia:
+ * 1. Primero devuelve cache local específico por municipio
  * 2. Si hay internet, refresca cache en background
  * 3. Si no hay cache y no hay internet, devuelve error
  */
 export async function fetchColonias(options = {}) {
-  const { forceRefresh = false, skipCache = false } = options;
+  const { municipioId, forceRefresh = false, skipCache = false } = options;
   
-  // 1. Intentar obtener del cache primero (para respuesta rápida)
+  // v3.0: municipioId es requerido
+  if (!municipioId) {
+    console.warn('[Colonias] municipioId es requerido en v3.0');
+    return [];
+  }
+  
+  const cacheKey = `${COLONIAS_CACHE_PREFIX}${municipioId}`;
+  const cacheTsKey = `${COLONIAS_CACHE_TIMESTAMP_PREFIX}${municipioId}`;
+  
+  // 1. Intentar obtener del cache específico del municipio
   if (!skipCache && typeof window !== 'undefined') {
-    const cached = localStorage.getItem(COLONIAS_CACHE_KEY);
-    const timestamp = localStorage.getItem(COLONIAS_CACHE_TIMESTAMP_KEY);
+    const cached = localStorage.getItem(cacheKey);
+    const timestamp = localStorage.getItem(cacheTsKey);
     const now = Date.now();
     
     if (cached && timestamp) {
       const age = now - parseInt(timestamp);
       // Cache válido si tiene menos de 24 horas
       if (age < CACHE_DURATION_MS && !forceRefresh) {
-        const colonias = JSON.parse(cached);
-        console.log(`[Colonias] Cache hit: ${colonias.length} colonias`);
-        return colonias;
+        try {
+          // S1 FIX: try-catch para JSON.parse
+          const colonias = JSON.parse(cached);
+          console.log(`[Colonias] Cache hit for municipio ${municipioId}: ${colonias.length} colonias`);
+          return colonias;
+        } catch (e) {
+          console.error('[Colonias] Cache corrupto, limpiando...', e);
+          localStorage.removeItem(cacheKey);
+          localStorage.removeItem(cacheTsKey);
+          // Continuar a fetch desde API
+        }
       }
     }
   }
   
-  // 2. Si no hay cache o está expirado, cargar desde Supabase
+  // 2. Cargar desde Supabase filtrado por municipio
   try {
     const { data, error } = await supabase
       .from('colonias')
-      .select('id, nombre, seccion_id, tipo, codigo_postal')
+      .select('id, nombre, seccion_id, tipo, codigo_postal, municipio_id')
+      .eq('municipio_id', municipioId)
       .eq('activa', true)
       .order('nombre');
     
     if (error) throw error;
     
-    // Guardar en cache
+    // Guardar en cache específico por municipio
     if (typeof window !== 'undefined' && data) {
-      localStorage.setItem(COLONIAS_CACHE_KEY, JSON.stringify(data));
-      localStorage.setItem(COLONIAS_CACHE_TIMESTAMP_KEY, Date.now().toString());
-      console.log(`[Colonias] Fetch from API: ${data.length} colonias cached`);
+      localStorage.setItem(cacheKey, JSON.stringify(data));
+      localStorage.setItem(cacheTsKey, Date.now().toString());
+      console.log(`[Colonias] Fetch from API for municipio ${municipioId}: ${data.length} colonias cached`);
     }
     
     return data || [];
   } catch (err) {
-    console.error('[Colonias] Error fetching:', err);
+    console.error(`[Colonias] Error fetching for municipio ${municipioId}:`, err);
     
-    // 3. Fallback a cache aunque esté expirado (mejor que nada)
+    // 3. Fallback a cache aunque esté expirado
     if (typeof window !== 'undefined') {
-      const cached = localStorage.getItem(COLONIAS_CACHE_KEY);
+      const cached = localStorage.getItem(cacheKey);
       if (cached) {
-        console.log('[Colonias] Fallback to expired cache');
-        return JSON.parse(cached);
+        try {
+          // S1 FIX: try-catch para JSON.parse
+          console.log(`[Colonias] Fallback to expired cache for municipio ${municipioId}`);
+          return JSON.parse(cached);
+        } catch (e) {
+          console.error('[Colonias] Fallback cache corrupto, limpiando...', e);
+          localStorage.removeItem(cacheKey);
+          localStorage.removeItem(cacheTsKey);
+        }
       }
     }
     
@@ -294,16 +390,31 @@ export async function fetchColonias(options = {}) {
 }
 
 /**
- * Invalida el cache de colonias (útil después de actualizaciones)
+ * Invalida el cache de colonias para un municipio específico o todos
+ * @param {number|null} municipioId - Si null, invalida todos los municipios
  */
-export function invalidateColoniasCache() {
+export function invalidateColoniasCache(municipioId = null) {
   if (typeof window === 'undefined') return;
-  localStorage.removeItem(COLONIAS_CACHE_KEY);
-  localStorage.removeItem(COLONIAS_CACHE_TIMESTAMP_KEY);
-  console.log('[Colonias] Cache invalidated');
+  
+  if (municipioId) {
+    localStorage.removeItem(`${COLONIAS_CACHE_PREFIX}${municipioId}`);
+    localStorage.removeItem(`${COLONIAS_CACHE_TIMESTAMP_PREFIX}${municipioId}`);
+    console.log(`[Colonias] Cache invalidated for municipio ${municipioId}`);
+  } else {
+    // Invalidar todos los caches de colonias
+    Object.keys(localStorage).forEach(key => {
+      if (key.startsWith(COLONIAS_CACHE_PREFIX) || key.startsWith(COLONIAS_CACHE_TIMESTAMP_PREFIX)) {
+        localStorage.removeItem(key);
+      }
+    });
+    console.log('[Colonias] All caches invalidated');
+  }
 }
 
 // ─── Offline sync ────────────────────────────────────────────────────────────
+// ✅ FIX A3: Flag global para prevenir sincronizaciones simultáneas (race condition)
+let _syncInProgress = false;
+
 export function savePendingOffline(payload) {
   if (typeof window === 'undefined') return false;
   try {
@@ -325,27 +436,38 @@ export function getPendingCount() {
 
 export async function syncOfflineQueue() {
   if (typeof window === 'undefined') return { synced: 0, failed: 0 };
+  // ✅ FIX A3: Prevenir ejecuciones simultáneas que causarían registros duplicados
+  if (_syncInProgress) {
+    console.log('[Sync] Ya hay una sincronización en progreso, omitiendo.');
+    return { synced: 0, failed: 0 };
+  }
+
   const raw = localStorage.getItem(OFFLINE_KEY);
   if (!raw) return { synced: 0, failed: 0 };
 
+  _syncInProgress = true;
   const queue = JSON.parse(raw);
   let synced = 0, failed = 0;
   const remaining = [];
 
-  for (const enc of queue) {
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { _savedAt, ...payload } = enc;
-      await insertRespuesta(payload);
-      synced++;
-    } catch {
-      remaining.push(enc);
-      failed++;
+  try {
+    for (const enc of queue) {
+      try {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { _savedAt, ...payload } = enc;
+        await insertRespuesta(payload);
+        synced++;
+      } catch {
+        remaining.push(enc);
+        failed++;
+      }
     }
-  }
 
-  if (remaining.length === 0) localStorage.removeItem(OFFLINE_KEY);
-  else localStorage.setItem(OFFLINE_KEY, JSON.stringify(remaining));
+    if (remaining.length === 0) localStorage.removeItem(OFFLINE_KEY);
+    else localStorage.setItem(OFFLINE_KEY, JSON.stringify(remaining));
+  } finally {
+    _syncInProgress = false;
+  }
 
   return { synced, failed };
 }

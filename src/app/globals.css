@@ -48,6 +48,22 @@ body {
 
 /* ── Leaflet reset ── */
 .leaflet-container { background: var(--bg) !important; }
+
+/* ── WR4 FIX: Animaciones globales ── */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* ── M1 FIX: Estilos de focus para selectores ── */
+.municipio-selector:focus,
+.campana-selector:focus {
+  border-color: var(--gold) !important;
+  box-shadow: 0 0 0 2px rgba(201, 162, 39, 0.2) !important;
+}
 .leaflet-tile-pane { filter: brightness(0.9) saturate(0.8); }
 
 /* ── Utility classes ── */

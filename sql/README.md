@@ -1,108 +1,96 @@
-# 📋 Guía de Instalación SQL - PulsoElectoral
+# 📋 Guía de Instalación SQL - PulsoElectoral v3.0
 
-## Orden de Ejecución
+## Nuevo en v3.0 — Multi-municipio / Multi-tenant
 
-### Para Nuevas Instalaciones (Base de datos vacía)
+La versión 3.0 introduce soporte para múltiples organizaciones y múltiples municipios por organización.
 
-Ejecutar en este orden:
+---
 
-```sql
-1. schema.sql                    -- Crea todas las tablas y vistas
-2. migracion_colonias_v2.4.sql   -- Inserta las 417 colonias
-3. alertas_supabase.sql          -- Sistema de alertas (opcional)
-```
+## 🚀 Instalación Limpia (Base de datos vacía)
 
-### Para Base de Datos Existente (Actualización)
-
-Si ya tienes una BD con datos y solo necesitas actualizar:
+Ejecutar en orden en el SQL Editor de Supabase:
 
 ```sql
-1. migracion_v2.4_fix_colonias.sql   -- Asegura que tablas/columnas existan
-2. migracion_colonias_v2.4.sql       -- Inserta las 417 colonias
+-- 1. Catálogo geográfico (municipios, secciones, colonias)
+\i sql/v3.0/01_catalogo_geografico.sql
+
+-- 2. Organizaciones, usuarios, membresías (multi-tenant)
+\i sql/v3.0/02_organizaciones.sql
+
+-- 3. Tabla respuestas con campos de contexto (municipio_id, organizacion_id)
+\i sql/v3.0/03_respuestas_contexto.sql
+
+-- 4. Políticas RLS unificadas con AND explícito
+\i sql/v3.0/04_rls_unificado.sql
+
+-- 5. Vistas corregidas para multi-municipio
+\i sql/v3.0/05_vistas_corregidas.sql
+
+-- 6. (Opcional) Template para agregar nuevo municipio
+\i sql/v3.0/06_template_nuevo_municipio.sql
 ```
 
-## Errores Comunes y Soluciones
+**Nota:** El comando `\i` solo funciona en psql CLI. En el SQL Editor web de Supabase, copiar y pegar el contenido de cada archivo.
 
-### Error: `column r.colonia_id does not exist`
+---
 
-**Causa:** La tabla `respuestas` fue creada antes de la v2.4 sin la columna `colonia_id`.
-
-**Solución:** Ejecutar `migracion_v2.4_fix_colonias.sql` primero.
+## ✅ Validación Post-Instalación
 
 ```sql
--- En Supabase SQL Editor:
-\i migracion_v2.4_fix_colonias.sql
+-- Ejecutar tests de validación
+\i tests/v3.0_validate.sql
 ```
 
-### Error: `relation "colonias" does not exist`
+Resultado esperado: **✅ TODOS LOS TESTS PASARON (11/11)**
 
-**Causa:** La tabla `colonias` no existe. Puede pasar si:
-- Se ejecutó `migracion_colonias_v2.4.sql` antes que `schema.sql`
-- El schema.sql no se ejecutó completamente
+---
 
-**Solución:** Ejecutar `migracion_v2.4_fix_colonias.sql` primero, luego los datos.
-
-### Error: `new row for relation "colonias" violates check constraint "colonias_tipo_check"`
-
-**Causa:** El constraint de tipos tiene valores antiguos y no incluye todos los tipos del INE (como 'PUEBLO', 'HACIENDA', etc.).
-
-**Solución:**
-```sql
--- Opción 1: Script específico
-\i sql/fix_colonias_tipo_constraint.sql
-
--- Opción 2: El script migracion_colonias_v2.4.sql ahora incluye el fix automáticamente
-\i sql/migracion_colonias_v2.4.sql
-```
-
-### Error: `foreign key constraint "respuestas_colonia_id_fkey"`
-
-**Causa:** Se está insertando una respuesta con `colonia_id` que no existe en la tabla `colonias`.
-
-**Solución:** Verificar que:
-1. La tabla `colonias` tiene datos (`SELECT COUNT(*) FROM colonias;` debe retornar 417)
-2. El `colonia_id` en la respuesta existe en la tabla
-
-## Verificación Post-Instalación
-
-Ejecutar estas consultas para verificar:
+## 🧪 Setup de Staging/Desarrollo
 
 ```sql
--- 1. Verificar que la tabla colonias existe y tiene datos
-SELECT COUNT(*) as total_colonias FROM colonias;
--- Debe retornar: 417
-
--- 2. Verificar que la columna colonia_id existe en respuestas
-SELECT column_name 
-FROM information_schema.columns 
-WHERE table_name='respuestas' AND column_name='colonia_id';
--- Debe retornar: colonia_id
-
--- 3. Verificar que la vista v_resultados_por_colonia funciona
-SELECT COUNT(*) as total_registros 
-FROM v_resultados_por_colonia 
-WHERE campana_id IS NOT NULL;
--- Si hay datos, debe retornar > 0
+-- Crear usuarios de prueba y organizaciones demo
+\i tests/setup_staging.sql
 ```
 
-## Estructura de Tablas v2.4
+---
+
+## 📊 Estructura de Datos v3.0
 
 ```
-candidatos (1)
-  └── campanas (N)
-        ├── encuestadores (N)
-        └── respuestas (N)
-              ├── seccion_id → secciones_electorales
-              └── colonia_id → colonias (NEW v2.4)
-
-colonias (417 registros)
-  └── seccion_id → secciones_electorales
-
-secciones_electorales (68 registros)
+organizaciones (N)
+  └── organizacion_miembros (N usuarios)
+  └── organizacion_municipios (N municipios)
+  
+municipios (1)
+  └── secciones_electorales (N)
+  └── colonias (N)
+  
+campanas (N por organización)
+  └── respuestas (N, con municipio_id y organizacion_id)
 ```
 
-## Notas Importantes
+---
 
-- La tabla `colonias` debe crearse ANTES de que `respuestas` pueda tener la columna `colonia_id` (FK)
-- La migración `migracion_v2.4_fix_colonias.sql` es idempotente (puede ejecutarse múltiples veces sin error)
-- Si tienes datos existentes en `respuestas`, la columna `colonia_id` se agregará como `NULL` (permitido)
+## 🔐 Seguridad RLS v3.0
+
+Todas las tablas tienen Row Level Security activado:
+
+- **organizacion_miembros**: Aislamiento por organización
+- **organizacion_municipios**: Aislamiento por organización
+- **campanas**: Aislamiento por organización
+- **respuestas**: Aislamiento por organización + por municipio según membresía
+
+---
+
+## 📁 Scripts Opcionales
+
+| Script | Descripción |
+|--------|-------------|
+| `sql/optional/alertas_supabase.sql` | Sistema de alertas automáticas (feature avanzado) |
+
+---
+
+## 📁 Scripts Históricos (v2.x)
+
+Los scripts de versiones anteriores están en `sql/historico/` para referencia.
+

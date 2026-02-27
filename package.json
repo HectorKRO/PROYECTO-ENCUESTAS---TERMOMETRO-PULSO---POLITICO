@@ -1,7 +1,7 @@
 {
   "name": "encuestadora-saas",
-  "version": "1.0.0",
-  "description": "Plataforma de encuestas políticas como servicio — Atlixco, Puebla",
+  "version": "3.0.0",
+  "description": "Plataforma SaaS de inteligencia política multi-municipio",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -19,8 +19,7 @@
     "react-dom": "19.0.0",
     "react-leaflet": "4.2.1",
     "react-leaflet-cluster": "^4.0.0",
-    "recharts": "2.15.0",
-    "xlsx": "^0.18.5"
+    "recharts": "2.15.0"
   },
   "devDependencies": {
     "@types/leaflet": "1.9.14",

@@ -1,5 +1,6 @@
 import './globals.css';
 import { ServiceWorkerRegistrar } from './sw-register';
+import { OrganizacionProvider } from '@/hooks/useOrganizacion';
 
 export const metadata = {
   title:       'PulsoElectoral — Plataforma de Inteligencia Política',
@@ -27,7 +28,9 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body>
-        {children}
+        <OrganizacionProvider>
+          {children}
+        </OrganizacionProvider>
         <ServiceWorkerRegistrar />
       </body>
     </html>

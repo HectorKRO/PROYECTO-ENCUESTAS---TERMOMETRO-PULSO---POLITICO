@@ -2,6 +2,8 @@
  * lib/exportData.js — Funciones de exportación para el dashboard
  * CSV nativo (compatible con Excel) y utilidades de formato
  */
+// ✅ FIX M6: Import estático en lugar de dinámico para evitar delay en exportación
+import { supabase } from './supabase';
 
 /**
  * Escapa un valor para CSV
@@ -160,8 +162,6 @@ export function exportResumenToCSV(data, candidatoNombre = 'Candidato') {
  * Prepara datos de encuestas para exportación desde Supabase
  */
 export async function fetchEncuestasForExport(campanaId) {
-  const { supabase } = await import('./supabase');
-  
   const { data, error } = await supabase
     .from('respuestas')
     .select(`

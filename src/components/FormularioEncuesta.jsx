@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase, syncOfflineQueue, savePendingOffline, getPendingCount, fetchColonias } from '@/lib/supabase';
+import { useOrganizacion } from '@/hooks/useOrganizacion';
 import { C } from '@/lib/theme';
 import { IS_DEMO, OFFLINE_KEY } from '@/lib/constants';
 
@@ -12,51 +13,7 @@ const STEPS = [
   { id: 4, label: 'Opinión Final',   icon: '✅' },
 ];
 
-// ─── SECCIONES ELECTORALES INE – ATLIXCO, PUEBLA 2024 ─────────────────────────
-// ✅ FIX v2.3: Ahora usa 'seccion' (TEXT) como valor directo, no ID numérico
-// ✅ FIX v2.4: Corregido a 68 secciones oficiales (0154-0221)
-// Las secciones 2874,2875,2876 del INE corresponden a la 0163 en listados oficiales
-// NOTA: 0222-0229 NO existen en catálogo INE oficial
-// Total: 68 secciones oficiales (0154-0221 con huecos 0222-0229)
-const SECCIONES_ELECTORALES = [
-  { seccion:'0154', label:'0154', zona:'Norte' },  { seccion:'0155', label:'0155', zona:'Norte' },
-  { seccion:'0156', label:'0156', zona:'Norte' },  { seccion:'0157', label:'0157', zona:'Norte' },
-  { seccion:'0158', label:'0158', zona:'Norte' },  { seccion:'0159', label:'0159', zona:'Norte' },
-  { seccion:'0160', label:'0160', zona:'Norte' },  { seccion:'0161', label:'0161', zona:'Norte' },
-  { seccion:'0162', label:'0162', zona:'Norte' },  { seccion:'0163', label:'0163', zona:'Norte' },
-  { seccion:'0164', label:'0164', zona:'Norte' },  { seccion:'0177', label:'0177', zona:'Norte' },
-  { seccion:'0178', label:'0178', zona:'Norte' },  { seccion:'0179', label:'0179', zona:'Norte' },
-  { seccion:'0180', label:'0180', zona:'Norte' },
-  { seccion:'0165', label:'0165', zona:'Centro' }, { seccion:'0166', label:'0166', zona:'Centro' },
-  { seccion:'0167', label:'0167', zona:'Centro' }, { seccion:'0168', label:'0168', zona:'Centro' },
-  { seccion:'0169', label:'0169', zona:'Centro' }, { seccion:'0170', label:'0170', zona:'Centro' },
-  { seccion:'0171', label:'0171', zona:'Centro' }, { seccion:'0172', label:'0172', zona:'Centro' },
-  { seccion:'0173', label:'0173', zona:'Centro' }, { seccion:'0174', label:'0174', zona:'Centro' },
-  { seccion:'0175', label:'0175', zona:'Centro' }, { seccion:'0185', label:'0185', zona:'Centro' },
-  { seccion:'0186', label:'0186', zona:'Centro' }, { seccion:'0187', label:'0187', zona:'Centro' },
-  { seccion:'0188', label:'0188', zona:'Centro' }, { seccion:'0189', label:'0189', zona:'Centro' },
-  { seccion:'0190', label:'0190', zona:'Centro' }, { seccion:'0191', label:'0191', zona:'Centro' },
-  { seccion:'0192', label:'0192', zona:'Centro' }, { seccion:'0193', label:'0193', zona:'Centro' },
-  { seccion:'0194', label:'0194', zona:'Centro' },
-  { seccion:'0176', label:'0176', zona:'Oriente' },{ seccion:'0181', label:'0181', zona:'Oriente' },
-  { seccion:'0182', label:'0182', zona:'Oriente' },{ seccion:'0183', label:'0183', zona:'Oriente' },
-  { seccion:'0184', label:'0184', zona:'Oriente' },{ seccion:'0213', label:'0213', zona:'Oriente' },
-  { seccion:'0214', label:'0214', zona:'Oriente' },{ seccion:'0215', label:'0215', zona:'Oriente' },
-  { seccion:'0216', label:'0216', zona:'Oriente' },{ seccion:'0217', label:'0217', zona:'Oriente' },
-  { seccion:'0218', label:'0218', zona:'Oriente' },{ seccion:'0219', label:'0219', zona:'Oriente' },
-  { seccion:'0195', label:'0195', zona:'Poniente' },{ seccion:'0196', label:'0196', zona:'Poniente' },
-  { seccion:'0197', label:'0197', zona:'Poniente' },{ seccion:'0198', label:'0198', zona:'Poniente' },
-  { seccion:'0199', label:'0199', zona:'Poniente' },{ seccion:'0200', label:'0200', zona:'Poniente' },
-  { seccion:'0201', label:'0201', zona:'Poniente' },{ seccion:'0202', label:'0202', zona:'Poniente' },
-  { seccion:'0203', label:'0203', zona:'Poniente' },{ seccion:'0204', label:'0204', zona:'Poniente' },
-  { seccion:'0205', label:'0205', zona:'Poniente' },{ seccion:'0206', label:'0206', zona:'Poniente' },
-  { seccion:'0207', label:'0207', zona:'Sur' },    { seccion:'0208', label:'0208', zona:'Sur' },
-  { seccion:'0209', label:'0209', zona:'Sur' },    { seccion:'0210', label:'0210', zona:'Sur' },
-  { seccion:'0211', label:'0211', zona:'Sur' },    { seccion:'0212', label:'0212', zona:'Sur' },
-  { seccion:'0220', label:'0220', zona:'Sur' },    { seccion:'0221', label:'0221', zona:'Sur' },
-  // NOTA: 0222-0229 no existen en catálogo INE
-];
-const ZONAS = ['Norte', 'Centro', 'Oriente', 'Poniente', 'Sur'];
+// F8 FIX: SECCIONES_ELECTORALES y ZONAS eliminadas - ahora se cargan dinámicamente desde Supabase
 
 const EDAD_RANGOS = ['18-24','25-34','35-44','45-54','55-64','65+'];
 const ESCOLARIDAD = ['Sin escolaridad','Primaria','Secundaria','Preparatoria','Licenciatura','Posgrado'];
@@ -267,7 +224,8 @@ function validateStep(step, form, gpsStatus, gpsPrecision) {
     if (!form.conoce_candidato) errors.push('Conocimiento del candidato');
     else completed.push('conocimiento');
     
-    if (form.conoce_candidato && form.conoce_candidato !== 'no' && !form.imagen_candidato) {
+    // DATA-3 FIX: Usar 'no_conoce' en lugar de 'no'
+    if (form.conoce_candidato && form.conoce_candidato !== 'no_conoce' && !form.imagen_candidato) {
       errors.push('Imagen del candidato');
     } else if (form.imagen_candidato) completed.push('imagen');
   }
@@ -693,15 +651,17 @@ function DuplicateWarning({ count }) {
 }
 
 // ─── STEPS ─────────────────────────────────────────────────────────────────────
-function Step1({ form, update, gps, encuestadorNombre, completed, colonias, coloniasLoading }) {
+// F1 FIX: Agregar props faltantes - secciones, coloniasError, setters, municipioActual
+function Step1({ form, update, gps, encuestadorNombre, completed, colonias, coloniasLoading, secciones, coloniasError, setColoniasError, setColoniasLoading, municipioActual }) {
   // Encontrar la colonia seleccionada y su sección asociada
   const coloniaSeleccionada = useMemo(() => 
     colonias.find(c => c.id === form.colonia_id),
   [colonias, form.colonia_id]);
 
+  // v3.0: Usar secciones dinámicas del municipio actual
   const seccionInfo = useMemo(() => 
-    coloniaSeleccionada ? SECCIONES_ELECTORALES.find(s => s.seccion === coloniaSeleccionada.seccion_id) : null,
-  [coloniaSeleccionada]);
+    coloniaSeleccionada ? secciones.find(s => s.seccion === coloniaSeleccionada.seccion_id) : null,
+  [coloniaSeleccionada, secciones]);
 
   // Manejar cambio de colonia: actualiza colonia_id y seccion_electoral_id
   const handleColoniaChange = (coloniaId) => {
@@ -710,7 +670,7 @@ function Step1({ form, update, gps, encuestadorNombre, completed, colonias, colo
     update('seccion_electoral_id', colonia ? colonia.seccion_id : '');
     // Actualizar zona_electoral basado en la sección
     if (colonia) {
-      const seccion = SECCIONES_ELECTORALES.find(s => s.seccion === colonia.seccion_id);
+      const seccion = secciones.find(s => s.seccion === colonia.seccion_id);
       update('zona_electoral', seccion ? seccion.zona : '');
     }
   };
@@ -755,8 +715,15 @@ function Step1({ form, update, gps, encuestadorNombre, completed, colonias, colo
           <div style={{ padding:12, background:C.dangerDim, borderRadius:8, color:C.danger, border:`1px solid ${C.danger}` }}>
             <strong>⚠️ Error cargando catálogo</strong>
             <div style={{ fontSize:12, marginTop:4 }}>No se pudieron cargar las colonias. Verifique su conexión.</div>
+            {/* F2 FIX: Pasar municipioId al reintentar */}
             <button 
-              onClick={() => { setColoniasError(false); setColoniasLoading(true); fetchColonias({ forceRefresh: true }).then(() => setColoniasLoading(false)).catch(() => setColoniasError(true)); }}
+              onClick={() => { 
+                setColoniasError(false); 
+                setColoniasLoading(true); 
+                fetchColonias({ municipioId: municipioActual?.id, forceRefresh: true })
+                  .then(() => setColoniasLoading(false))
+                  .catch(() => setColoniasError(true)); 
+              }}
               style={{ marginTop:8, padding:'4px 12px', borderRadius:4, background:C.danger, color:'#fff', border:'none', cursor:'pointer', fontSize:12 }}
             >
               🔄 Reintentar
@@ -819,20 +786,23 @@ function Step1({ form, update, gps, encuestadorNombre, completed, colonias, colo
   );
 }
 
-function Step2({ form, update, candidato, completed }) {
+// F4 FIX: Agregar prop municipio
+function Step2({ form, update, candidato, completed, municipio }) {
   return (
     <div style={{ animation: 'slideIn 0.3s ease-out' }}>
       <h3 style={{ color:C.goldLight, fontSize:18, margin:'0 0 4px' }}>Reconocimiento del Candidato</h3>
       <p style={{ color:C.textMut, fontSize:13, marginBottom:24 }}>Preguntas sobre el conocimiento del ciudadano hacia el candidato.</p>
 
       <RadioGroup
-        label={`¿Conoce usted a "${candidato}" como candidato a la presidencia municipal de Atlixco?`}
+        label={`¿Conoce usted a "${candidato}" como candidato a la presidencia municipal de ${municipio || 'su municipio'}?`}
         required value={form.conoce_candidato} onChange={v=>update('conoce_candidato',v)}
-        options={[{value:'si_bien',label:'Sí, lo conozco bien'},{value:'si_referencia',label:'Lo he escuchado mencionar'},{value:'no',label:'No lo conozco'}]}
+        // DATA-3 FIX: Usar 'no_conoce' para coincidir con la vista SQL
+options={[{value:'si_bien',label:'Sí, lo conozco bien'},{value:'si_referencia',label:'Lo he escuchado mencionar'},{value:'no_conoce',label:'No lo conozco'}]}
         completed={completed.includes('conocimiento')}
       />
 
-      {form.conoce_candidato && form.conoce_candidato !== 'no' && (
+      {/* JSX-C1 FIX: Comentario correctamente envuelto */}
+      {form.conoce_candidato && form.conoce_candidato !== 'no_conoce' && (
         <>
           <CheckGroup label="¿Cómo lo conoce? (puede seleccionar varios)" value={form.como_conoce} onChange={v=>update('como_conoce',v)}
             options={['Por familiares o amigos','En redes sociales','En eventos o mítines','Por periódico o radio','Lo vio en campaña / volantes','Lo conoce personalmente','Por WhatsApp']} />
@@ -845,7 +815,8 @@ function Step2({ form, update, candidato, completed }) {
   );
 }
 
-function Step3({ form, update, candidato, completed }) {
+// F4 FIX: Agregar prop municipio
+function Step3({ form, update, candidato, completed, municipio }) {
   return (
     <div style={{ animation: 'slideIn 0.3s ease-out' }}>
       <h3 style={{ color:C.goldLight, fontSize:18, margin:'0 0 4px' }}>Posicionamiento Electoral</h3>
@@ -857,7 +828,7 @@ function Step3({ form, update, candidato, completed }) {
       <ScaleInput label={`¿Qué tanta simpatía le genera ${candidato}? (1 = ninguna, 5 = mucha)`}
         required value={form.simpatia} onChange={v=>update('simpatia',v)} min={1} max={5} lowLabel="Ninguna" highLabel="Mucha" 
         completed={completed.includes('simpatia')} />
-      <CheckGroup label="¿Cuáles son los temas más importantes para usted en Atlixco?" required value={form.temas_prioritarios}
+      <CheckGroup label={`¿Cuáles son los temas más importantes para usted en ${municipio || 'su municipio'}?`} required value={form.temas_prioritarios}
         onChange={v=>update('temas_prioritarios',v)} options={TEMAS} max={3} 
         completed={completed.includes('temas')} />
       <Select label="¿Cuál sería EL tema más urgente a resolver?" required value={form.tema_principal}
@@ -912,7 +883,11 @@ function Step4({ form, update, candidato }) {
           onFocus={e=>e.target.style.borderColor=C.gold} onBlur={e=>e.target.style.borderColor=C.border} />
       </div>
       
+      {/* F4-BUG-02 FIX: Widget de foto deshabilitado temporalmente
+          BUG-C1: El base64 de la foto causaba problemas de rendimiento en BD
+          TODO: Implementar Supabase Storage para subir fotos y guardar solo la URL
       <PhotoEvidenceWidget foto={form.foto_evidencia} onFotoChange={v => update('foto_evidencia', v)} />
+      */}
       
       <div style={{ marginBottom:18, padding:16, background:C.surfaceEl, borderRadius:10, border:`1px solid ${C.border}66` }}>
         <div style={{ fontSize:13, fontWeight:600, color:C.textSec, marginBottom:12 }}>
@@ -957,7 +932,11 @@ export default function FormularioEncuesta({ onSubmit, encuestadorId: propEncId,
   const [encuestadorId, setEncuestadorId] = useState(propEncId || null);
   const [encuestadorNombre, setEncuestadorNombre] = useState(propEncNombre || '');
   const [modoExperto, setModoExperto] = useState(config.experto);
+  // v3.0: Contexto multi-municipio
+  const { municipioActual, organizacion } = useOrganizacion();
+  
   const [colonias, setColonias] = useState([]);
+  const [secciones, setSecciones] = useState([]);
   const [coloniasLoading, setColoniasLoading] = useState(true);
   const [coloniasError, setColoniasError] = useState(false);
   const gps = useGPS();
@@ -991,21 +970,36 @@ export default function FormularioEncuesta({ onSubmit, encuestadorId: propEncId,
     });
   }, [propEncId]);
 
-  // ✅ Cargar colonias con cacheo inteligente
+  // v3.0: Cargar colonias y secciones según municipio actual
   useEffect(() => {
     if (IS_DEMO) {
-      // Datos mock para demo
+      // Datos mock para demo - usar municipio del contexto si existe
+      const mockSeccion = municipioActual?.id === 1 ? '0154' : '0001';
       setColonias([
-        { id: 'mock-1', nombre: 'Centro Histórico', seccion_id: '0154', tipo: 'COLONIA' },
-        { id: 'mock-2', nombre: 'Barrio de Santiago', seccion_id: '0158', tipo: 'BARRIO' },
-        { id: 'mock-3', nombre: 'Col. Revolución', seccion_id: '0166', tipo: 'COLONIA' },
+        { id: 'mock-1', nombre: 'Centro Histórico', seccion_id: mockSeccion, tipo: 'COLONIA', municipio_id: municipioActual?.id || 1 },
+        { id: 'mock-2', nombre: 'Barrio de Santiago', seccion_id: mockSeccion, tipo: 'BARRIO', municipio_id: municipioActual?.id || 1 },
+        { id: 'mock-3', nombre: 'Col. Revolución', seccion_id: mockSeccion, tipo: 'COLONIA', municipio_id: municipioActual?.id || 1 },
       ]);
       setColoniasLoading(false);
+      setColoniasError(false); // F3 FIX: Limpiar error en mock
+      return;
+    }
+    
+    // v3.0: Requiere municipio seleccionado
+    if (!municipioActual?.id) {
+      setColonias([]);
+      setSecciones([]);
+      setColoniasLoading(false);
+      setColoniasError(false); // F3 FIX: Limpiar error
       return;
     }
     
     let cancelled = false;
-    fetchColonias()
+    setColoniasLoading(true);
+    setColoniasError(false); // F3 FIX: Limpiar error al iniciar carga
+    
+    // Cargar colonias filtradas por municipio
+    fetchColonias({ municipioId: municipioActual.id })
       .then(data => {
         if (!cancelled) {
           setColonias(data);
@@ -1019,8 +1013,40 @@ export default function FormularioEncuesta({ onSubmit, encuestadorId: propEncId,
           setColoniasLoading(false);
         }
       });
+    
+    // Cargar secciones del municipio desde Supabase
+    supabase
+      .from('secciones_electorales')
+      .select('seccion, nombre_zona, tipo, latitud_centro, longitud_centro')
+      .eq('municipio_id', municipioActual.id)
+      .eq('activa', true)
+      .order('seccion')
+      .then(({ data, error }) => {
+        if (!cancelled) {
+          if (error) {
+            // F5 FIX: Manejar error de fetch de secciones
+            console.error('Error cargando secciones:', error);
+            setSecciones([]);
+          } else if (data) {
+            setSecciones(data.map(s => ({
+              seccion: s.seccion,
+              label: s.seccion,
+              zona: s.nombre_zona || 'Sin zona',
+              tipo: s.tipo || 'Urbana'
+            })));
+          }
+        }
+      })
+      .catch(err => {
+        // F5 FIX: Manejar error de red
+        if (!cancelled) {
+          console.error('Error de red cargando secciones:', err);
+          setSecciones([]);
+        }
+      });
+    
     return () => { cancelled = true; };
-  }, []);
+  }, [municipioActual?.id]); // Recargar cuando cambia el municipio
 
   // Online/offline + auto-sync
   useEffect(() => {
@@ -1103,11 +1129,20 @@ export default function FormularioEncuesta({ onSubmit, encuestadorId: propEncId,
       }
     }
 
+    // v3.0: Validar que hay municipio y organización seleccionados
+    if (!municipioActual?.id || !organizacion?.id) {
+      setErrors(['Error: No hay municipio u organización seleccionados. Recarga la página.']);
+      return;
+    }
+
     const payload = {
       campana_id: config.campanaId,
       encuestador_id: encuestadorId || null,
       colonia_id: form.colonia_id || null,
       seccion_id: form.seccion_electoral_id || null,
+      // v3.0: Agregar contexto multi-tenant
+      municipio_id: municipioActual.id,
+      organizacion_id: organizacion.id,
       fuente: config.fuente,
       latitud: form.gps_lat, longitud: form.gps_lng, gps_precision: form.gps_precision,
       dispositivo: typeof navigator !== 'undefined' ? navigator.userAgent?.substring(0,100) : 'unknown',
@@ -1130,7 +1165,9 @@ export default function FormularioEncuesta({ onSubmit, encuestadorId: propEncId,
       identificacion_partido: form.identificacion_partido || null,
       whatsapp_contacto: form.whatsapp_contacto || null,
       consentimiento_contacto: form.consentimiento_contacto || false,
-      foto_evidencia_url: form.foto_evidencia?.preview || null,
+      // BUG-C1 FIX TEMPORAL: No guardar base64 en BD hasta implementar Supabase Storage
+      // TODO: Subir a Storage y guardar solo la URL pública
+      foto_evidencia_url: null,
       duracion_segundos: Math.round((Date.now() - startTime.current) / 1000),
       completada: true,
     };
@@ -1173,7 +1210,7 @@ export default function FormularioEncuesta({ onSubmit, encuestadorId: propEncId,
     } finally {
       setSubmitting(false);
     }
-  }, [submitting, form, gps.status, gps.coords.precision, isOnline, config.campanaId, config.fuente, encuestadorId, onSubmit, checkDuplicates, recordSubmission, clearAutosave]);
+  }, [submitting, form, gps.status, gps.coords.precision, isOnline, config.campanaId, config.fuente, encuestadorId, onSubmit, checkDuplicates, recordSubmission, clearAutosave, municipioActual?.id, organizacion?.id]);
   
   const handleRecoverSession = useCallback(() => {
     const recovered = recoverData();
@@ -1302,10 +1339,20 @@ export default function FormularioEncuesta({ onSubmit, encuestadorId: propEncId,
           </div>
         )}
 
+        {/* v3.0: Warning si no hay municipio seleccionado */}
+        {!municipioActual?.id && (
+          <div style={{ background:C.dangerDim, border:`1px solid ${C.danger}`, borderRadius:10, padding:'16px', marginBottom:24, color:C.danger, fontSize:14, textAlign:'center' }}>
+            <strong>⚠️ No hay municipio seleccionado</strong>
+            <div style={{ fontSize:12, marginTop:8, color:C.textSec }}>
+              Debes seleccionar un municipio desde el dashboard antes de capturar encuestas.
+            </div>
+          </div>
+        )}
+
         <div style={{ background:C.surface, borderRadius:16, padding:28, border:`1px solid ${C.border}` }}>
-          {step===1 && <Step1 form={form} update={update} gps={gps} encuestadorNombre={encuestadorNombre} completed={completed} colonias={colonias} coloniasLoading={coloniasLoading} />}
-          {step===2 && <Step2 form={form} update={update} candidato={config.candidato} completed={completed} />}
-          {step===3 && <Step3 form={form} update={update} candidato={config.candidato} completed={completed} />}
+          {step===1 && <Step1 form={form} update={update} gps={gps} encuestadorNombre={encuestadorNombre} completed={completed} colonias={colonias} coloniasLoading={coloniasLoading} secciones={secciones} coloniasError={coloniasError} setColoniasError={setColoniasError} setColoniasLoading={setColoniasLoading} municipioActual={municipioActual} />}
+          {step===2 && <Step2 form={form} update={update} candidato={config.candidato} completed={completed} municipio={municipioActual?.nombre || config.municipio} />}
+          {step===3 && <Step3 form={form} update={update} candidato={config.candidato} completed={completed} municipio={municipioActual?.nombre || config.municipio} />}
           {step===4 && <Step4 form={form} update={update} candidato={config.candidato} />}
         </div>
 

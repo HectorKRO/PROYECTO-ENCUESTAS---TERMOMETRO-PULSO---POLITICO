@@ -1,7 +1,7 @@
 // lib/constants.js — Constantes compartidas del proyecto
 
-// ✅ FIX: Clave unificada de localStorage (antes había 2 claves distintas)
-export const OFFLINE_KEY = 'encuestas_pendientes_atlixco';
+// ✅ FIX v3.0: Clave genérica para soporte multi-municipio (antes hardcodeado a 'atlixco')
+export const OFFLINE_KEY = 'encuestas_pendientes_v3';
 
 export const IS_DEMO =
   typeof window !== 'undefined'
@@ -11,6 +11,9 @@ export const IS_DEMO =
 
 // Campos permitidos para inserción en tabla respuestas (allowlist)
 export const RESPUESTA_FIELDS = [
+  // v3.0 FIX BUG-C2: Campos multi-tenant requeridos
+  'municipio_id',
+  'organizacion_id',
   'campana_id',
   'encuestador_id',
   'seccion_id',
