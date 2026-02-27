@@ -47,12 +47,13 @@ DO $$ BEGIN
   IF NOT FOUND THEN
     INSERT INTO campanas (
       id, nombre, candidato_id, organizacion_id,
-      fecha_inicio, meta_encuestas, activa
+      municipio_id, fecha_inicio, meta_encuestas, activa
     ) VALUES (
       'b2000000-0000-0000-0000-000000000001'::UUID,
       'Paco García 2025',
       'a1000000-0000-0000-0000-000000000001'::UUID,
       '00000000-0000-0000-0000-000000000001'::UUID,
+      1,  -- Atlixco
       '2025-01-15',
       400,
       true
