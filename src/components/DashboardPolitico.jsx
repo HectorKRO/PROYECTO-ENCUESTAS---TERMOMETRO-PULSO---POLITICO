@@ -900,20 +900,6 @@ export default function DashboardPolitico({ onNavigateToMapa }) {
                 </table>
               </div>
 
-              {/* Link al mapa de calor */}
-              {onNavigateToMapa && (
-                <div style={{ marginTop:16, background:C.surfaceEl, borderRadius:10, padding:16, display:'flex', alignItems:'center', gap:16 }}>
-                  <div style={{ fontSize:32 }}>🔥</div>
-                  <div style={{ flex:1 }}>
-                    <div style={{ fontWeight:700, color:C.textPri, marginBottom:4 }}>Mapa de calor por sección electoral</div>
-                    <div style={{ fontSize:12, color:C.textMut }}>Visualiza la distribución geográfica de intención de voto en las 70 secciones de Atlixco.</div>
-                  </div>
-                  <button type="button" onClick={onNavigateToMapa}
-                    style={{ padding:'10px 22px', borderRadius:10, fontSize:13, fontWeight:700, background:`linear-gradient(135deg, ${C.gold}, ${C.goldDim})`, border:'none', color:C.bg, cursor:'pointer', flexShrink:0 }}>
-                    Ver mapa →
-                  </button>
-                </div>
-              )}
             </Card>
 
           </div>
