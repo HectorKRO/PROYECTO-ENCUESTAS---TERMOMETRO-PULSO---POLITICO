@@ -12,7 +12,7 @@ import {
   ResponsiveContainer, XAxis, YAxis, CartesianGrid, Legend,
 } from 'recharts';
 import { supabase } from '@/lib/supabase';
-import { C } from '@/lib/theme';
+import { C, NAV_HEIGHT } from '@/lib/theme';
 import { IS_DEMO } from '@/lib/constants';
 import { exportEncuestasToCSV, exportResumenToCSV, fetchEncuestasForExport } from '@/lib/exportData';
 import { MOCK, TEMAS_SENT, MOCK_ANALISIS } from '@/lib/mockData';
