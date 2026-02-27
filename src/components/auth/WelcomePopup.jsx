@@ -6,18 +6,19 @@ import { useRouter } from 'next/navigation';
 import { C } from '@/lib/theme';
 
 export function WelcomePopup() {
-  const { user, organizacion, municipioActual, rol, isInitialized } = useOrganizacion();
+  const { user, organizacion, municipioActual, rol, isInitialized, loading } = useOrganizacion();
   const router = useRouter();
   const [visible, setVisible] = useState(false);
   const [fading, setFading] = useState(false);
-  
+
   // U6: Usar refs para timers que no deben reiniciarse
   const timersStartedRef = useRef(false);
   const fadeTimerRef = useRef(null);
   const redirectTimerRef = useRef(null);
 
   useEffect(() => {
-    if (!isInitialized || timersStartedRef.current) return;
+    // Esperar a que isInitialized sea true Y loading sea false antes de decidir
+    if (!isInitialized || loading || timersStartedRef.current) return;
     
     if (!user || !organizacion) {
       router.push('/login');
@@ -57,7 +58,7 @@ export function WelcomePopup() {
     };
     // U6: Solo dependemos de isInitialized y user para iniciar
     // No incluimos organizacion ni rol para evitar reinicios
-  }, [isInitialized, user?.id, router]);
+  }, [isInitialized, loading, user?.id, router]);
 
   if (!visible || !user || !organizacion) return null;
 
