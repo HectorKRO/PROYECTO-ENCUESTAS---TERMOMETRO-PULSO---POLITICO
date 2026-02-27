@@ -13,6 +13,7 @@
  */
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { C as themeC } from "@/lib/theme";
 import { supabase } from "@/lib/supabase";
 
@@ -43,6 +44,7 @@ const TABS = [
 
 // ── COMPONENTE PRINCIPAL ────────────────────────────────────
 export default function AdminPanel() {
+  const router = useRouter();
   const [tab, setTab] = useState("campana");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -60,6 +62,11 @@ export default function AdminPanel() {
     if (typeof window === 'undefined') return null;
     return new URLSearchParams(window.location.search).get('campana') || null;
   });
+
+  // Estado para crear nuevo encuestador
+  const [showNuevoEncuestador, setShowNuevoEncuestador] = useState(false);
+  const [nuevoEnc, setNuevoEnc] = useState({ nombre: '', email: '' });
+  const [savingEnc, setSavingEnc] = useState(false);
 
   // Cargar datos iniciales
   useEffect(() => {
@@ -199,6 +206,47 @@ export default function AdminPanel() {
     }
   };
 
+  const crearEncuestador = async () => {
+    if (!nuevoEnc.nombre.trim() || !nuevoEnc.email.trim()) {
+      setError('Nombre y email son requeridos');
+      setTimeout(() => setError(null), 3000);
+      return;
+    }
+
+    setSavingEnc(true);
+    try {
+      const isRealCampana = campanaId && campanaId !== 'demo';
+      const newRecord = {
+        nombre: nuevoEnc.nombre.trim(),
+        email: nuevoEnc.email.trim().toLowerCase(),
+        activo: true,
+        encuestas: 0,
+        campana_id: isRealCampana ? campanaId : null,
+      };
+
+      if (isRealCampana) {
+        const { data, error: insertError } = await supabase
+          .from('encuestadores')
+          .insert(newRecord)
+          .select()
+          .single();
+        if (insertError) throw insertError;
+        setEncuestadores(prev => [...prev, data]);
+      } else {
+        setEncuestadores(prev => [...prev, { ...newRecord, id: Date.now() }]);
+      }
+
+      setNuevoEnc({ nombre: '', email: '' });
+      setShowNuevoEncuestador(false);
+      showSaved();
+    } catch (err) {
+      setError('Error al crear encuestador: ' + (err.message || 'Error desconocido'));
+      setTimeout(() => setError(null), 5000);
+    } finally {
+      setSavingEnc(false);
+    }
+  };
+
   if (loading) {
     return (
       <div style={{ minHeight: "100vh", background: C.bg1, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -255,24 +303,63 @@ export default function AdminPanel() {
           width: 200, background: C.bg2,
           borderRight: `1px solid ${C.borderSub}`,
           padding: "16px 0", flexShrink: 0,
+          display: "flex", flexDirection: "column",
         }}>
-          {TABS.map(t => (
-            <button
-              key={t.key}
-              onClick={() => setTab(t.key)}
-              style={{
-                display: "block", width: "100%", padding: "12px 20px",
-                background: tab === t.key ? "rgba(201,168,76,0.08)" : "transparent",
-                borderLeft: tab === t.key ? `3px solid ${C.accent}` : "3px solid transparent",
-                borderRight: "none", borderTop: "none", borderBottom: "none",
-                color: tab === t.key ? C.accent : C.textSub,
-                fontSize: 13, cursor: "pointer", textAlign: "left",
-                fontFamily: "inherit", transition: "all 0.2s",
-              }}
-            >
-              {t.label}
-            </button>
-          ))}
+          <div>
+            {TABS.map(t => (
+              <button
+                key={t.key}
+                onClick={() => setTab(t.key)}
+                style={{
+                  display: "block", width: "100%", padding: "12px 20px",
+                  background: tab === t.key ? "rgba(201,168,76,0.08)" : "transparent",
+                  borderLeft: tab === t.key ? `3px solid ${C.accent}` : "3px solid transparent",
+                  borderRight: "none", borderTop: "none", borderBottom: "none",
+                  color: tab === t.key ? C.accent : C.textSub,
+                  fontSize: 13, cursor: "pointer", textAlign: "left",
+                  fontFamily: "inherit", transition: "all 0.2s",
+                }}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Navegación a otras secciones */}
+          <div style={{
+            marginTop: "auto",
+            borderTop: `1px solid ${C.borderSub}`,
+            paddingTop: 12,
+          }}>
+            <div style={{
+              padding: "4px 20px 8px",
+              color: C.textMuted, fontSize: 10,
+              letterSpacing: 2, textTransform: "uppercase",
+            }}>
+              Ir a
+            </div>
+            {[
+              { label: "📊 Dashboard", path: "/dashboard" },
+              { label: "🗺️ War Room", path: "/war-room" },
+            ].map(({ label, path }) => (
+              <button
+                key={path}
+                onClick={() => router.push(path)}
+                style={{
+                  display: "block", width: "100%", padding: "10px 20px",
+                  background: "transparent",
+                  border: "none", borderLeft: "3px solid transparent",
+                  color: C.textSub, fontSize: 13, cursor: "pointer",
+                  textAlign: "left", fontFamily: "inherit",
+                  transition: "color 0.2s",
+                }}
+                onMouseEnter={e => e.currentTarget.style.color = C.accent}
+                onMouseLeave={e => e.currentTarget.style.color = C.textSub}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Content */}
@@ -394,46 +481,112 @@ export default function AdminPanel() {
           {/* ── TAB: ENCUESTADORES ────────────────────────── */}
           {tab === "encuestadores" && (
             <div>
-              <TabTitle>Equipo de encuestadores</TabTitle>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {encuestadores.map(e => (
-                  <div key={e.id} style={{ ...cardStyle, opacity: e.activo ? 1 : 0.5 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                        <div style={{
-                          width: 36, height: 36, borderRadius: "50%",
-                          background: e.activo ? `linear-gradient(135deg, ${C.positive}44, ${C.positive}22)` : C.bg3,
-                          display: "flex", alignItems: "center", justifyContent: "center",
-                          fontSize: 14, fontWeight: "bold", color: e.activo ? C.positive : C.textMuted
-                        }}>
-                          {e.nombre.charAt(0)}
-                        </div>
-                        <div>
-                          <div style={{ color: C.textMain, fontSize: 14, fontWeight: "bold" }}>{e.nombre}</div>
-                          <div style={{ color: C.textMuted, fontSize: 11 }}>{e.email}</div>
-                        </div>
-                      </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-                        <div style={{ textAlign: "right" }}>
-                          <div style={{ color: C.accent, fontSize: 18, fontWeight: "bold" }}>{e.encuestas || 0}</div>
-                          <div style={{ color: C.textMuted, fontSize: 9 }}>encuestas</div>
-                        </div>
-                        <button
-                          onClick={() => toggleEncuestador(e.id)}
-                          style={{
-                            padding: "6px 14px", borderRadius: 6, border: "1px solid",
-                            borderColor: e.activo ? C.negative + "40" : C.positive + "40",
-                            background: "transparent",
-                            color: e.activo ? C.negative : C.positive,
-                            fontSize: 11, cursor: "pointer",
-                          }}
-                        >
-                          {e.activo ? "Desactivar" : "Activar"}
-                        </button>
-                      </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20, paddingBottom: 10, borderBottom: `1px solid ${C.border}` }}>
+                <TabTitle style={{ margin: 0, border: "none", padding: 0 }}>Equipo de encuestadores</TabTitle>
+                <button
+                  onClick={() => setShowNuevoEncuestador(v => !v)}
+                  style={{
+                    padding: "7px 16px", borderRadius: 6,
+                    border: `1px solid ${C.accent}40`,
+                    background: showNuevoEncuestador ? "rgba(201,168,76,0.1)" : "transparent",
+                    color: C.accent, fontSize: 12, cursor: "pointer",
+                    fontFamily: "inherit",
+                  }}
+                >
+                  {showNuevoEncuestador ? "✕ Cancelar" : "+ Nuevo encuestador"}
+                </button>
+              </div>
+
+              {/* Formulario nuevo encuestador */}
+              {showNuevoEncuestador && (
+                <div style={{
+                  ...cardStyle,
+                  marginBottom: 16,
+                  borderColor: C.accent + "40",
+                  background: "rgba(201,168,76,0.04)",
+                }}>
+                  <div style={{ color: C.accent, fontSize: 13, fontWeight: 600, marginBottom: 12 }}>
+                    Nuevo encuestador
+                  </div>
+                  <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                    <div style={{ flex: 1, minWidth: 160 }}>
+                      <label style={{ color: C.textSub, fontSize: 11, display: "block", marginBottom: 4, letterSpacing: 1 }}>NOMBRE</label>
+                      <Input
+                        value={nuevoEnc.nombre}
+                        onChange={v => setNuevoEnc(p => ({ ...p, nombre: v }))}
+                        placeholder="Nombre completo"
+                      />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 160 }}>
+                      <label style={{ color: C.textSub, fontSize: 11, display: "block", marginBottom: 4, letterSpacing: 1 }}>EMAIL</label>
+                      <Input
+                        value={nuevoEnc.email}
+                        onChange={v => setNuevoEnc(p => ({ ...p, email: v }))}
+                        placeholder="correo@ejemplo.com"
+                      />
                     </div>
                   </div>
-                ))}
+                  <button
+                    onClick={crearEncuestador}
+                    disabled={savingEnc}
+                    style={{
+                      ...btnPrimary,
+                      marginTop: 12,
+                      opacity: savingEnc ? 0.6 : 1,
+                      cursor: savingEnc ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    {savingEnc ? "Guardando..." : "💾 Crear encuestador"}
+                  </button>
+                </div>
+              )}
+
+              {/* Lista de encuestadores */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {encuestadores.length === 0 ? (
+                  <div style={{ color: C.textMuted, fontSize: 13, padding: 20, textAlign: "center" }}>
+                    No hay encuestadores registrados. Agrega el primero con el botón de arriba.
+                  </div>
+                ) : (
+                  encuestadores.map(e => (
+                    <div key={e.id} style={{ ...cardStyle, opacity: e.activo ? 1 : 0.5 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                          <div style={{
+                            width: 36, height: 36, borderRadius: "50%",
+                            background: e.activo ? `linear-gradient(135deg, ${C.positive}44, ${C.positive}22)` : C.bg3,
+                            display: "flex", alignItems: "center", justifyContent: "center",
+                            fontSize: 14, fontWeight: "bold", color: e.activo ? C.positive : C.textMuted
+                          }}>
+                            {e.nombre.charAt(0)}
+                          </div>
+                          <div>
+                            <div style={{ color: C.textMain, fontSize: 14, fontWeight: "bold" }}>{e.nombre}</div>
+                            <div style={{ color: C.textMuted, fontSize: 11 }}>{e.email}</div>
+                          </div>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                          <div style={{ textAlign: "right" }}>
+                            <div style={{ color: C.accent, fontSize: 18, fontWeight: "bold" }}>{e.encuestas || 0}</div>
+                            <div style={{ color: C.textMuted, fontSize: 9 }}>encuestas</div>
+                          </div>
+                          <button
+                            onClick={() => toggleEncuestador(e.id)}
+                            style={{
+                              padding: "6px 14px", borderRadius: 6, border: "1px solid",
+                              borderColor: e.activo ? C.negative + "40" : C.positive + "40",
+                              background: "transparent",
+                              color: e.activo ? C.negative : C.positive,
+                              fontSize: 11, cursor: "pointer",
+                            }}
+                          >
+                            {e.activo ? "Desactivar" : "Activar"}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
               <div style={{ color: C.textMuted, fontSize: 11, marginTop: 16 }}>
                 Al desactivar un encuestador, su enlace de encuesta dejará de funcionar.
@@ -501,12 +654,13 @@ export default function AdminPanel() {
 }
 
 // ── Componentes auxiliares ───────────────────────────────────
-function TabTitle({ children }) {
+function TabTitle({ children, style = {} }) {
   return (
     <div style={{
       color: C.accent, fontSize: 16, fontWeight: "bold",
       marginBottom: 20, paddingBottom: 10,
       borderBottom: `1px solid ${C.border}`,
+      ...style,
     }}>
       {children}
     </div>
