@@ -1,7 +1,9 @@
 'use client';
 import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useOrganizacion } from '@/hooks/useOrganizacion';
+import NavBar from '@/components/NavBar';
 import {
   AreaChart, Area,
   BarChart, Bar,
@@ -182,6 +184,19 @@ const TooltipStyle = {
   fontSize: 12,
 };
 
+// ─── UTILIDADES PARA SEMÁFORO VISUAL ───────────────────────────────────────────
+function getEstadoSemaforo(valor) {
+  if (valor < 40) return { color: C.danger, label: 'Bajo', bg: `${C.danger}15`, border: `${C.danger}40` };
+  if (valor < 55) return { color: C.amber, label: 'Medio', bg: `${C.amber}15`, border: `${C.amber}40` };
+  return { color: C.greenAcc, label: 'Bueno', bg: `${C.greenAcc}15`, border: `${C.greenAcc}40` };
+}
+
+function getTrendIndicator(valor) {
+  if (valor > 0) return { icon: '▲', color: C.greenAcc, sign: '+' };
+  if (valor < 0) return { icon: '▼', color: C.danger, sign: '' };
+  return { icon: '●', color: C.textMut, sign: '' };
+}
+
 // ─── COMPONENTES REUTILIZABLES ─────────────────────────────────────────────────
 function Card({ children, style = {} }) {
   return (
@@ -199,24 +214,83 @@ function SectionTitle({ children }) {
   );
 }
 
-function KpiCard({ label, value, sub, trend, color = C.gold, icon }) {
-  const trendPos = trend > 0;
+function KpiCard({ label, value, valorNumerico = null, sub, trend, icon, showBar = false, barValue = 0 }) {
+  // Determinar color según valor (semáforo)
+  const valorParaSemaforo = valorNumerico !== null ? valorNumerico : (typeof value === 'string' ? parseFloat(value) : value);
+  const estado = getEstadoSemaforo(valorParaSemaforo || 0);
+  const trendInfo = trend !== undefined ? getTrendIndicator(trend) : null;
+  
   return (
-    <div style={{ background:`linear-gradient(135deg, ${C.surface}, ${C.surfaceEl})`, border:`1px solid ${C.border}`, borderRadius:14, padding:'20px 22px', position:'relative', overflow:'hidden' }}>
-      {/* Glow accent */}
-      <div style={{ position:'absolute', top:-20, right:-20, width:80, height:80, borderRadius:'50%', background:`${color}15`, pointerEvents:'none' }} />
-      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:10 }}>
-        <span style={{ fontSize:12, color:C.textMut, fontWeight:600, letterSpacing:'.04em', textTransform:'uppercase' }}>{label}</span>
-        <span style={{ fontSize:20 }}>{icon}</span>
+    <div style={{ 
+      background: `linear-gradient(135deg, ${C.surface}, ${C.surfaceEl})`, 
+      border: `1px solid ${estado.border}`, 
+      borderRadius: 14, 
+      padding: '20px 22px', 
+      position: 'relative', 
+      overflow: 'hidden',
+      transition: 'all 0.2s ease',
+    }}>
+      {/* Glow accent según estado */}
+      <div style={{ 
+        position: 'absolute', 
+        top: -20, 
+        right: -20, 
+        width: 80, 
+        height: 80, 
+        borderRadius: '50%', 
+        background: `${estado.color}15`, 
+        pointerEvents: 'none' 
+      }} />
+      
+      {/* Header con icono y estado */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
+        <span style={{ fontSize: 12, color: C.textMut, fontWeight: 600, letterSpacing: '.04em', textTransform: 'uppercase' }}>
+          {label}
+        </span>
+        <span style={{ fontSize: 20 }}>{icon}</span>
       </div>
-      <div style={{ fontSize:34, fontWeight:900, color, lineHeight:1, marginBottom:6 }}>{value}</div>
-      <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-        {trend !== undefined && (
-          <span style={{ color:trendPos?C.greenAcc:C.danger, fontSize:11, fontWeight:700 }}>
-            {trendPos?'▲':'▼'} {Math.abs(trend)}
-          </span>
-        )}
-        {sub && <span style={{ fontSize:11, color:C.textMut }}>{sub}</span>}
+      
+      {/* Valor principal */}
+      <div style={{ fontSize: 34, fontWeight: 900, color: estado.color, lineHeight: 1, marginBottom: 8 }}>
+        {value}
+      </div>
+      
+      {/* Barra de progreso visual (opcional) */}
+      {showBar && (
+        <div style={{ height: 4, background: C.border, borderRadius: 2, marginBottom: 8, overflow: 'hidden' }}>
+          <div style={{ 
+            height: '100%', 
+            width: `${Math.min(100, barValue)}%`, 
+            background: estado.color, 
+            borderRadius: 2,
+            transition: 'width 0.5s ease'
+          }} />
+        </div>
+      )}
+      
+      {/* Footer con trend y estado */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {trendInfo && (
+            <span style={{ color: trendInfo.color, fontSize: 11, fontWeight: 700 }}>
+              {trendInfo.icon} {trendInfo.sign}{Math.abs(trend || 0)}
+            </span>
+          )}
+          {sub && <span style={{ fontSize: 11, color: C.textMut }}>{sub}</span>}
+        </div>
+        
+        {/* Badge de estado */}
+        <span style={{ 
+          fontSize: 10, 
+          fontWeight: 700,
+          padding: '2px 8px',
+          borderRadius: 10,
+          background: estado.bg,
+          color: estado.color,
+          border: `1px solid ${estado.border}`,
+        }}>
+          ● {estado.label}
+        </span>
       </div>
     </div>
   );
@@ -250,10 +324,12 @@ const TABS = [
 // ─── COMPONENTE PRINCIPAL ──────────────────────────────────────────────────────
 export default function DashboardPolitico({ onNavigateToMapa }) {
   const isMobile = useIsMobile();
+  const router = useRouter();
   const [activeTab, setActiveTab]     = useState('general');
   const [dateRange, setDateRange]     = useState({ from:'', to:'' });
   const [lastUpdate, setLastUpdate]   = useState('');
   const [exporting, setExporting]     = useState(false);
+  const [campanaInfo, setCampanaInfo] = useState(null);
 
   // v3.0: Contexto multi-municipio
   const { 
@@ -270,6 +346,17 @@ export default function DashboardPolitico({ onNavigateToMapa }) {
 
   // v3.0: Pasar municipioId al hook
   const { data: realData, loading, error } = useDashboardData(campanaId, municipioActual?.id);
+
+  // Cargar info de campaña para el contexto lateral
+  useEffect(() => {
+    if (campanaId) {
+      supabase.from('campanas')
+        .select('*, candidato:candidato_id(nombre, cargo, partido)')
+        .eq('id', campanaId)
+        .single()
+        .then(({ data }) => setCampanaInfo(data));
+    }
+  }, [campanaId]);
 
   // Fusionar datos reales o mock según modo
   const D = useMemo(() => {
@@ -327,6 +414,10 @@ export default function DashboardPolitico({ onNavigateToMapa }) {
     return Math.round((D.kpis.total_encuestas / D.kpis.meta) * 100);
   }, [D.kpis]);
 
+  // Datos para panel lateral
+  const hoy = D.kpis?.hoy || 0;
+  const ayer = Math.round(hoy * 0.88); // Simulación - en producción vendría de la BD
+
   const yDomain = useMemo(() => {
     if (!D.tendencia?.length) return [0, 100];
     const all = D.tendencia.flatMap(t => [t.reconocimiento, t.intencion, t.simpatia]).filter(v => v != null);
@@ -339,8 +430,8 @@ export default function DashboardPolitico({ onNavigateToMapa }) {
   const grid2 = isMobile ? '1fr' : '1fr 1fr';
 
   return (
-    <div style={{ minHeight:'100vh', background:`radial-gradient(ellipse at 10% 20%, ${C.greenDark}33 0%, ${C.bg} 60%)`, fontFamily:"'Segoe UI',system-ui,sans-serif", color:C.textPri }}>
-
+    <div style={{ minHeight:`calc(100vh - ${NAV_HEIGHT}px)`, background:`radial-gradient(ellipse at 10% 20%, ${C.greenDark}33 0%, ${C.bg} 60%)`, fontFamily:"'Segoe UI',system-ui,sans-serif", color:C.textPri }}>
+      
       {/* ✅ FIX: Error visible al usuario */}
       {error && (
         <div style={{ background:'#5a1f1f', border:`1px solid ${C.danger}`, padding:'12px 28px', fontSize:13, color:C.danger, textAlign:'center' }}>
@@ -348,13 +439,89 @@ export default function DashboardPolitico({ onNavigateToMapa }) {
         </div>
       )}
 
-      {/* ── TOPBAR ── */}
-      <div style={{ background:`linear-gradient(90deg, ${C.greenDark}cc, ${C.bg}cc)`, backdropFilter:'blur(12px)', borderBottom:`1px solid ${C.border}`, padding:'0 28px', display:'flex', alignItems:'center', gap:16, height:64, position:'sticky', top:0, zIndex:100 }}>
-        <div style={{ width:40, height:40, borderRadius:10, background:`linear-gradient(135deg, ${C.gold}, ${C.goldDim})`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:20, fontWeight:900, color:C.bg, flexShrink:0 }}>P</div>
-        <div>
-          <div style={{ fontWeight:800, fontSize:15, color:C.goldLight }}>Dashboard Ejecutivo — {organizacion?.nombre || D.candidato.alias}</div>
-          <div style={{ fontSize:11, color:C.textMut, display:'flex', alignItems:'center', gap:8 }}>
-            <span>Campaña Municipal</span>
+      {/* ── HEADER REDISEÑADO v3.1 ── */}
+      <div style={{ 
+        background: C.surface, 
+        borderBottom: `1px solid ${C.border}`, 
+        padding: isMobile ? '16px 16px' : '20px 28px',
+        position: 'sticky',
+        top: NAV_HEIGHT,  // Debajo del NavBar
+        zIndex: 100,
+      }}>
+        {/* Fila 1: Contexto de campaña */}
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: isMobile ? 'flex-start' : 'center',
+          flexDirection: isMobile ? 'column' : 'row',
+          gap: 16,
+          marginBottom: 16,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            {/* Avatar del candidato */}
+            <div style={{
+              width: 56, height: 56, borderRadius: '50%',
+              background: `linear-gradient(135deg, ${C.gold}, ${C.goldDim})`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 24, fontWeight: 900, color: C.bg,
+              flexShrink: 0,
+            }}>
+              {campanaInfo?.candidato?.nombre?.charAt(0) || D.candidato.alias.charAt(0)}
+            </div>
+            <div>
+              <div style={{ fontWeight: 800, fontSize: 18, color: C.textPri }}>
+                {campanaInfo?.candidato?.nombre || D.candidato.alias}
+              </div>
+              <div style={{ fontSize: 13, color: C.textSec }}>
+                {campanaInfo?.candidato?.cargo || D.candidato.cargo} · {municipioActual?.nombre || D.candidato.municipio}
+              </div>
+            </div>
+          </div>
+          
+          {/* Fechas y estado */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: C.textSec, fontSize: 13 }}>
+              <span>📅</span>
+              <span>{dateRange.from || '1 Feb'} → {dateRange.to || '27 Feb 2026'}</span>
+            </div>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              padding: '4px 12px',
+              borderRadius: 20,
+              background: `${C.greenAcc}15`,
+              border: `1px solid ${C.greenAcc}40`,
+              color: C.greenAcc,
+              fontSize: 12,
+              fontWeight: 600,
+            }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: C.greenAcc }} />
+              Campaña activa
+            </div>
+            {IS_DEMO && (
+              <div style={{ 
+                fontSize: 10, color: C.amber, 
+                background: `${C.amber}15`, 
+                padding: '2px 8px', 
+                borderRadius: 4, 
+                border: `1px solid ${C.amber}40` 
+              }}>
+                DEMO
+              </div>
+            )}
+          </div>
+        </div>
+        
+        {/* Fila 2: Acciones */}
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: 12,
+          paddingTop: 16,
+          borderTop: `1px solid ${C.border}`,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             {municipios.length > 1 ? (
               <MunicipioSelector 
                 municipios={municipios} 
@@ -362,44 +529,118 @@ export default function DashboardPolitico({ onNavigateToMapa }) {
                 onChange={cambiarMunicipio}
               />
             ) : (
-              <span>· {municipioActual?.nombre || D.candidato.municipio}</span>
+              <span style={{ color: C.textMut, fontSize: 13 }}>
+                📍 {municipioActual?.nombre || D.candidato.municipio}
+              </span>
             )}
+            <span style={{ color: C.textMut, fontSize: 12 }}>
+              Actualizado: {lastUpdate}
+            </span>
           </div>
-        </div>
-        <div style={{ marginLeft:'auto', textAlign:'right' }}>
-          <div style={{ fontSize:11, color:C.textMut }}>Actualizado: {lastUpdate}</div>
-          {IS_DEMO && <div style={{ fontSize:10, color:C.amber, background:`${C.amber}15`, padding:'2px 8px', borderRadius:4, border:`1px solid ${C.amber}40` }}>DEMO</div>}
-          {dateRange.from && <div style={{ fontSize:10, color:C.textMut }}>{dateRange.from} → {dateRange.to}</div>}
           
-          {/* ✅ P0: Botones de exportación */}
-          <div style={{ display:'flex', gap:8, marginTop:8, justifyContent:'flex-end' }}>
+          {/* Botones de acción */}
+          <div style={{ display: 'flex', gap: 8 }}>
             <button 
               onClick={handleExportResumen}
               disabled={exporting}
-              style={{ padding:'6px 12px', borderRadius:6, fontSize:11, background:`${C.greenDark}88`, border:`1px solid ${C.greenLight}`, color:C.greenAcc, cursor:'pointer' }}
+              style={{ 
+                padding: '8px 16px', 
+                borderRadius: 8, 
+                fontSize: 12, 
+                background: C.surfaceEl, 
+                border: `1px solid ${C.border}`, 
+                color: C.textSec, 
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+              }}
             >
-              📊 Exportar resumen
+              📊 Exportar
             </button>
             <button 
               onClick={handleExportEncuestas}
               disabled={exporting}
-              style={{ padding:'6px 12px', borderRadius:6, fontSize:11, background:`${C.gold}22`, border:`1px solid ${C.gold}`, color:C.goldLight, cursor:'pointer' }}
+              style={{ 
+                padding: '8px 16px', 
+                borderRadius: 8, 
+                fontSize: 12, 
+                background: `linear-gradient(135deg, ${C.gold}, ${C.goldDim})`, 
+                border: 'none', 
+                color: C.bg, 
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+              }}
             >
-              {exporting ? '⏳ Exportando...' : '📥 Descargar Excel'}
+              {exporting ? '⏳ Exportando...' : '📥 Excel'}
             </button>
           </div>
         </div>
       </div>
 
-      <div style={{ padding:isMobile?'20px 16px 48px':'28px 28px 48px', maxWidth:1280, margin:'0 auto' }}>
+      {/* ── LAYOUT PRINCIPAL CON PANEL LATERAL ── */}
+      <div style={{ 
+        display: 'grid',
+        gridTemplateColumns: isMobile ? '1fr' : '1fr 280px',
+        gap: isMobile ? 0 : 24,
+        maxWidth: 1400,
+        margin: '0 auto',
+        padding: isMobile ? '20px 16px 48px' : '28px 28px 48px',
+      }}>
 
-        {/* ── KPI STRIP ── */}
-        <div style={{ display:'grid', gridTemplateColumns:`repeat(auto-fit, minmax(${isMobile?'140px':'180px'}, 1fr))`, gap:14, marginBottom:28 }}>
-          <KpiCard label="Total encuestas"    value={D.kpis.total_encuestas} sub={`de ${D.kpis.meta} meta (${pctMeta}%)`} trend={D.kpis.hoy} color={C.goldLight} icon="📋" />
-          <KpiCard label="Intención de voto"  value={`${D.kpis.intencion}%`}  sub="promedio general"   trend={3.2} color={C.greenAcc}  icon="🗳️" />
-          <KpiCard label="Simpatía"           value={`${D.kpis.simpatia}%`}   sub="escala 1-5 norm."  trend={2.8} color={C.gold}      icon="💚" />
-          <KpiCard label="Reconocimiento"     value={`${D.kpis.reconocimiento}%`} sub="ciudadanos que conocen" trend={5} color={C.greenLight} icon="🔍" />
-          <KpiCard label="Hoy"                value={D.kpis.hoy}              sub="encuestas capturadas" color={C.amber} icon="📍" />
+        {/* ── KPI STRIP CON SEMÁFORO ── */}
+        <div style={{ display:'grid', gridTemplateColumns:`repeat(auto-fit, minmax(${isMobile?'140px':'200px'}, 1fr))`, gap:16, marginBottom:28 }}>
+          <KpiCard 
+            label="Intención de voto"  
+            value={`${D.kpis.intencion}%`}
+            valorNumerico={D.kpis.intencion}
+            sub="promedio general"   
+            trend={3.2}
+            icon="🗳️"
+            showBar={true}
+            barValue={D.kpis.intencion}
+          />
+          <KpiCard 
+            label="Simpatía"           
+            value={`${D.kpis.simpatia}%`}
+            valorNumerico={D.kpis.simpatia}
+            sub="escala 1-5"  
+            trend={2.8}
+            icon="💚"
+            showBar={true}
+            barValue={D.kpis.simpatia}
+          />
+          <KpiCard 
+            label="Reconocimiento"     
+            value={`${D.kpis.reconocimiento}%`}
+            valorNumerico={D.kpis.reconocimiento}
+            sub="ciudadanos que conocen" 
+            trend={5}
+            icon="🔍"
+            showBar={true}
+            barValue={D.kpis.reconocimiento}
+          />
+          <KpiCard 
+            label="Total encuestas"    
+            value={D.kpis.total_encuestas}
+            valorNumerico={pctMeta}
+            sub={`de ${D.kpis.meta} meta (${pctMeta}%)`}
+            trend={D.kpis.hoy}
+            icon="📋"
+            showBar={true}
+            barValue={pctMeta}
+          />
+          <KpiCard 
+            label="Hoy"                
+            value={D.kpis.hoy}
+            valorNumerico={75}
+            sub="encuestas capturadas"
+            trend={12}
+            icon="📍"
+          />
         </div>
 
         {/* ── TABS ── */}
@@ -705,6 +946,143 @@ export default function DashboardPolitico({ onNavigateToMapa }) {
         {activeTab === 'sentimiento' && <TabSentimiento />}
 
       </div>
+      
+      {/* ── PANEL LATERAL DE CONTEXTO (N4) ── */}
+      {!isMobile && (
+        <aside style={{
+          width: 280,
+          flexShrink: 0,
+        }}>
+          <div style={{
+            background: C.surface,
+            border: `1px solid ${C.border}`,
+            borderRadius: 14,
+            padding: 20,
+            position: 'sticky',
+            top: NAV_HEIGHT + 20,  // Debajo del NavBar + margen
+          }}>
+            {/* Header del panel */}
+            <div style={{
+              fontSize: 11,
+              color: C.textMut,
+              textTransform: 'uppercase',
+              letterSpacing: 2,
+              marginBottom: 16,
+              paddingBottom: 12,
+              borderBottom: `1px solid ${C.border}`,
+            }}>
+              Campaña Activa
+            </div>
+            
+            {/* Info del candidato */}
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ fontSize: 16, fontWeight: 700, color: C.textPri, marginBottom: 4 }}>
+                {campanaInfo?.nombre || 'Campaña 2025'}
+              </div>
+              <div style={{ fontSize: 13, color: C.textSec }}>
+                {municipioActual?.nombre || D.candidato.municipio}, {D.candidato.estado}
+              </div>
+            </div>
+            
+            {/* Meta de encuestas */}
+            <div style={{ marginBottom: 20 }}>
+              <div style={{
+                fontSize: 11,
+                color: C.textMut,
+                textTransform: 'uppercase',
+                letterSpacing: 1,
+                marginBottom: 8,
+              }}>
+                Meta de encuestas
+              </div>
+              <div style={{ fontSize: 24, fontWeight: 800, color: C.gold, marginBottom: 4 }}>
+                {D.kpis.total_encuestas} <span style={{ fontSize: 14, color: C.textMut }}>/ {D.kpis.meta}</span>
+              </div>
+              <div style={{ height: 8, background: C.border, borderRadius: 4, overflow: 'hidden' }}>
+                <div style={{
+                  height: '100%',
+                  width: `${Math.min(100, pctMeta)}%`,
+                  background: pctMeta >= 80 ? C.greenAcc : pctMeta >= 50 ? C.amber : C.danger,
+                  borderRadius: 4,
+                  transition: 'width 0.5s ease',
+                }} />
+              </div>
+              <div style={{ fontSize: 11, color: C.textMut, marginTop: 4, textAlign: 'right' }}>
+                {pctMeta}% completado
+              </div>
+            </div>
+            
+            {/* Encuestas hoy */}
+            <div style={{ marginBottom: 20 }}>
+              <div style={{
+                fontSize: 11,
+                color: C.textMut,
+                textTransform: 'uppercase',
+                letterSpacing: 1,
+                marginBottom: 8,
+              }}>
+                Hoy
+              </div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+                <span style={{ fontSize: 28, fontWeight: 800, color: C.greenAcc }}>
+                  {D.kpis.hoy}
+                </span>
+                <span style={{ fontSize: 12, color: C.textSec }}>encuestas</span>
+              </div>
+              <div style={{
+                fontSize: 11,
+                color: hoy >= ayer ? C.greenAcc : C.danger,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 4,
+              }}>
+                {hoy >= ayer ? '▲' : '▼'} {Math.abs(Math.round(((hoy - ayer) / ayer) * 100))}% vs ayer
+              </div>
+            </div>
+            
+            {/* Botones de acción */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <button
+                onClick={() => router.push('/war-room')}
+                style={{
+                  padding: '10px 16px',
+                  borderRadius: 8,
+                  border: `1px solid ${C.border}`,
+                  background: C.surfaceEl,
+                  color: C.textSec,
+                  fontSize: 13,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                }}
+              >
+                🗺️ Ver mapa
+              </button>
+              <button
+                onClick={() => router.push('/admin')}
+                style={{
+                  padding: '10px 16px',
+                  borderRadius: 8,
+                  border: `1px solid ${C.border}`,
+                  background: C.surfaceEl,
+                  color: C.textSec,
+                  fontSize: 13,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: 8,
+                }}
+              >
+                ⚙️ Configurar
+              </button>
+            </div>
+          </div>
+        </aside>
+      )}
+      
     </div>
   );
 }

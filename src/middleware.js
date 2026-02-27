@@ -67,7 +67,8 @@ export async function middleware(request) {
   }
 }
 
-// ✅ FIX: /encuesta es público (no requiere auth). Solo dashboard y admin están protegidos.
+// ✅ FIX: /encuesta es público (no requiere auth). 
+// Rutas protegidas: dashboard, admin, war-room, perfil
 export const config = {
-  matcher: ['/dashboard/:path*', '/admin/:path*'],
+  matcher: ['/dashboard/:path*', '/admin/:path*', '/war-room/:path*', '/perfil/:path*'],
 };

@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef, createContext, useContext } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 
 const OrganizacionContext = createContext(null);
 
 export function OrganizacionProvider({ children }) {
+  const router = useRouter();
   const [organizacion, setOrganizacion] = useState(null);
   const [rol, setRol] = useState(null);
   const [municipios, setMunicipios] = useState([]);
@@ -145,6 +147,19 @@ export function OrganizacionProvider({ children }) {
     }
   }, [municipios]);
 
+  // ✅ FIX: Función signOut expuesta en el contexto para NavBar
+  const signOut = useCallback(async () => {
+    await supabase.auth.signOut();
+    localStorage.removeItem('municipio_actual_id');
+    localStorage.removeItem('rol_seleccionado');
+    setUser(null);
+    setOrganizacion(null);
+    setRol(null);
+    setMunicipios([]);
+    setMunicipioActual(null);
+    router.push('/login');
+  }, [router]);
+
   const value = {
     user,
     organizacion,
@@ -152,6 +167,7 @@ export function OrganizacionProvider({ children }) {
     municipios,
     municipioActual,
     cambiarMunicipio,
+    signOut,  // ← nuevo
     loading,
     isInitialized,
     error,

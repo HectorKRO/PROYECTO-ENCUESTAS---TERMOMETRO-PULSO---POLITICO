@@ -1,5 +1,6 @@
 import WarRoom from '@/components/WarRoom';
 import { Suspense } from 'react';
+import { NAV_HEIGHT } from '@/lib/theme';
 
 export const metadata = {
   title: 'War Room · Mapa Electoral · PulsoElectoral',
@@ -9,7 +10,7 @@ export const metadata = {
 function Loading() {
   return (
     <div style={{
-      minHeight: '100vh',
+      minHeight: `calc(100vh - ${NAV_HEIGHT}px)`,
       background: '#07100a',
       display: 'flex',
       alignItems: 'center',

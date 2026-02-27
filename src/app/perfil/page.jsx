@@ -1,10 +1,13 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
-import { C } from '@/lib/theme';
+import { useOrganizacion } from '@/hooks/useOrganizacion';
+import { C, NAV_HEIGHT } from '@/lib/theme';
 
 export default function PerfilPage() {
-  const [user, setUser] = useState(null);
+  const router = useRouter();
+  const { user, signOut } = useOrganizacion();
   const [loading, setLoading] = useState(true);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -12,23 +15,13 @@ export default function PerfilPage() {
   const [message, setMessage] = useState({ type: '', text: '' });
 
   useEffect(() => {
-    checkUser();
-  }, []);
-
-  async function checkUser() {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        window.location.href = '/login';
-        return;
-      }
-      setUser(session.user);
-    } catch (err) {
-      console.error('Error checking session:', err);
-    } finally {
+    // El usuario ya viene del contexto, solo verificamos que exista
+    if (user === null && !loading) {
+      router.push('/login');
+    } else {
       setLoading(false);
     }
-  }
+  }, [user, loading, router]);
 
   async function handleChangePassword(e) {
     e.preventDefault();
@@ -63,47 +56,23 @@ export default function PerfilPage() {
     }
   }
 
-  async function handleLogout() {
-    await supabase.auth.signOut();
-    window.location.href = '/login';
-  }
-
   if (loading) {
     return (
-      <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ minHeight: `calc(100vh - ${NAV_HEIGHT}px)`, background: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ color: C.textSec }}>Cargando...</div>
       </div>
     );
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: C.bg, padding: '24px' }}>
+    <div style={{ minHeight: `calc(100vh - ${NAV_HEIGHT}px)`, background: C.bg, padding: '24px' }}>
       <div style={{ maxWidth: 600, margin: '0 auto' }}>
-        {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32 }}>
-          <div>
-            <h1 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 28, color: C.textPri, marginBottom: 4 }}>
-              Mi Perfil
-            </h1>
-            <p style={{ color: C.textSec, fontSize: 14 }}>Gestiona tu cuenta y seguridad</p>
-          </div>
-          <div style={{ display: 'flex', gap: 12 }}>
-            <a 
-              href="/dashboard" 
-              style={{ 
-                padding: '10px 20px', 
-                borderRadius: 8, 
-                background: C.surface, 
-                border: `1px solid ${C.border}`, 
-                color: C.textSec, 
-                textDecoration: 'none',
-                fontSize: 14,
-                fontWeight: 500
-              }}
-            >
-              ← Volver al Dashboard
-            </a>
-          </div>
+        {/* Header - Sin botones redundantes (NavBar global los proporciona) */}
+        <div style={{ marginBottom: 32 }}>
+          <h1 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 28, color: C.textPri, marginBottom: 4 }}>
+            Mi Perfil
+          </h1>
+          <p style={{ color: C.textSec, fontSize: 14 }}>Gestiona tu cuenta y seguridad</p>
         </div>
 
         {/* Info del usuario */}
@@ -225,30 +194,10 @@ export default function PerfilPage() {
           </form>
         </div>
 
-        {/* Cerrar sesión */}
-        <div style={{ 
-          background: C.surface, 
-          border: `1px solid ${C.border}`, 
-          borderRadius: 16, 
-          padding: 24,
-          textAlign: 'center'
-        }}>
-          <button 
-            onClick={handleLogout}
-            style={{
-              padding: '12px 32px',
-              borderRadius: 8,
-              cursor: 'pointer',
-              background: 'transparent',
-              border: `1px solid ${C.danger}`,
-              color: C.danger,
-              fontSize: 14,
-              fontWeight: 500
-            }}
-          >
-            Cerrar sesión
-          </button>
-        </div>
+        {/* 
+          NOTA: El botón "Cerrar sesión" se eliminó porque el NavBar global 
+          (v3.1) ya proporciona esa funcionalidad en la barra superior.
+        */}
       </div>
     </div>
   );

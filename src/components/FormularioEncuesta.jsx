@@ -4,6 +4,7 @@ import { supabase, syncOfflineQueue, savePendingOffline, getPendingCount, fetchC
 import { useOrganizacion } from '@/hooks/useOrganizacion';
 import { C } from '@/lib/theme';
 import { IS_DEMO, OFFLINE_KEY } from '@/lib/constants';
+import NavBar from '@/components/NavBar';
 
 // ─── STEPS ─────────────────────────────────────────────────────────────────────
 const STEPS = [
@@ -1251,7 +1252,7 @@ export default function FormularioEncuesta({ onSubmit, encuestadorId: propEncId,
   }
 
   return (
-    <div style={{ minHeight:'100vh', background:C.bg, fontFamily:"'Segoe UI',system-ui,sans-serif", color:C.textPri }}>
+    <div style={{ minHeight:'100vh', background:C.bg, fontFamily:"'Segoe UI',system-ui,sans-serif", color:C.textPri, paddingTop: 44 }}>
       {/* Animaciones CSS */}
       <style>{`
         @keyframes slideIn {
@@ -1263,7 +1264,98 @@ export default function FormularioEncuesta({ onSubmit, encuestadorId: propEncId,
           to { opacity: 1; transform: scale(1); }
         }
       `}</style>
-    
+      
+      {/* ── NAVBAR SIMPLE v3.1 (N6) ── */}
+      <NavBar simple={true} campanaNombre={config.candidato} />
+      
+      {/* ── MINI-HEADER DE ESTADO (N6) ── */}
+      <div style={{ 
+        background: C.surface, 
+        borderBottom: `1px solid ${C.border}`, 
+        padding: '10px 20px',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {/* Indicador de conexión */}
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 6,
+            padding: '4px 10px',
+            borderRadius: 12,
+            background: isOnline ? `${C.greenAcc}15` : `${C.amber}15`,
+            border: `1px solid ${isOnline ? C.greenAcc : C.amber}40`,
+          }}>
+            <div style={{ 
+              width: 6, 
+              height: 6, 
+              borderRadius: '50%', 
+              background: isOnline ? C.greenAcc : C.amber,
+              animation: isOnline ? 'none' : 'pulse 2s infinite',
+            }} />
+            <span style={{ fontSize: 11, color: isOnline ? C.greenAcc : C.amber }}>
+              {isOnline ? 'Online' : 'Offline'}
+            </span>
+          </div>
+          
+          {/* Contador de pendientes */}
+          {pendingCount > 0 && (
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: 6,
+              padding: '4px 10px',
+              borderRadius: 12,
+              background: `${C.gold}15`,
+              border: `1px solid ${C.gold}40`,
+            }}>
+              <span style={{ fontSize: 11, color: C.gold }}>
+                {pendingCount} pendiente{pendingCount!==1?'s':''}
+              </span>
+            </div>
+          )}
+        </div>
+        
+        {/* Progress indicator */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span style={{ fontSize: 12, color: C.textMut }}>
+            Paso {step} / {STEPS.length}
+          </span>
+          <div style={{ 
+            width: 100, 
+            height: 4, 
+            background: C.border, 
+            borderRadius: 2,
+            overflow: 'hidden',
+          }}>
+            <div style={{ 
+              height: '100%', 
+              width: `${(step / STEPS.length) * 100}%`, 
+              background: C.gold,
+              borderRadius: 2,
+              transition: 'width 0.3s ease',
+            }} />
+          </div>
+          <button
+            onClick={() => setModoExperto(!modoExperto)}
+            style={{
+              padding: '4px 10px',
+              borderRadius: 6,
+              border: `1px solid ${modoExperto ? C.gold : C.border}`,
+              background: modoExperto ? `${C.gold}15` : 'transparent',
+              color: modoExperto ? C.gold : C.textMut,
+              fontSize: 11,
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+            }}
+          >
+            {modoExperto ? '⚡ Modo Experto ON' : 'Modo Normal'}
+          </button>
+        </div>
+      </div>
+
       {showRecoveryModal && (
         <RecoveryModal 
           onContinue={handleRecoverSession}
@@ -1279,34 +1371,6 @@ export default function FormularioEncuesta({ onSubmit, encuestadorId: propEncId,
           <div style={{ color:C.textSec, fontSize:13 }}>Por favor espere</div>
         </div>
       )}
-
-      {/* Header */}
-      <div style={{ background:`linear-gradient(135deg, ${C.greenDark}, ${C.bg})`, borderBottom:`1px solid ${C.border}`, padding:'20px 24px', display:'flex', alignItems:'center', gap:16 }}>
-        <div style={{ width:44, height:44, borderRadius:10, background:`linear-gradient(135deg, ${C.gold}, ${C.goldDim})`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, fontWeight:900, color:C.bg, flexShrink:0 }}>P</div>
-        <div>
-          <div style={{ fontWeight:800, fontSize:16, color:C.goldLight, letterSpacing:'.03em' }}>Campaña {config.candidato} — {config.municipio}</div>
-          <div style={{ fontSize:12, color:C.textMut }}>Sistema de captura · Módulo de campo</div>
-        </div>
-        <div style={{ marginLeft:'auto', textAlign:'right' }}>
-          <div style={{ fontSize:12, color:C.textMut }}>Paso {step} / {STEPS.length}</div>
-          {!isOnline && <div style={{ display:'flex', alignItems:'center', gap:4 }}><div style={{ width:7, height:7, borderRadius:'50%', background:'#f97316' }} /><span style={{ color:'#f97316', fontSize:10 }}>Modo offline</span></div>}
-          {pendingCount > 0 && <span style={{ fontSize:10, color:C.gold }}>{pendingCount} pendiente{pendingCount!==1?'s':''}</span>}
-          
-          {/* ✅ UX: Toggle modo experto */}
-          <button 
-            onClick={() => setModoExperto(!modoExperto)}
-            style={{ 
-              marginTop:8, padding:'4px 10px', borderRadius:4, fontSize:10,
-              background: modoExperto ? `${C.gold}33` : 'transparent',
-              border: `1px solid ${modoExperto ? C.gold : C.border}`,
-              color: modoExperto ? C.goldLight : C.textMut,
-              cursor: 'pointer'
-            }}
-          >
-            {modoExperto ? '⚡ Modo Experto ON' : 'Modo Normal'}
-          </button>
-        </div>
-      </div>
 
       {/* Body */}
       <div style={{ maxWidth:680, margin:'0 auto', padding:'32px 20px 80px' }}>

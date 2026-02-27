@@ -20,12 +20,289 @@
 
 | Versión | Fecha | Estado | Cambios Principales |
 |---------|-------|--------|---------------------|
+| **v3.1.0** | 2026-02-27 | 🚧 Parche | NavBar global, gestión campañas/candidatos, fixes P1-P4 |
+| **v3.0.1** | 2026-02-27 | ✅ Estable | Fix crítico login loop: createBrowserClient + bienvenido rewrite |
+| **v3.0.0** | 2026-02-27 | 🚀 Deploy | Deploy v3.0 multi-municipio, superadmin setup, SQL v3.0 |
 | **v2.5.1** | 2026-02-26 | ✅ Estable | Fixes de auditoría de equipo (A1-A3, B2, C2, M1-M6) |
 | **v2.5.0** | 2026-02-26 | ✅ Estable | Sistema de autenticación email+password |
 | **v2.4.1** | 2026-02-26 | ✅ Estable | Fixes críticos War Room (memory leaks, UX) |
 | **v2.4.0** | 2026-02-25 | ✅ Estable | Catálogo de colonias INE (417 colonias), War Room v1 |
 | **v2.3.0** | 2026-02-25 | ✅ Estable | Secciones electorales 68 oficiales, campos v2.3 |
 | **v2.2.x** | 2026-02-24 | 🏛️ Base | Versión inicial de referencia |
+
+---
+
+## 🚧 v3.1.0 (2026-02-27) — "NavBar Global y Gestión de Campañas"
+
+**Estado:** ✅ Auditado y corregido  
+**Contexto:** Segundo parche post-deploy. Agrega navegación global consistente, gestión completa de campañas y candidatos, y corrige problemas menores detectados (P1-P4). Auditado: 14 bugs corregidos.
+
+### 🧭 Navegación Global (NavBar)
+
+**Nuevo componente:** `src/components/NavBar.jsx`
+
+- Barra sticky con zIndex: 2000 (mayor que paneles flotantes)
+- Logo + links (Dashboard, War Room, Admin) + avatar + logout
+- Responsive: menú hamburguesa en móvil
+- Modo simple para formulario de encuesta
+
+**Nuevo wrapper:** `src/components/NavBarWrapper.jsx`
+
+- Condicional: no muestra NavBar en /, /login, /bienvenido, /encuesta
+- Integrado en `src/app/layout.jsx`
+
+**Alturas estandarizadas:** `src/lib/theme.js`
+
+```javascript
+export const NAV_HEIGHT = 56;        // px
+export const WARROOM_HEADER = 72;    // px
+export const ADMIN_HEADER = 80;      // px
+```
+
+### 📋 Gestión de Campañas
+
+**Nuevo:** `src/components/CampanasList.jsx`
+
+- Lista todas las campañas de la organización
+- Modal inline para crear nueva campaña
+- Botón activar/desactivar campaña
+- Navegación a `/admin?campana=UUID`
+
+**Modificado:** `src/app/admin/page.jsx`
+
+- Router condicional: sin `?campana` → CampanasList, con `?campana` → AdminPanel
+
+**SQL:** `sql/v3.1/01_campanas_multitenant.sql`
+
+- Agrega `organizacion_id` a tabla `campanas`
+- Crea tabla `candidatos_rivales`
+- Políticas RLS actualizadas
+- Función `fn_candidatos_reconocimiento()`
+
+### 👥 Gestión de Candidatos
+
+**Nuevo:** `src/components/CandidatosManager.jsx`
+
+- Tabs: Candidatos Principales / Candidatos Rivales
+- Crear candidato principal (nombre, cargo, partido, color)
+- Crear candidatos rivales (para reconocimiento asistido)
+- Activar/desactivar candidatos
+
+**Integrado en:** AdminPanel.jsx (tab "Candidatos")
+
+### 🔧 Cambios en Cascada (Impacto)
+
+| Archivo | Cambio |
+|---------|--------|
+| `middleware.js` | Agrega `/war-room`, `/perfil` a matcher protegido |
+| `useOrganizacion.js` | Expone `signOut()` en el contexto |
+| `DashboardPolitico.jsx` | Header sticky con `top: NAV_HEIGHT`, panel lateral ajustado |
+| `AdminPanel.jsx` | `minHeight: calc(100vh - NAV_HEIGHT)`, quita sección "Ir a" redundante |
+| `WarRoom.jsx` | Altura `calc(100vh - NAV_HEIGHT)`, header fijo `WARROOM_HEADER` |
+| `FormularioEncuesta.jsx` | `paddingTop: 44` para mini-header, NavBar simple |
+| `perfil/page.jsx` | Elimina botones duplicados (volver/logout), usa `useOrganizacion` |
+| `war-room/page.jsx` | Loading usa `calc(100vh - NAV_HEIGHT)` |
+
+### 🐛 Fixes P1-P4
+
+| Fix | Problema | Solución |
+|-----|----------|----------|
+| P1 | `setCampanaId` declarado pero no usado | Eliminado, usa solo valor inicial |
+| P2 | `campanaData` leía `campana.candidato` (mock) | Ahora hace JOIN con tabla `candidatos` |
+| P3 | `candidatosRivales` nunca cargaba desde BD | Agregada query a `candidatos_rivales` |
+| P4 | `syncLog` era 100% mock | Ahora carga desde `encuestas_pendientes` |
+
+### 🔧 Correcciones de Auditoría (Post-implementación)
+
+#### Bugs Críticos (Build-breaking)
+
+| # | Archivo | Problema | Fix |
+|---|---------|----------|-----|
+| 1 | `NavBar.jsx` | Faltaba cierre de tag `>` en modo simple | Añadido `>` |
+| 2 | `NavBar.jsx` | Faltaba cierre de tag `>` en modo full | Añadido `>` |
+| 3 | `AdminPanel.jsx` | Faltaba cierre de tag en header | Añadido `>` |
+| 4 | `DashboardPolitico.jsx` | Dos tags sin cierre | Añadidos `>` |
+| 5 | `WarRoom.jsx` | Faltaba cierre de tag en header | Añadido `>` |
+| 6 | `war-room/page.jsx` | Faltaba cierre de tag en Loading | Añadido `>` |
+| 7 | `FormularioEncuesta.jsx` | Botón "Modo Experto" desplazado | Reconstruido en posición correcta |
+
+#### Bugs Importantes (Funcionales)
+
+| # | Archivo | Problema | Fix |
+|---|---------|----------|-----|
+| 8 | `admin/page.jsx` | `useSearchParams()` sin `<Suspense>` | Agregado wrapper Suspense |
+| 9 | `admin/page.jsx` | Doble NavBar (global + explícita) | Eliminada NavBar redundante |
+| 10 | `AdminPanel.jsx` | `campana.metaEncuestas` undefined | Corregido a `meta_encuestas` (snake_case) |
+| 11 | `AdminPanel.jsx` | `colorPrimario/Secundario` undefined | Usar `candidatoObj?.color_primario` |
+| 12 | `AdminPanel.jsx` | `cargo/municipio` undefined | Usar `candidatoObj?.cargo/partido` |
+| 13 | `CampanasList.jsx` | Enlace a `/admin/candidatos` inexistente | Reemplazado con mensaje descriptivo |
+| 14 | `NavBar.jsx` | Menú móvil nunca visible | Eliminado `display: 'none'` inline, CSS controla visibilidad |
+
+#### Advertencias IDE
+
+| # | Problema | Fix |
+|---|----------|-----|
+| 15 | `useCallback` importado sin usar | Eliminado import |
+| 16 | `candidatosRivales` declarado pero no leído | Variable usada en tab "Candidatos" |
+| 17 | `idx` sin usar en `.map()` | Eliminado o renombrado |
+
+---
+
+## 🚀 v3.0.1 (2026-02-27) — "Fix Crítico: Login Loop Resuelto"
+
+**Estado:** ✅ Desplegado en Vercel
+**Commits:** `6ba73f6` — fix: createBrowserClient + bienvenido page rewrite
+**Contexto:** Durante el primer deploy en producción de v3.0, el flujo de login entraba en un ciclo infinito. El usuario ingresaba credenciales correctas, seleccionaba rol, y el sistema volvía a solicitar el rol repetidamente sin avanzar.
+
+### 🔴 Bug Crítico — Login Loop (Causa Raíz)
+
+#### Problema: `createClient` vs `createBrowserClient`
+
+**Archivo:** `src/lib/supabase.js`
+
+```javascript
+// ❌ ANTES — supabase-js clásico, guarda sesión solo en localStorage
+import { createClient } from '@supabase/supabase-js';
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: { persistSession: true, storageKey: 'supabase.auth.token', ... }
+});
+
+// ✅ DESPUÉS — SSR client, guarda sesión en cookies (compatible con middleware)
+import { createBrowserClient } from '@supabase/ssr';
+export const supabase = createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+```
+
+**Por qué rompía:** El middleware usa `createServerClient` de `@supabase/ssr`, que lee la sesión desde **cookies HTTP**. El cliente usaba `createClient` de `@supabase/supabase-js`, que persiste la sesión en **localStorage**. El middleware nunca encontraba la sesión → redirigía a `/login` → loop infinito.
+
+**Lección:** En proyectos Next.js con middleware de Supabase, **siempre usar `createBrowserClient`** en el cliente y **`createServerClient`** en el servidor/middleware. Son el par correcto de la librería `@supabase/ssr`.
+
+#### Problema: `bienvenido/page.jsx` con dependencia de Provider
+
+**Archivo:** `src/app/bienvenido/page.jsx` — Reescritura completa
+
+```jsx
+// ❌ ANTES — Dependía de WelcomePopup y useOrganizacion (state con race conditions)
+// El provider persistía estado de la página /login hacia /bienvenido
+// isInitialized=true pero organizacion=null → redirigía a /login antes de cargar
+
+// ✅ DESPUÉS — Lee sesión directamente, sin depender del provider
+const init = async () => {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) { router.replace('/login'); return; }
+  // Muestra bienvenido, redirige según rol guardado en localStorage
+  setTimeout(() => {
+    const rol = localStorage.getItem('rol_seleccionado');
+    switch (rol) {
+      case 'encuestador': router.replace('/encuesta');  break;
+      case 'analista':    router.replace('/dashboard'); break;
+      case 'admin':
+      case 'superadmin':  router.replace('/admin');     break;
+      default:            router.replace('/dashboard');
+    }
+  }, 2500);
+};
+```
+
+**Por qué rompía:** `OrganizacionProvider` en el layout persiste a través de navegaciones. Al llegar a `/bienvenido`, el provider tenía `isInitialized=true` (estado de la página anterior), pero `organizacion=null` porque `loadOrganizacion` no había completado. `WelcomePopup` veía esa condición y redirigía a `/login`. Solución: usar `supabase.auth.getSession()` directo, sin depender del estado del provider.
+
+#### Problema: Race condition en `WelcomePopup.jsx` (fix parcial)
+
+**Archivo:** `src/components/auth/WelcomePopup.jsx`
+
+```javascript
+// ❌ ANTES — El guard no incluía loading
+if (!isInitialized || timersStartedRef.current) return;
+
+// ✅ DESPUÉS — Esperar que loading sea false también
+const { user, organizacion, municipioActual, rol, isInitialized, loading } = useOrganizacion();
+if (!isInitialized || loading || timersStartedRef.current) return;
+// Dependency array actualizado:
+}, [isInitialized, loading, user?.id, router]);
+```
+
+**Nota:** Este fix fue insuficiente por sí solo (el bug real era `createClient` vs `createBrowserClient`), pero es correcto para evitar redirects prematuros cuando `isInitialized=true` pero `loading=true`.
+
+### 🟡 Fix — ESLint Missing Dependency en `useOrganizacion.js`
+
+**Archivo:** `src/hooks/useOrganizacion.js`
+
+```javascript
+// ❌ ANTES — ESLint react-hooks/exhaustive-deps warning
+// Dentro del useEffect de onAuthStateChange se usaba user?.id
+// pero añadir 'user' al dep array recrearía la suscripción en cada update
+
+// ✅ DESPUÉS — Patrón ref para capturar valor sin dep frágil
+const currentUserIdRef = useRef(null);
+useEffect(() => { currentUserIdRef.current = user?.id ?? null; }, [user]);
+// Luego usar currentUserIdRef.current dentro del handler
+```
+
+**Lección:** Cuando necesitas el valor actual de una variable dentro de un `useEffect` que no debe re-ejecutarse al cambiar esa variable, capturarlo en un `useRef` sincronizado.
+
+### 🗑️ Dependencia Eliminada — `xlsx` (Vulnerabilidad de Seguridad)
+
+- **Paquete:** `xlsx@0.18.5`
+- **Severidad:** Alta (arbitrary code execution al parsear archivos maliciosos)
+- **Acción:** Eliminado de `package.json` (no estaba en uso en ningún archivo del proyecto)
+- **Resultado:** `npm audit` de 1 vulnerabilidad → 0 vulnerabilidades
+
+---
+
+## 🚀 v3.0.0 (2026-02-27) — "Deploy Multi-Municipio + Superadmin Setup"
+
+**Estado:** 🚀 Primer deploy en producción de v3.0
+**Contexto:** Primera ejecución de los scripts SQL v3.0 y configuración del usuario fundador superadmin.
+
+### SQL v3.0 — Orden Correcto de Ejecución
+
+**Descubrimiento crítico:** Los scripts v3.0 en `sql/v3.0/` son **migraciones** sobre el schema v2.x, **no instalaciones fresh**. El primer script a ejecutar es el schema histórico.
+
+```text
+ORDEN OBLIGATORIO:
+1. sql/historico/schema.sql        ← Base v2.x (SIEMPRE PRIMERO)
+2. sql/v3.0/01_catalogo_geografico.sql
+3. sql/v3.0/02_organizaciones.sql
+4. sql/v3.0/03_respuestas_contexto.sql
+5. sql/v3.0/04_rls_unificado.sql
+6. sql/v3.0/05_vistas_corregidas.sql
+7. sql/v3.0/00_validate_migration.sql  ← Solo para verificar (correr AL FINAL)
+8. sql/v3.0/07_setup_superadmin.sql
+```
+
+**Errores encontrados al ejecutar en orden incorrecto:**
+
+| Error | Causa | Solución |
+|-------|-------|----------|
+| `relation "estados" does not exist` | `00_validate_migration.sql` ejecutado antes que los otros | Solo ejecutar después de todos los demás |
+| `No se encontró la tabla respuestas` (guard de 01) | `historico/schema.sql` no ejecutado primero | Ejecutar schema base antes que cualquier migración v3.0 |
+| `invalid input syntax for type uuid: '<UUID-SUPERADMIN>'` | Placeholder no reemplazado en `07_setup_superadmin.sql` | Reemplazar `<UUID-SUPERADMIN>` y `<EMAIL-SUPERADMIN>` antes de ejecutar |
+
+### Script de Superadmin — `sql/v3.0/07_setup_superadmin.sql`
+
+**Creado:** Template con placeholders para configurar al usuario fundador.
+
+```sql
+-- Template (reemplazar antes de ejecutar en Supabase SQL Editor):
+-- <UUID-SUPERADMIN>  → UUID del usuario en auth.users
+-- <EMAIL-SUPERADMIN> → Email del superadmin
+
+UPDATE organizaciones SET nombre = 'PulsoElectoral', email_contacto = '<EMAIL-SUPERADMIN>';
+INSERT INTO organizacion_miembros (organizacion_id, user_id, rol)
+  SELECT id, '<UUID-SUPERADMIN>', 'superadmin' FROM organizaciones LIMIT 1
+  ON CONFLICT DO NOTHING;
+SELECT 'Superadmin configurado correctamente' AS resultado;
+```
+
+**Seguridad:** El archivo en git contiene solo placeholders genéricos. El UUID y email reales nunca se commitean.
+
+### Hallazgos de Arquitectura
+
+| Concepto | Detalle |
+|----------|---------|
+| **Middleware scope** | Solo protege `/dashboard/:path*` y `/admin/:path*`. `/bienvenido` y `/login` son públicos. |
+| **Cookies vs localStorage** | `@supabase/ssr` ↔ cookies. `@supabase/supabase-js` ↔ localStorage. Nunca mezclar. |
+| **Provider persistence** | `OrganizacionProvider` en el root layout persiste estado entre páginas — tener cuidado con race conditions al navegar. |
+| **RLS sin políticas** | Si `04_rls_unificado.sql` no se ejecuta, RLS está habilitado pero sin políticas → todas las queries devuelven vacío sin error. |
 
 ---
 

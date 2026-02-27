@@ -1,10 +1,31 @@
-import AdminPanel from '@/components/AdminPanel';
+'use client';
 
-export const metadata = {
-  title: 'Panel de Administración · PulsoElectoral',
-  description: 'Gestión de campañas y encuestadores.',
-};
+import { Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import AdminPanel from '@/components/AdminPanel';
+import CampanasList from '@/components/CampanasList';
+import { C } from '@/lib/theme';
+
+function AdminContent() {
+  const searchParams = useSearchParams();
+  const campanaId = searchParams.get('campana');
+
+  // NavBar ya se renderiza globalmente desde NavBarWrapper en layout.jsx
+  if (!campanaId) {
+    return <CampanasList />;
+  }
+
+  return <AdminPanel />;
+}
 
 export default function AdminPage() {
-  return <AdminPanel />;
+  return (
+    <Suspense fallback={
+      <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ color: C.textMut }}>Cargando...</div>
+      </div>
+    }>
+      <AdminContent />
+    </Suspense>
+  );
 }

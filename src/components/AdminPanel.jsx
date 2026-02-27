@@ -12,10 +12,11 @@
  * ✅ FIX v2.3: Integración real con Supabase (no solo mock)
  */
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { C as themeC } from "@/lib/theme";
+import { C as themeC, NAV_HEIGHT } from "@/lib/theme";
 import { supabase } from "@/lib/supabase";
+import CandidatosManager from "@/components/CandidatosManager";
 
 // ── PALETA ──────────────────────────────────────────────────
 const C = {
@@ -52,13 +53,12 @@ export default function AdminPanel() {
   
   // Datos de la campaña
   const [campana, setCampana] = useState(null);
-  const [candidatosRivales, setCandidatosRivales] = useState([]);
+  const [, setCandidatosRivales] = useState([]);
   const [encuestadores, setEncuestadores] = useState([]);
   const [syncLog, setSyncLog] = useState([]);
   
-  // ✅ FIX M1: Leer campana_id de la URL directamente en el estado inicial
-  // Antes: se inicializaba en null y se actualizaba en useEffect → doble render + loadData con null
-  const [campanaId, setCampanaId] = useState(() => {
+  // Leer campana_id de la URL directamente en el estado inicial
+  const [campanaId] = useState(() => {
     if (typeof window === 'undefined') return null;
     return new URLSearchParams(window.location.search).get('campana') || null;
   });
@@ -78,10 +78,13 @@ export default function AdminPanel() {
     setError(null);
     
     try {
-      // Cargar campaña
+      // ✅ FIX P2: Cargar campaña con JOIN al candidato para obtener nombre
       const { data: campanaData, error: campanaError } = await supabase
         .from('campanas')
-        .select('*')
+        .select(`
+          *,
+          candidato:candidato_id(nombre, cargo, partido, color_primario)
+        `)
         .eq('id', campanaId || 'demo')
         .single();
       
@@ -89,19 +92,18 @@ export default function AdminPanel() {
         // Usar datos demo si no hay conexión
         setCampana({
           id: 'demo',
-          nombre: "Campaña Paco García 2025",
-          candidato: "Paco García",
-          candidatoFull: "Juan Francisco García Martínez",
-          cargo: "Presidente Municipal",
-          municipio: "Atlixco",
-          estado: "Puebla",
-          colorPrimario: "#c9a84c",
-          colorSecundario: "#1a2e1a",
+          nombre: "Campaña Demo 2025",
+          candidato: { nombre: "Candidato Demo", cargo: "Presidente Municipal", partido: "" },
           metaEncuestas: 400,
           activa: true,
         });
       } else {
-        setCampana(campanaData);
+        // Transformar datos para mantener compatibilidad
+        setCampana({
+          ...campanaData,
+          candidato: campanaData.candidato?.nombre || 'Sin candidato',
+          candidatoObj: campanaData.candidato,
+        });
       }
 
       // Cargar encuestadores
@@ -111,37 +113,55 @@ export default function AdminPanel() {
         .eq('campana_id', campanaId || 'demo')
         .order('created_at', { ascending: false });
       
-      setEncuestadores(encuestadoresData || [
-        { id: 1, nombre: "María López", email: "maria@ejemplo.com", activo: true, encuestas: 87, ultimaSync: "2025-02-20 14:32" },
-        { id: 2, nombre: "Roberto Sánchez", email: "roberto@ejemplo.com", activo: true, encuestas: 64, ultimaSync: "2025-02-20 16:10" },
-        { id: 3, nombre: "Ana Torres", email: "ana@ejemplo.com", activo: true, encuestas: 52, ultimaSync: "2025-02-19 18:45" },
-      ]);
+      setEncuestadores(encuestadoresData || []);
 
-      // Cargar log de sync
-      setSyncLog([
-        { id: 1, encuestador: "María López", fecha: "2025-02-20 14:32", cantidad: 5, status: "ok", dispositivo: "iPhone 13" },
-        { id: 2, encuestador: "Roberto Sánchez", fecha: "2025-02-20 16:10", cantidad: 3, status: "ok", dispositivo: "Samsung A54" },
-        { id: 3, encuestador: "Ana Torres", fecha: "2025-02-19 18:45", cantidad: 8, status: "ok", dispositivo: "Motorola G" },
+      // ✅ FIX P3: Cargar candidatos rivales desde Supabase
+      const { data: rivalesData } = await supabase
+        .from('candidatos_rivales')
+        .select('*')
+        .eq('campana_id', campanaId)
+        .eq('activo', true)
+        .order('orden', { ascending: true });
+      
+      setCandidatosRivales(rivalesData || []);
+
+      // ✅ FIX P4: Cargar log de sync real desde encuestas_pendientes
+      const { data: syncData } = await supabase
+        .from('encuestas_pendientes')
+        .select('*, encuestador:encuestador_id(nombre)')
+        .eq('campana_id', campanaId)
+        .eq('sincronizada', true)
+        .order('synced_at', { ascending: false })
+        .limit(10);
+      
+      const formattedSyncLog = (syncData || []).map((item) => ({
+        id: item.id,
+        encuestador: item.encuestador?.nombre || 'Desconocido',
+        fecha: new Date(item.synced_at).toLocaleString('es-MX'),
+        cantidad: item.cantidad || 1,
+        status: 'ok',
+        dispositivo: item.dispositivo || 'Desconocido',
+      }));
+      
+      setSyncLog(formattedSyncLog.length > 0 ? formattedSyncLog : [
+        { id: 1, encuestador: "Sin sincronizaciones", fecha: "-", cantidad: 0, status: "ok", dispositivo: "-" },
       ]);
 
     } catch (err) {
       console.error('Error cargando datos:', err);
       setError('Error de conexión. Usando modo demo.');
       
-      // Datos de fallback
+      // Datos de fallback mínimos
       setCampana({
         id: 'demo',
-        nombre: "Campaña Paco García 2025",
-        candidato: "Paco García",
-        candidatoFull: "Juan Francisco García Martínez",
-        cargo: "Presidente Municipal",
-        municipio: "Atlixco",
+        nombre: "Campaña Demo",
+        candidato: "Candidato Demo",
         metaEncuestas: 400,
         activa: true,
       });
-      setEncuestadores([
-        { id: 1, nombre: "María López", email: "maria@ejemplo.com", activo: true, encuestas: 87, ultimaSync: "2025-02-20 14:32" },
-      ]);
+      setEncuestadores([]);
+      setCandidatosRivales([]);
+      setSyncLog([]);
     } finally {
       setLoading(false);
     }
@@ -163,7 +183,7 @@ export default function AdminPanel() {
           .from('campanas')
           .update({
             nombre: campana.nombre,
-            meta_encuestas: campana.metaEncuestas,
+            meta_encuestas: campana.meta_encuestas,
             activa: campana.activa,
           })
           .eq('id', campanaId);
@@ -264,7 +284,7 @@ export default function AdminPanel() {
   }
 
   return (
-    <div style={{ minHeight: "100vh", background: C.bg1, fontFamily: "'Segoe UI',system-ui,sans-serif", color: C.textMain }}>
+    <div style={{ minHeight: `calc(100vh - ${NAV_HEIGHT}px)`, background: C.bg1, fontFamily: "'Segoe UI',system-ui,sans-serif", color: C.textMain }}>
       {/* Header */}
       <div style={{
         background: `linear-gradient(90deg, ${C.bg2}, ${C.bg3})`,
@@ -286,18 +306,34 @@ export default function AdminPanel() {
             </div>
           )}
         </div>
-        {saved && (
-          <div style={{
-            padding: "6px 16px", borderRadius: 6,
-            background: "rgba(34,197,94,0.1)", border: `1px solid ${C.positive}40`,
-            color: C.positive, fontSize: 12,
-          }}>
-            ✓ Guardado
-          </div>
-        )}
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+          <button
+            onClick={() => router.push('/admin')}
+            style={{
+              padding: '8px 16px',
+              borderRadius: 6,
+              border: `1px solid ${C.border}`,
+              background: 'transparent',
+              color: C.textSub,
+              fontSize: 13,
+              cursor: 'pointer',
+            }}
+          >
+            ← Volver a campañas
+          </button>
+          {saved && (
+            <div style={{
+              padding: "6px 16px", borderRadius: 6,
+              background: "rgba(34,197,94,0.1)", border: `1px solid ${C.positive}40`,
+              color: C.positive, fontSize: 12,
+            }}>
+              ✓ Guardado
+            </div>
+          )}
+        </div>
       </div>
 
-      <div style={{ display: "flex", minHeight: "calc(100vh - 80px)" }}>
+      <div style={{ display: "flex", minHeight: `calc(100vh - ${NAV_HEIGHT}px - 80px)` }}>
         {/* Sidebar */}
         <div style={{
           width: 200, background: C.bg2,
@@ -324,42 +360,10 @@ export default function AdminPanel() {
               </button>
             ))}
           </div>
-
-          {/* Navegación a otras secciones */}
-          <div style={{
-            marginTop: "auto",
-            borderTop: `1px solid ${C.borderSub}`,
-            paddingTop: 12,
-          }}>
-            <div style={{
-              padding: "4px 20px 8px",
-              color: C.textMuted, fontSize: 10,
-              letterSpacing: 2, textTransform: "uppercase",
-            }}>
-              Ir a
-            </div>
-            {[
-              { label: "📊 Dashboard", path: "/dashboard" },
-              { label: "🗺️ War Room", path: "/war-room" },
-            ].map(({ label, path }) => (
-              <button
-                key={path}
-                onClick={() => router.push(path)}
-                style={{
-                  display: "block", width: "100%", padding: "10px 20px",
-                  background: "transparent",
-                  border: "none", borderLeft: "3px solid transparent",
-                  color: C.textSub, fontSize: 13, cursor: "pointer",
-                  textAlign: "left", fontFamily: "inherit",
-                  transition: "color 0.2s",
-                }}
-                onMouseEnter={e => e.currentTarget.style.color = C.accent}
-                onMouseLeave={e => e.currentTarget.style.color = C.textSub}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+          {/* 
+            NOTA: La sección "Ir a Dashboard/War Room" se eliminó porque 
+            el NavBar global (v3.1) ya proporciona esa navegación.
+          */}
         </div>
 
         {/* Content */}
@@ -374,7 +378,7 @@ export default function AdminPanel() {
                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
                   <div style={{
                     width: 50, height: 50, borderRadius: "50%",
-                    background: `linear-gradient(135deg, ${campana.colorPrimario}, ${campana.colorSecundario})`,
+                    background: `linear-gradient(135deg, ${campana.candidatoObj?.color_primario || C.accent}, ${C.accentDark})`,
                     display: "flex", alignItems: "center", justifyContent: "center",
                     fontSize: 20, fontWeight: "bold", color: "#fff"
                   }}>
@@ -382,7 +386,7 @@ export default function AdminPanel() {
                   </div>
                   <div>
                     <div style={{ color: C.textMain, fontWeight: "bold" }}>{campana.candidato}</div>
-                    <div style={{ color: C.textMuted, fontSize: 12 }}>{campana.cargo} • {campana.municipio}</div>
+                    <div style={{ color: C.textMuted, fontSize: 12 }}>{campana.candidatoObj?.cargo} • {campana.candidatoObj?.partido}</div>
                   </div>
                 </div>
               </div>
@@ -396,15 +400,15 @@ export default function AdminPanel() {
                   <Input value={campana.candidato} onChange={v => updateCampana("candidato", v)} />
                 </FormGroup>
                 <FormGroup label="Cargo" style={{ flex: 1 }}>
-                  <Input value={campana.cargo} onChange={v => updateCampana("cargo", v)} />
+                  <Input value={campana.candidatoObj?.cargo || ''} onChange={v => updateCampana("cargo", v)} />
                 </FormGroup>
               </div>
 
-              <FormGroup label={`Meta de encuestas: ${campana.metaEncuestas}`}>
+              <FormGroup label={`Meta de encuestas: ${campana.meta_encuestas}`}>
                 <input
                   type="range" min="100" max="2000" step="50"
-                  value={campana.metaEncuestas}
-                  onChange={e => updateCampana("metaEncuestas", parseInt(e.target.value))}
+                  value={campana.meta_encuestas || 400}
+                  onChange={e => updateCampana("meta_encuestas", parseInt(e.target.value))}
                   style={{ width: "100%", accentColor: C.accent }}
                 />
                 <div style={{ display: "flex", justifyContent: "space-between", color: C.textMuted, fontSize: 10 }}>
@@ -415,8 +419,8 @@ export default function AdminPanel() {
               <div style={{ display: "flex", gap: 16 }}>
                 <FormGroup label="Color primario" style={{ flex: 1 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <input type="color" value={campana.colorPrimario} onChange={e => updateCampana("colorPrimario", e.target.value)} style={{ width: 40, height: 32, border: "none", borderRadius: 4, cursor: "pointer" }} />
-                    <span style={{ color: C.textSub, fontSize: 12 }}>{campana.colorPrimario}</span>
+                    <input type="color" value={campana.candidatoObj?.color_primario || '#c9a84c'} onChange={e => updateCampana("colorPrimario", e.target.value)} style={{ width: 40, height: 32, border: "none", borderRadius: 4, cursor: "pointer" }} />
+                    <span style={{ color: C.textSub, fontSize: 12 }}>{campana.candidatoObj?.color_primario || '#c9a84c'}</span>
                   </div>
                 </FormGroup>
                 <FormGroup label="Estado" style={{ flex: 1 }}>
@@ -439,43 +443,9 @@ export default function AdminPanel() {
             </div>
           )}
 
-          {/* ── TAB: CANDIDATOS RIVALES ───────────────────── */}
+          {/* ── TAB: CANDIDATOS ───────────────────── */}
           {tab === "candidatos" && (
-            <div>
-              <TabTitle>Candidatos en pregunta de reconocimiento</TabTitle>
-              <div style={{ color: C.textSub, fontSize: 12, marginBottom: 20 }}>
-                Estos nombres aparecen en la encuesta: "¿Conoce a alguno de estos posibles candidatos?"
-                Edita los nombres sin necesidad de modificar el código.
-              </div>
-
-              {/* Candidato principal */}
-              <div style={{ ...cardStyle, marginBottom: 12, borderColor: C.accent + "40" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  <div>
-                    <div style={{ color: C.accent, fontSize: 14, fontWeight: "bold" }}>⭐ {campana.candidato}</div>
-                    <div style={{ color: C.textMuted, fontSize: 11 }}>Tu candidato (principal)</div>
-                  </div>
-                  <span style={{ color: C.positive, fontSize: 11 }}>Siempre activo</span>
-                </div>
-              </div>
-
-              {/* Rivales */}
-              {candidatosRivales.length === 0 ? (
-                <div style={{ color: C.textMuted, fontSize: 13, padding: 20, textAlign: "center" }}>
-                  No hay candidatos rivales configurados.
-                  <br />En una versión futura se podrán agregar desde aquí.
-                </div>
-              ) : (
-                candidatosRivales.map(r => (
-                  <div key={r.id} style={{ ...cardStyle, marginBottom: 8, opacity: r.activo ? 1 : 0.5 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                      <div style={{ flex: 1 }}>{r.nombre}</div>
-                      <div style={{ color: C.textMuted, fontSize: 12 }}>{r.partido}</div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
+            <CandidatosManager campanaId={campanaId} />
           )}
 
           {/* ── TAB: ENCUESTADORES ────────────────────────── */}

@@ -27,3 +27,8 @@ export const FONTS = {
   body:    "'DM Sans', sans-serif",
   mono:    "'JetBrains Mono', monospace",
 };
+
+// Alturas de navegación para cálculos de layout
+export const NAV_HEIGHT = 56;        // px - Altura del NavBar global
+export const WARROOM_HEADER = 72;    // px - Altura del header del WarRoom
+export const ADMIN_HEADER = 80;      // px - Altura del header del AdminPanel

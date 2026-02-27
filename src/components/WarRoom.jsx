@@ -20,7 +20,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef, memo } from 'react';
 import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
 import { supabase } from '@/lib/supabase';
-import { C } from '@/lib/theme';
+import { C, NAV_HEIGHT, WARROOM_HEADER } from '@/lib/theme';
 import { IS_DEMO } from '@/lib/constants';
 import { useWarRoomComparison } from '@/hooks/useWarRoomComparison';
 import { MunicipioCampanaSelector } from './MunicipioCampanaSelector';
@@ -538,46 +538,96 @@ export default function WarRoom() {
   } = useWarRoomComparison();
 
   return (
-    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {/* Header con selectores */}
+    <div style={{ 
+      height: `calc(100vh - ${NAV_HEIGHT}px)`, 
+      display: 'flex', 
+      flexDirection: 'column' 
+    }}>
+      {/* ── HEADER WAR ROOM N5 ── */}
       <div style={{
         background: C.surface,
         borderBottom: `1px solid ${C.border}`,
-        padding: '12px 20px',
+        padding: '16px 24px',
+        height: WARROOM_HEADER,
+        boxSizing: 'border-box',
       }}>
-        {/* Fila 1: Modo comparación */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-          <h1 style={{ margin: 0, color: C.goldLight, fontSize: 20 }}>
-            🗺️ War Room Electoral v3.0
-          </h1>
+        {/* Fila 1: Título + controles principales */}
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center', 
+          marginBottom: 16,
+          flexWrap: 'wrap',
+          gap: 12,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <span style={{ fontSize: 24 }}>🗺️</span>
+            <div>
+              <h1 style={{ margin: 0, color: C.textPri, fontSize: 18, fontWeight: 800 }}>
+                War Room
+              </h1>
+              <div style={{ fontSize: 12, color: C.textMut }}>
+                {municipiosDisponibles.find(m => m.id === ladoA.municipioId)?.nombre || 'Atlixco'}
+              </div>
+            </div>
+          </div>
 
-          <button
-            onClick={toggleComparison}
-            style={{
-              padding: '8px 16px',
-              background: showComparison ? C.gold : 'transparent',
-              color: showComparison ? C.bg : C.goldLight,
-              border: `1.5px solid ${C.gold}`,
-              borderRadius: 6,
-              cursor: 'pointer',
-              fontWeight: 600,
-              fontSize: 13,
-            }}
-          >
-            {showComparison ? '⚡ Comparación ON' : 'Modo Comparación'}
-          </button>
+          <div style={{ display: 'flex', gap: 12 }}>
+            {/* Selector de campaña (simplificado) */}
+            <select
+              value={ladoA.campanaId || ''}
+              onChange={(e) => setCampanaA(e.target.value)}
+              style={{
+                padding: '8px 14px',
+                background: C.bg,
+                color: C.textPri,
+                border: `1px solid ${C.border}`,
+                borderRadius: 6,
+                fontSize: 13,
+                cursor: 'pointer',
+                minWidth: 160,
+              }}
+            >
+              <option value="">Seleccionar campaña</option>
+              {ladoA.campanasDisponibles?.map(c => (
+                <option key={c.id} value={c.id}>{c.nombre}</option>
+              ))}
+            </select>
+
+            {/* Botón comparar */}
+            <button
+              onClick={toggleComparison}
+              style={{
+                padding: '8px 16px',
+                background: showComparison ? C.gold : 'transparent',
+                color: showComparison ? C.bg : C.gold,
+                border: `1.5px solid ${C.gold}`,
+                borderRadius: 6,
+                cursor: 'pointer',
+                fontWeight: 600,
+                fontSize: 13,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+              }}
+            >
+              {showComparison ? '⚡ Comparando 2' : 'Comparar'}
+            </button>
+          </div>
         </div>
 
-        {/* Fila 2: Selectores */}
+        {/* Fila 2: Selectores detallados */}
         <div style={{
           display: 'flex',
           gap: 24,
           flexWrap: 'wrap',
           alignItems: 'flex-start',
+          paddingTop: 12,
+          borderTop: `1px solid ${C.border}`,
         }}>
           {/* Selector Lado A (siempre visible) */}
           <MunicipioCampanaSelector
-            label={showComparison ? 'Izquierdo' : 'Municipio'}
+            label={showComparison ? 'Mapa Izquierdo' : 'Municipio'}
             municipios={municipiosDisponibles}
             campanas={ladoA.campanasDisponibles}
             municipioId={ladoA.municipioId}

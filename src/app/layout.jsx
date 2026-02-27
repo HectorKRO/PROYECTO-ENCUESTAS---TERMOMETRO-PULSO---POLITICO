@@ -1,6 +1,7 @@
 import './globals.css';
 import { ServiceWorkerRegistrar } from './sw-register';
 import { OrganizacionProvider } from '@/hooks/useOrganizacion';
+import { NavBarWrapper } from '@/components/NavBarWrapper';
 
 export const metadata = {
   title:       'PulsoElectoral — Plataforma de Inteligencia Política',
@@ -29,6 +30,7 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         <OrganizacionProvider>
+          <NavBarWrapper />
           {children}
         </OrganizacionProvider>
         <ServiceWorkerRegistrar />
