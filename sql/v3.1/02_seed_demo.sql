@@ -69,36 +69,33 @@ END $$;
 -- ============================================================
 DO $$ BEGIN
   -- Encuestador 1
-  INSERT INTO encuestadores (id, nombre, email, campana_id, activo, encuestas)
+  INSERT INTO encuestadores (id, nombre, email, campana_id, activo)
   VALUES (
     'c3000000-0000-0000-0000-000000000001'::UUID,
     'María González López',
     'maria.gonzalez@demo.pulsoelectoral.mx',
     'b2000000-0000-0000-0000-000000000001'::UUID,
-    true,
-    47
+    true
   ) ON CONFLICT (id) DO NOTHING;
 
   -- Encuestador 2
-  INSERT INTO encuestadores (id, nombre, email, campana_id, activo, encuestas)
+  INSERT INTO encuestadores (id, nombre, email, campana_id, activo)
   VALUES (
     'c3000000-0000-0000-0000-000000000002'::UUID,
     'Carlos Ramírez Flores',
     'carlos.ramirez@demo.pulsoelectoral.mx',
     'b2000000-0000-0000-0000-000000000001'::UUID,
-    true,
-    63
+    true
   ) ON CONFLICT (id) DO NOTHING;
 
   -- Encuestador 3
-  INSERT INTO encuestadores (id, nombre, email, campana_id, activo, encuestas)
+  INSERT INTO encuestadores (id, nombre, email, campana_id, activo)
   VALUES (
     'c3000000-0000-0000-0000-000000000003'::UUID,
     'Ana Pérez Mendoza',
     'ana.perez@demo.pulsoelectoral.mx',
     'b2000000-0000-0000-0000-000000000001'::UUID,
-    false,
-    12
+    false
   ) ON CONFLICT (id) DO NOTHING;
 
   RAISE NOTICE '✅ 3 encuestadores demo creados';
