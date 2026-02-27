@@ -215,62 +215,40 @@ function SectionTitle({ children }) {
 }
 
 function KpiCard({ label, value, valorNumerico = null, sub, trend, icon, showBar = false, barValue = 0 }) {
-  // Determinar color según valor (semáforo)
   const valorParaSemaforo = valorNumerico !== null ? valorNumerico : (typeof value === 'string' ? parseFloat(value) : value);
   const estado = getEstadoSemaforo(valorParaSemaforo || 0);
   const trendInfo = trend !== undefined ? getTrendIndicator(trend) : null;
-  
+
   return (
-    <div style={{ 
-      background: `linear-gradient(135deg, ${C.surface}, ${C.surfaceEl})`, 
-      border: `1px solid ${estado.border}`, 
-      borderRadius: 14, 
-      padding: '20px 22px', 
-      position: 'relative', 
-      overflow: 'hidden',
-      transition: 'all 0.2s ease',
+    <div style={{
+      background: C.surface,
+      border: `1px solid ${estado.border}`,
+      borderRadius: 12,
+      padding: '16px 18px',
     }}>
-      {/* Glow accent según estado */}
-      <div style={{ 
-        position: 'absolute', 
-        top: -20, 
-        right: -20, 
-        width: 80, 
-        height: 80, 
-        borderRadius: '50%', 
-        background: `${estado.color}15`, 
-        pointerEvents: 'none' 
-      }} />
-      
-      {/* Header con icono y estado */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
-        <span style={{ fontSize: 12, color: C.textMut, fontWeight: 600, letterSpacing: '.04em', textTransform: 'uppercase' }}>
+      {/* Label + icon */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+        <span style={{ fontSize: 11, color: C.textMut, fontWeight: 600, letterSpacing: '.04em', textTransform: 'uppercase' }}>
           {label}
         </span>
-        <span style={{ fontSize: 20 }}>{icon}</span>
+        <span style={{ fontSize: 16 }}>{icon}</span>
       </div>
-      
+
       {/* Valor principal */}
-      <div style={{ fontSize: 34, fontWeight: 900, color: estado.color, lineHeight: 1, marginBottom: 8 }}>
+      <div style={{ fontSize: 40, fontWeight: 900, color: estado.color, lineHeight: 1, marginBottom: 8 }}>
         {value}
       </div>
-      
-      {/* Barra de progreso visual (opcional) */}
+
+      {/* Barra opcional */}
       {showBar && (
-        <div style={{ height: 4, background: C.border, borderRadius: 2, marginBottom: 8, overflow: 'hidden' }}>
-          <div style={{ 
-            height: '100%', 
-            width: `${Math.min(100, barValue)}%`, 
-            background: estado.color, 
-            borderRadius: 2,
-            transition: 'width 0.5s ease'
-          }} />
+        <div style={{ height: 3, background: C.border, borderRadius: 2, marginBottom: 8, overflow: 'hidden' }}>
+          <div style={{ height: '100%', width: `${Math.min(100, barValue)}%`, background: estado.color, borderRadius: 2 }} />
         </div>
       )}
-      
-      {/* Footer con trend y estado */}
+
+      {/* Footer */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           {trendInfo && (
             <span style={{ color: trendInfo.color, fontSize: 11, fontWeight: 700 }}>
               {trendInfo.icon} {trendInfo.sign}{Math.abs(trend || 0)}
@@ -278,19 +256,7 @@ function KpiCard({ label, value, valorNumerico = null, sub, trend, icon, showBar
           )}
           {sub && <span style={{ fontSize: 11, color: C.textMut }}>{sub}</span>}
         </div>
-        
-        {/* Badge de estado */}
-        <span style={{ 
-          fontSize: 10, 
-          fontWeight: 700,
-          padding: '2px 8px',
-          borderRadius: 10,
-          background: estado.bg,
-          color: estado.color,
-          border: `1px solid ${estado.border}`,
-        }}>
-          ● {estado.label}
-        </span>
+        <span style={{ fontSize: 10, color: estado.color, fontWeight: 600 }}>{estado.label}</span>
       </div>
     </div>
   );
@@ -439,153 +405,101 @@ export default function DashboardPolitico({ onNavigateToMapa }) {
         </div>
       )}
 
-      {/* ── HEADER REDISEÑADO v3.1 ── */}
-      <div style={{ 
-        background: C.surface, 
-        borderBottom: `1px solid ${C.border}`, 
-        padding: isMobile ? '16px 16px' : '20px 28px',
+      {/* ── HEADER COMPACTO v3.2 ── */}
+      <div style={{
+        background: C.surface,
+        borderBottom: `1px solid ${C.border}`,
+        padding: isMobile ? '12px 16px' : '0 28px',
         position: 'sticky',
-        top: NAV_HEIGHT,  // Debajo del NavBar
+        top: NAV_HEIGHT,
         zIndex: 100,
+        minHeight: isMobile ? 'auto' : 64,
+        display: 'flex',
+        alignItems: 'center',
       }}>
-        {/* Fila 1: Contexto de campaña */}
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: isMobile ? 'flex-start' : 'center',
-          flexDirection: isMobile ? 'column' : 'row',
-          gap: 16,
-          marginBottom: 16,
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          width: '100%',
+          maxWidth: 1400,
+          margin: '0 auto',
+          flexWrap: isMobile ? 'wrap' : 'nowrap',
+          gap: 12,
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-            {/* Avatar del candidato */}
+          {/* Zona izquierda: Avatar + candidato + municipio */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
             <div style={{
-              width: 56, height: 56, borderRadius: '50%',
+              width: 40, height: 40, borderRadius: '50%', flexShrink: 0,
               background: `linear-gradient(135deg, ${C.gold}, ${C.goldDim})`,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 24, fontWeight: 900, color: C.bg,
-              flexShrink: 0,
+              fontSize: 18, fontWeight: 900, color: C.bg,
             }}>
               {campanaInfo?.candidato?.nombre?.charAt(0) || D.candidato.alias.charAt(0)}
             </div>
-            <div>
-              <div style={{ fontWeight: 800, fontSize: 18, color: C.textPri }}>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ fontWeight: 700, fontSize: 15, color: C.textPri }}>
                 {campanaInfo?.candidato?.nombre || D.candidato.alias}
               </div>
-              <div style={{ fontSize: 13, color: C.textSec }}>
-                {campanaInfo?.candidato?.cargo || D.candidato.cargo} · {municipioActual?.nombre || D.candidato.municipio}
+              <div style={{ fontSize: 12, color: C.textSec, display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+                <span>{campanaInfo?.candidato?.cargo || D.candidato.cargo}</span>
+                <span style={{ color: C.border }}>·</span>
+                {municipios.length > 1 ? (
+                  <MunicipioSelector municipios={municipios} municipioActual={municipioActual} onChange={cambiarMunicipio} />
+                ) : (
+                  <span>{municipioActual?.nombre || D.candidato.municipio}</span>
+                )}
               </div>
             </div>
           </div>
-          
-          {/* Fechas y estado */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: C.textSec, fontSize: 13 }}>
-              <span>📅</span>
-              <span>{dateRange.from || '1 Feb'} → {dateRange.to || '27 Feb 2026'}</span>
+
+          {/* Zona derecha: Progress + estado + exportar */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0, flexWrap: 'wrap' }}>
+            {/* Progress inline */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ width: 72, height: 4, background: C.border, borderRadius: 2, overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${Math.min(100, pctMeta)}%`, background: pctMeta >= 80 ? C.greenAcc : pctMeta >= 50 ? C.amber : C.danger, borderRadius: 2 }} />
+              </div>
+              <span style={{ fontSize: 12, color: C.textSec, whiteSpace: 'nowrap' }}>
+                {D.kpis.total_encuestas}/{D.kpis.meta} · <span style={{ color: pctMeta >= 80 ? C.greenAcc : C.amber, fontWeight: 600 }}>{pctMeta}%</span>
+              </span>
             </div>
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              padding: '4px 12px',
-              borderRadius: 20,
-              background: `${C.greenAcc}15`,
-              border: `1px solid ${C.greenAcc}40`,
-              color: C.greenAcc,
-              fontSize: 12,
-              fontWeight: 600,
-            }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: C.greenAcc }} />
-              Campaña activa
+
+            {/* Badge activa */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 11, color: C.greenAcc, fontWeight: 600 }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: C.greenAcc, display: 'inline-block' }} />
+              Activa
             </div>
+
             {IS_DEMO && (
-              <div style={{ 
-                fontSize: 10, color: C.amber, 
-                background: `${C.amber}15`, 
-                padding: '2px 8px', 
-                borderRadius: 4, 
-                border: `1px solid ${C.amber}40` 
-              }}>
+              <span style={{ fontSize: 10, color: C.amber, background: `${C.amber}15`, padding: '2px 8px', borderRadius: 4, border: `1px solid ${C.amber}40` }}>
                 DEMO
-              </div>
-            )}
-          </div>
-        </div>
-        
-        {/* Fila 2: Acciones */}
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: 12,
-          paddingTop: 16,
-          borderTop: `1px solid ${C.border}`,
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            {municipios.length > 1 ? (
-              <MunicipioSelector 
-                municipios={municipios} 
-                municipioActual={municipioActual}
-                onChange={cambiarMunicipio}
-              />
-            ) : (
-              <span style={{ color: C.textMut, fontSize: 13 }}>
-                📍 {municipioActual?.nombre || D.candidato.municipio}
               </span>
             )}
-            <span style={{ color: C.textMut, fontSize: 12 }}>
-              Actualizado: {lastUpdate}
-            </span>
-          </div>
-          
-          {/* Botones de acción */}
-          <div style={{ display: 'flex', gap: 8 }}>
-            <button 
-              onClick={handleExportResumen}
-              disabled={exporting}
-              style={{ 
-                padding: '8px 16px', 
-                borderRadius: 8, 
-                fontSize: 12, 
-                background: C.surfaceEl, 
-                border: `1px solid ${C.border}`, 
-                color: C.textSec, 
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-              }}
-            >
-              📊 Exportar
-            </button>
-            <button 
-              onClick={handleExportEncuestas}
-              disabled={exporting}
-              style={{ 
-                padding: '8px 16px', 
-                borderRadius: 8, 
-                fontSize: 12, 
-                background: `linear-gradient(135deg, ${C.gold}, ${C.goldDim})`, 
-                border: 'none', 
-                color: C.bg, 
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-              }}
-            >
-              {exporting ? '⏳ Exportando...' : '📥 Excel'}
-            </button>
+
+            {!isMobile && (
+              <span style={{ fontSize: 11, color: C.textMut }}>{lastUpdate}</span>
+            )}
+
+            {/* Exportar */}
+            <div style={{ display: 'flex', gap: 6 }}>
+              <button onClick={handleExportResumen} disabled={exporting}
+                style={{ padding: '6px 12px', borderRadius: 6, fontSize: 11, background: C.surfaceEl, border: `1px solid ${C.border}`, color: C.textSec, cursor: 'pointer' }}>
+                Exportar
+              </button>
+              <button onClick={handleExportEncuestas} disabled={exporting}
+                style={{ padding: '6px 12px', borderRadius: 6, fontSize: 11, background: `linear-gradient(135deg, ${C.gold}, ${C.goldDim})`, border: 'none', color: C.bg, fontWeight: 600, cursor: 'pointer' }}>
+                {exporting ? '⏳' : '📥 Excel'}
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* ── LAYOUT PRINCIPAL CON PANEL LATERAL ── */}
-      <div style={{ 
+      {/* ── LAYOUT PRINCIPAL ── */}
+      <div style={{
         display: 'grid',
-        gridTemplateColumns: isMobile ? '1fr' : '1fr 280px',
-        gap: isMobile ? 0 : 24,
+        gridTemplateColumns: '1fr',
         maxWidth: 1400,
         margin: '0 auto',
         padding: isMobile ? '20px 16px 48px' : '28px 28px 48px',
@@ -644,10 +558,10 @@ export default function DashboardPolitico({ onNavigateToMapa }) {
         </div>
 
         {/* ── TABS ── */}
-        <div style={{ display:'flex', gap:4, marginBottom:24, borderBottom:`1px solid ${C.border}`, flexWrap:'wrap' }}>
+        <div style={{ display:'flex', gap:0, marginBottom:24, borderBottom:`2px solid ${C.border}`, flexWrap:'wrap' }}>
           {TABS.map(t => (
             <button key={t.id} type="button" onClick={() => setActiveTab(t.id)}
-              style={{ padding:'10px 18px', borderRadius:'10px 10px 0 0', fontSize:13, fontWeight:600, border:`1px solid ${activeTab===t.id?C.border:'transparent'}`, borderBottom:activeTab===t.id?`1px solid ${C.surface}`:'none', background:activeTab===t.id?C.surface:'transparent', color:activeTab===t.id?C.goldLight:C.textMut, cursor:'pointer', marginBottom:-1, transition:'color .2s' }}>
+              style={{ padding:'10px 20px', fontSize:13, fontWeight:activeTab===t.id?600:400, border:'none', borderBottom:activeTab===t.id?`2px solid ${C.gold}`:'2px solid transparent', marginBottom:-2, background:'transparent', color:activeTab===t.id?C.goldLight:C.textMut, cursor:'pointer', transition:'color .2s, border-color .2s' }}>
               {t.icon} {t.label}
             </button>
           ))}
@@ -932,142 +846,6 @@ export default function DashboardPolitico({ onNavigateToMapa }) {
         {activeTab === 'sentimiento' && <TabSentimiento />}
 
       </div>
-      
-      {/* ── PANEL LATERAL DE CONTEXTO (N4) ── */}
-      {!isMobile && (
-        <aside style={{
-          width: 280,
-          flexShrink: 0,
-        }}>
-          <div style={{
-            background: C.surface,
-            border: `1px solid ${C.border}`,
-            borderRadius: 14,
-            padding: 20,
-            position: 'sticky',
-            top: NAV_HEIGHT + 20,  // Debajo del NavBar + margen
-          }}>
-            {/* Header del panel */}
-            <div style={{
-              fontSize: 11,
-              color: C.textMut,
-              textTransform: 'uppercase',
-              letterSpacing: 2,
-              marginBottom: 16,
-              paddingBottom: 12,
-              borderBottom: `1px solid ${C.border}`,
-            }}>
-              Campaña Activa
-            </div>
-            
-            {/* Info del candidato */}
-            <div style={{ marginBottom: 20 }}>
-              <div style={{ fontSize: 16, fontWeight: 700, color: C.textPri, marginBottom: 4 }}>
-                {campanaInfo?.nombre || 'Campaña 2025'}
-              </div>
-              <div style={{ fontSize: 13, color: C.textSec }}>
-                {municipioActual?.nombre || D.candidato.municipio}, {D.candidato.estado}
-              </div>
-            </div>
-            
-            {/* Meta de encuestas */}
-            <div style={{ marginBottom: 20 }}>
-              <div style={{
-                fontSize: 11,
-                color: C.textMut,
-                textTransform: 'uppercase',
-                letterSpacing: 1,
-                marginBottom: 8,
-              }}>
-                Meta de encuestas
-              </div>
-              <div style={{ fontSize: 24, fontWeight: 800, color: C.gold, marginBottom: 4 }}>
-                {D.kpis.total_encuestas} <span style={{ fontSize: 14, color: C.textMut }}>/ {D.kpis.meta}</span>
-              </div>
-              <div style={{ height: 8, background: C.border, borderRadius: 4, overflow: 'hidden' }}>
-                <div style={{
-                  height: '100%',
-                  width: `${Math.min(100, pctMeta)}%`,
-                  background: pctMeta >= 80 ? C.greenAcc : pctMeta >= 50 ? C.amber : C.danger,
-                  borderRadius: 4,
-                  transition: 'width 0.5s ease',
-                }} />
-              </div>
-              <div style={{ fontSize: 11, color: C.textMut, marginTop: 4, textAlign: 'right' }}>
-                {pctMeta}% completado
-              </div>
-            </div>
-            
-            {/* Encuestas hoy */}
-            <div style={{ marginBottom: 20 }}>
-              <div style={{
-                fontSize: 11,
-                color: C.textMut,
-                textTransform: 'uppercase',
-                letterSpacing: 1,
-                marginBottom: 8,
-              }}>
-                Hoy
-              </div>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-                <span style={{ fontSize: 28, fontWeight: 800, color: C.greenAcc }}>
-                  {D.kpis.hoy}
-                </span>
-                <span style={{ fontSize: 12, color: C.textSec }}>encuestas</span>
-              </div>
-              <div style={{
-                fontSize: 11,
-                color: hoy >= ayer ? C.greenAcc : C.danger,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 4,
-              }}>
-                {hoy >= ayer ? '▲' : '▼'} {Math.abs(Math.round(((hoy - ayer) / ayer) * 100))}% vs ayer
-              </div>
-            </div>
-            
-            {/* Botones de acción */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              <button
-                onClick={() => router.push('/war-room')}
-                style={{
-                  padding: '10px 16px',
-                  borderRadius: 8,
-                  border: `1px solid ${C.border}`,
-                  background: C.surfaceEl,
-                  color: C.textSec,
-                  fontSize: 13,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 8,
-                }}
-              >
-                🗺️ Ver mapa
-              </button>
-              <button
-                onClick={() => router.push('/admin')}
-                style={{
-                  padding: '10px 16px',
-                  borderRadius: 8,
-                  border: `1px solid ${C.border}`,
-                  background: C.surfaceEl,
-                  color: C.textSec,
-                  fontSize: 13,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 8,
-                }}
-              >
-                ⚙️ Configurar
-              </button>
-            </div>
-          </div>
-        </aside>
-      )}
       
     </div>
   );
