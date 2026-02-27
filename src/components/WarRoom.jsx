@@ -20,10 +20,9 @@
 import { useState, useEffect, useCallback, useMemo, useRef, memo } from 'react';
 import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet';
 import { supabase } from '@/lib/supabase';
-import { C, NAV_HEIGHT, WARROOM_HEADER } from '@/lib/theme';
+import { C, NAV_HEIGHT } from '@/lib/theme';
 import { IS_DEMO } from '@/lib/constants';
 import { useWarRoomComparison } from '@/hooks/useWarRoomComparison';
-import { MunicipioCampanaSelector } from './MunicipioCampanaSelector';
 import 'leaflet/dist/leaflet.css';
 
 // Coordenadas por defecto (Atlixco)
@@ -251,23 +250,20 @@ const StatsPanel = memo(function StatsPanel({ data, selectedSeccion, onClose, on
         position: 'absolute',
         top: 20,
         left: 20,
-        width: 280,
-        background: 'rgba(7, 16, 10, 0.95)',
-        borderRadius: 12,
+        width: 240,
+        background: 'rgba(7, 16, 10, 0.92)',
+        borderRadius: 10,
         border: `1px solid ${C.border}`,
-        padding: 20,
+        padding: '14px 16px',
         zIndex: 1000,
       }}>
-        <h3 style={{ color: C.goldLight, margin: '0 0 16px', fontSize: 18 }}>
-          🗺️ War Room v3.0
-        </h3>
-        <p style={{ color: C.textMut, fontSize: 13, marginBottom: 16 }}>
-          Selecciona una sección para ver detalles.
+        <p style={{ color: C.textMut, fontSize: 12, margin: '0 0 10px' }}>
+          Selecciona una sección para ver detalles
         </p>
         {data && (
-          <div style={{ color: C.textSec, fontSize: 12 }}>
-            <div>📊 Secciones con datos: {data.secciones?.filter(s => s.total > 0).length || 0}</div>
-            <div>📝 Encuestas totales: {data.secciones?.reduce((a, s) => a + (s.total || 0), 0) || 0}</div>
+          <div style={{ color: C.textSec, fontSize: 12, display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <div>📊 {data.secciones?.filter(s => s.total > 0).length || 0} secciones con datos</div>
+            <div>📝 {data.secciones?.reduce((a, s) => a + (s.total || 0), 0) || 0} encuestas totales</div>
           </div>
         )}
       </div>
@@ -524,6 +520,19 @@ const MapaWarRoom = memo(function MapaWarRoom({
 });
 
 // COMPONENTE PRINCIPAL
+// Estilo compacto para selects del header
+const selectHeaderStyle = {
+  padding: '5px 10px',
+  background: 'rgba(7, 16, 10, 0.7)',
+  color: C.textPri,
+  border: `1px solid ${C.border}`,
+  borderRadius: 6,
+  fontSize: 12,
+  cursor: 'pointer',
+  minWidth: 130,
+  outline: 'none',
+};
+
 export default function WarRoom() {
   const {
     ladoA,
@@ -538,122 +547,120 @@ export default function WarRoom() {
   } = useWarRoomComparison();
 
   return (
-    <div style={{ 
-      height: `calc(100vh - ${NAV_HEIGHT}px)`, 
-      display: 'flex', 
-      flexDirection: 'column' 
+    <div style={{
+      height: `calc(100vh - ${NAV_HEIGHT}px)`,
+      display: 'flex',
+      flexDirection: 'column'
     }}>
-      {/* ── HEADER WAR ROOM N5 ── */}
+      {/* ── HEADER WAR ROOM v3.2 — compacto ── */}
       <div style={{
         background: C.surface,
         borderBottom: `1px solid ${C.border}`,
-        padding: '16px 24px',
-        height: WARROOM_HEADER,
-        boxSizing: 'border-box',
+        flexShrink: 0,
       }}>
-        {/* Fila 1: Título + controles principales */}
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center', 
-          marginBottom: 16,
-          flexWrap: 'wrap',
-          gap: 12,
+        {/* Fila principal (siempre visible, 56px) */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '0 24px',
+          height: 56,
+          gap: 16,
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <span style={{ fontSize: 24 }}>🗺️</span>
-            <div>
-              <h1 style={{ margin: 0, color: C.textPri, fontSize: 18, fontWeight: 800 }}>
-                War Room
-              </h1>
-              <div style={{ fontSize: 12, color: C.textMut }}>
-                {municipiosDisponibles.find(m => m.id === ladoA.municipioId)?.nombre || 'Atlixco'}
-              </div>
-            </div>
+          {/* Zona izquierda: título */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+            <span style={{ fontSize: 16 }}>🗺️</span>
+            <span style={{ fontWeight: 700, fontSize: 15, color: C.textPri }}>War Room</span>
+            <span style={{ color: C.border, fontSize: 14 }}>·</span>
+            <span style={{ fontSize: 12, color: C.textMut }}>
+              {municipiosDisponibles.find(m => m.id === ladoA.municipioId)?.nombre || 'Mapa electoral'}
+            </span>
           </div>
 
-          <div style={{ display: 'flex', gap: 12 }}>
-            {/* Selector de campaña (simplificado) */}
+          {/* Zona central: selectors Lado A inline */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, justifyContent: 'center' }}>
+            <select
+              value={ladoA.municipioId || ''}
+              onChange={(e) => setMunicipioA(e.target.value ? Number(e.target.value) : null)}
+              disabled={ladoA.loading}
+              style={selectHeaderStyle}
+            >
+              <option value="">📍 Municipio</option>
+              {municipiosDisponibles.map(m => (
+                <option key={m.id} value={m.id}>{m.nombre}</option>
+              ))}
+            </select>
+
             <select
               value={ladoA.campanaId || ''}
-              onChange={(e) => setCampanaA(e.target.value)}
-              style={{
-                padding: '8px 14px',
-                background: C.bg,
-                color: C.textPri,
-                border: `1px solid ${C.border}`,
-                borderRadius: 6,
-                fontSize: 13,
-                cursor: 'pointer',
-                minWidth: 160,
-              }}
+              onChange={(e) => setCampanaA(e.target.value || null)}
+              disabled={ladoA.loading || !ladoA.municipioId}
+              style={{ ...selectHeaderStyle, opacity: !ladoA.municipioId ? 0.5 : 1 }}
             >
-              <option value="">Seleccionar campaña</option>
+              <option value="">{ladoA.loading ? 'Cargando...' : '🗳️ Campaña'}</option>
               {ladoA.campanasDisponibles?.map(c => (
                 <option key={c.id} value={c.id}>{c.nombre}</option>
               ))}
             </select>
-
-            {/* Botón comparar */}
-            <button
-              onClick={toggleComparison}
-              style={{
-                padding: '8px 16px',
-                background: showComparison ? C.gold : 'transparent',
-                color: showComparison ? C.bg : C.gold,
-                border: `1.5px solid ${C.gold}`,
-                borderRadius: 6,
-                cursor: 'pointer',
-                fontWeight: 600,
-                fontSize: 13,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 6,
-              }}
-            >
-              {showComparison ? '⚡ Comparando 2' : 'Comparar'}
-            </button>
           </div>
+
+          {/* Zona derecha: toggle comparar */}
+          <button
+            onClick={toggleComparison}
+            style={{
+              padding: '6px 14px',
+              background: showComparison ? C.gold : 'transparent',
+              color: showComparison ? C.bg : C.gold,
+              border: `1.5px solid ${C.gold}`,
+              borderRadius: 6,
+              cursor: 'pointer',
+              fontWeight: 600,
+              fontSize: 12,
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+            }}
+          >
+            {showComparison ? '⚡ Comparando' : '⊞ Comparar'}
+          </button>
         </div>
 
-        {/* Fila 2: Selectores detallados */}
-        <div style={{
-          display: 'flex',
-          gap: 24,
-          flexWrap: 'wrap',
-          alignItems: 'flex-start',
-          paddingTop: 12,
-          borderTop: `1px solid ${C.border}`,
-        }}>
-          {/* Selector Lado A (siempre visible) */}
-          <MunicipioCampanaSelector
-            label={showComparison ? 'Mapa Izquierdo' : 'Municipio'}
-            municipios={municipiosDisponibles}
-            campanas={ladoA.campanasDisponibles}
-            municipioId={ladoA.municipioId}
-            campanaId={ladoA.campanaId}
-            onMunicipioChange={setMunicipioA}
-            onCampanaChange={setCampanaA}
-            loading={ladoA.loading}
-          />
-
-          {/* Selector Lado B (solo en comparación) */}
-          {showComparison && (
-            <>
-              <div style={{ width: 1, background: C.border, margin: '0 8px' }} />
-              <MunicipioCampanaSelector
-                label="Mapa Derecho"
-                municipios={municipiosDisponibles}
-                campanas={ladoB.campanasDisponibles}
-                municipioId={ladoB.municipioId}
-                campanaId={ladoB.campanaId}
-                onMunicipioChange={setMunicipioB}
-                onCampanaChange={setCampanaB}
-                loading={ladoB.loading}
-              />
-            </>
-          )}
-        </div>
+        {/* Fila comparación (solo cuando showComparison, ~40px) */}
+        {showComparison && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+            padding: '8px 24px',
+            borderTop: `1px solid ${C.border}`,
+            background: C.surfaceEl,
+          }}>
+            <span style={{ fontSize: 11, color: C.textMut, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.04em', flexShrink: 0 }}>
+              Comparación:
+            </span>
+            <select
+              value={ladoB.municipioId || ''}
+              onChange={(e) => setMunicipioB(e.target.value ? Number(e.target.value) : null)}
+              disabled={ladoB.loading}
+              style={selectHeaderStyle}
+            >
+              <option value="">📍 Municipio B</option>
+              {municipiosDisponibles.map(m => (
+                <option key={m.id} value={m.id}>{m.nombre}</option>
+              ))}
+            </select>
+            <select
+              value={ladoB.campanaId || ''}
+              onChange={(e) => setCampanaB(e.target.value || null)}
+              disabled={ladoB.loading || !ladoB.municipioId}
+              style={{ ...selectHeaderStyle, opacity: !ladoB.municipioId ? 0.5 : 1 }}
+            >
+              <option value="">{ladoB.loading ? 'Cargando...' : '🗳️ Campaña B'}</option>
+              {ladoB.campanasDisponibles?.map(c => (
+                <option key={c.id} value={c.id}>{c.nombre}</option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
 
       {/* Área de mapas */}
