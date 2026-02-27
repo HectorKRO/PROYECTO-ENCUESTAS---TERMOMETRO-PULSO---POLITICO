@@ -1,5 +1,5 @@
 // lib/supabase.js — Cliente unificado + helpers
-import { createClient } from '@supabase/supabase-js';
+import { createBrowserClient } from '@supabase/ssr';
 import { OFFLINE_KEY, sanitizePayload } from './constants';
 
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
@@ -28,10 +28,9 @@ export function getSupabase() {
     if (!validateConfig()) {
       return createMockClient();
     }
-    _client = createClient(url, key, {
-      auth: { persistSession: true, autoRefreshToken: true },
-      realtime: { params: { eventsPerSecond: 10 } },
-    });
+    // createBrowserClient guarda la sesión en cookies (no solo localStorage)
+    // para que el middleware del servidor pueda leerla correctamente
+    _client = createBrowserClient(url, key);
   }
   return _client;
 }
