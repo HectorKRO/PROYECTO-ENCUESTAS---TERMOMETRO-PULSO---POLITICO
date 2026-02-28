@@ -650,9 +650,22 @@ function Step1({ form, update, gps, encuestadorNombre, completed, colonias, colo
   [colonias, form.colonia_id]);
 
   // v3.0: Usar secciones dinámicas del municipio actual
-  const seccionInfo = useMemo(() => 
+  const seccionInfo = useMemo(() =>
     coloniaSeleccionada ? secciones.find(s => s.seccion === coloniaSeleccionada.seccion_id) : null,
   [coloniaSeleccionada, secciones]);
+
+  // GPS: detectar sección más cercana por distancia euclidiana a centroide
+  const [showAllColonias, setShowAllColonias] = useState(false);
+  const gpsSeccionSugerida = useMemo(() => {
+    if (!gps?.lat || !gps?.lng || !secciones.length) return null;
+    let minDist = Infinity, nearest = null;
+    for (const s of secciones) {
+      if (!s.lat || !s.lng) continue;
+      const d = Math.hypot(gps.lat - s.lat, gps.lng - s.lng);
+      if (d < minDist) { minDist = d; nearest = s; }
+    }
+    return nearest;
+  }, [gps?.lat, gps?.lng, secciones]);
 
   // Manejar cambio de colonia: actualiza colonia_id y seccion_electoral_id
   const handleColoniaChange = (coloniaId) => {
@@ -667,13 +680,20 @@ function Step1({ form, update, gps, encuestadorNombre, completed, colonias, colo
   };
 
   // Preparar opciones de colonia para el selector
-  const coloniaOptions = useMemo(() => 
-    colonias.map(c => ({ 
-      value: c.id, 
+  const coloniaOptions = useMemo(() =>
+    colonias.map(c => ({
+      value: c.id,
       label: `${c.nombre} (Secc. ${c.seccion_id})`,
-      seccion: c.seccion_id 
+      seccion: c.seccion_id,
     })),
   [colonias]);
+
+  // Colonias filtradas por sección GPS (cuando GPS disponible y no se ha pedido ver todas)
+  const coloniasFiltradas = useMemo(() => {
+    if (!gpsSeccionSugerida || showAllColonias) return coloniaOptions;
+    const filtered = coloniaOptions.filter(c => c.seccion === gpsSeccionSugerida.seccion);
+    return filtered.length > 0 ? filtered : coloniaOptions; // fallback a todas si 0 coincidencias
+  }, [coloniaOptions, gpsSeccionSugerida, showAllColonias]);
 
   return (
     <div style={{ animation: 'slideIn 0.3s ease-out' }}>
@@ -722,41 +742,87 @@ function Step1({ form, update, gps, encuestadorNombre, completed, colonias, colo
           </div>
         ) : (
           <div>
+            {/* Badge GPS: sección detectada por proximidad a centroide */}
+            {gpsSeccionSugerida && (
+              <div style={{
+                marginBottom: 10,
+                padding: '7px 12px',
+                background: `${C.greenDark}50`,
+                borderRadius: 8,
+                border: `1px solid ${C.greenLight}40`,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                flexWrap: 'wrap',
+              }}>
+                <span style={{ fontSize: 12, color: C.greenAcc, fontWeight: 600 }}>
+                  📍 GPS detecta: Secc. {gpsSeccionSugerida.seccion} — {gpsSeccionSugerida.zona}
+                </span>
+                <span style={{ fontSize: 11, color: C.textMut }}>
+                  {showAllColonias
+                    ? `(${colonias.length} colonias)`
+                    : `(${coloniasFiltradas.length} colonias de esta sección)`}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setShowAllColonias(v => !v)}
+                  style={{
+                    marginLeft: 'auto', fontSize: 11, background: 'none',
+                    border: `1px solid ${C.border}`, color: C.textSec,
+                    borderRadius: 4, padding: '2px 8px', cursor: 'pointer',
+                  }}
+                >
+                  {showAllColonias ? '← Solo mi sección' : 'Ver todas'}
+                </button>
+              </div>
+            )}
+
             <Select
-              label="Colonia donde vive el encuestado" 
-              required 
+              label="Colonia donde vive el encuestado"
+              required
               value={form.colonia_id}
-              placeholder={`— Selecciona una colonia (${colonias.length} disponibles) —`}
-              options={coloniaOptions}
+              placeholder={`— Selecciona una colonia (${coloniasFiltradas.length} disponibles) —`}
+              options={coloniasFiltradas}
               onChange={handleColoniaChange}
               completed={completed.includes('colonia')}
             />
-            
-            {/* Info de Sección calculada (solo lectura) */}
-            {coloniaSeleccionada && seccionInfo && (
-              <div style={{ 
-                marginTop:12, 
-                padding:12, 
-                background:`${C.greenDark}44`, 
-                borderRadius:8, 
-                border:`1px solid ${C.greenLight}44` 
+
+            {/* Info de Sección asignada (solo lectura) */}
+            {coloniaSeleccionada && (
+              <div style={{
+                marginTop: 12,
+                padding: 12,
+                background: `${C.greenDark}44`,
+                borderRadius: 8,
+                border: `1px solid ${C.greenLight}44`,
               }}>
-                <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
                   <div>
-                    <div style={{ fontSize:11, color:C.textMut, marginBottom:2 }}>Sección Electoral Asignada</div>
-                    <div style={{ fontSize:16, fontWeight:700, color:C.goldLight }}>
+                    <div style={{ fontSize: 11, color: C.textMut, marginBottom: 2 }}>Sección Electoral Asignada</div>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: C.goldLight }}>
                       Sección {coloniaSeleccionada.seccion_id}
                     </div>
                   </div>
-                  <div style={{ textAlign:'right' }}>
-                    <div style={{ fontSize:11, color:C.textMut }}>Zona</div>
-                    <div style={{ fontSize:13, color:C.textSec }}>{seccionInfo.zona}</div>
-                  </div>
-                  <div style={{ textAlign:'right' }}>
-                    <div style={{ fontSize:11, color:C.textMut }}>Tipo</div>
-                    <div style={{ fontSize:13, color:C.textSec }}>{seccionInfo.tipo}</div>
-                  </div>
+                  {seccionInfo && (
+                    <>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: 11, color: C.textMut }}>Zona</div>
+                        <div style={{ fontSize: 13, color: C.textSec }}>{seccionInfo.zona}</div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{ fontSize: 11, color: C.textMut }}>Tipo</div>
+                        <div style={{ fontSize: 13, color: C.textSec }}>{seccionInfo.tipo}</div>
+                      </div>
+                    </>
+                  )}
                 </div>
+                {/* Advertencia si la sección elegida no coincide con GPS */}
+                {gpsSeccionSugerida && coloniaSeleccionada.seccion_id !== gpsSeccionSugerida.seccion && (
+                  <div style={{ marginTop: 8, fontSize: 11, color: C.amber }}>
+                    ⚠️ La colonia elegida pertenece a Secc. {coloniaSeleccionada.seccion_id},
+                    GPS indica Secc. {gpsSeccionSugerida.seccion}. Verifique la ubicación.
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -1021,7 +1087,6 @@ export default function FormularioEncuesta({ onSubmit, encuestadorId: propEncId,
       .from('secciones_electorales')
       .select('seccion, nombre_zona, tipo, latitud_centro, longitud_centro')
       .eq('municipio_id', municipioActual.id)
-      .eq('activa', true)
       .order('seccion')
       .then(({ data, error }) => {
         if (!cancelled) {
@@ -1034,7 +1099,9 @@ export default function FormularioEncuesta({ onSubmit, encuestadorId: propEncId,
               seccion: s.seccion,
               label: s.seccion,
               zona: s.nombre_zona || 'Sin zona',
-              tipo: s.tipo || 'Urbana'
+              tipo: s.tipo || 'Urbana',
+              lat: s.latitud_centro,
+              lng: s.longitud_centro,
             })));
           }
         }
