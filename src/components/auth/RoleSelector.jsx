@@ -2,12 +2,10 @@
 
 import { C } from '@/lib/theme';
 
-// U12: Agregado superadmin como opción disponible
 const ROLES = [
-  { id: 'encuestador', label: 'Encuestador', icon: '📝', desc: 'Levantar encuestas en campo' },
-  { id: 'analista', label: 'Analista', icon: '📊', desc: 'Ver dashboard y reportes' },
-  { id: 'admin', label: 'Administrador', icon: '⚙️', desc: 'Gestionar campaña y equipo' },
-  { id: 'superadmin', label: 'Super Administrador', icon: '👑', desc: 'Control total del sistema' }
+  { id: 'encuestador', label: 'Encuestador',    icon: '📝', desc: 'Levantar encuestas en campo' },
+  { id: 'analista',    label: 'Analista',        icon: '📊', desc: 'Ver dashboard y reportes' },
+  { id: 'admin',       label: 'Administrador',   icon: '⚙️', desc: 'Gestionar campaña y equipo' },
 ];
 
 export function RoleSelector({ selected, onSelect }) {
@@ -20,6 +18,7 @@ export function RoleSelector({ selected, onSelect }) {
       {ROLES.map((rol) => (
         <button
           key={rol.id}
+          type="button"
           onClick={() => onSelect(rol.id)}
           style={{
             display: 'flex',

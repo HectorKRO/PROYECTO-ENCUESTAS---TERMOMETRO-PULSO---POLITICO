@@ -191,6 +191,11 @@ const TooltipWrapperStyle = {
   outline: 'none',
   boxShadow: 'none',
 };
+// labelStyle: texto del encabezado del tooltip (ej. "Regular")
+// itemStyle: texto de cada fila de datos (ej. "31%")
+// Sin estos, Recharts usa negro por defecto para el label y el color del serie para los items
+const TooltipLabelStyle = { color: C.textPri, fontWeight: 600, marginBottom: 2 };
+const TooltipItemStyle  = { color: C.textSec };
 
 // ─── UTILIDADES PARA SEMÁFORO VISUAL ───────────────────────────────────────────
 function getEstadoSemaforo(valor) {
@@ -303,6 +308,8 @@ export default function DashboardPolitico({ onNavigateToMapa }) {
   const [dateRange, setDateRange]     = useState({ from:'', to:'' });
   const [lastUpdate, setLastUpdate]   = useState('');
   const [exporting, setExporting]     = useState(false);
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const exportMenuRef = useRef(null);
   const [campanaInfo, setCampanaInfo] = useState(null);
 
   // v3.0: Contexto multi-municipio
@@ -412,6 +419,18 @@ export default function DashboardPolitico({ onNavigateToMapa }) {
     });
     setLastUpdate(now.toLocaleString('es-MX', { dateStyle:'medium', timeStyle:'short' }));
   }, []);
+
+  // Cerrar menú exportar al hacer clic fuera
+  useEffect(() => {
+    if (!showExportMenu) return;
+    const handler = (e) => {
+      if (exportMenuRef.current && !exportMenuRef.current.contains(e.target)) {
+        setShowExportMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [showExportMenu]);
 
   const pctMeta = useMemo(() => {
     if (!D.kpis?.meta || D.kpis.meta === 0) return 0;
@@ -529,16 +548,51 @@ export default function DashboardPolitico({ onNavigateToMapa }) {
               </button>
             )}
 
-            {/* Exportar */}
-            <div style={{ display: 'flex', gap: 6 }}>
-              <button onClick={handleExportResumen} disabled={exporting}
-                style={{ padding: '6px 12px', borderRadius: 6, fontSize: 11, background: C.surfaceEl, border: `1px solid ${C.border}`, color: C.textSec, cursor: 'pointer' }}>
-                Exportar
+            {/* Exportar — dropdown */}
+            <div ref={exportMenuRef} style={{ position: 'relative' }}>
+              <button
+                onClick={() => setShowExportMenu(v => !v)}
+                disabled={exporting}
+                style={{
+                  padding: '6px 12px', borderRadius: 6, fontSize: 11,
+                  background: `linear-gradient(135deg, ${C.gold}, ${C.goldDim})`,
+                  border: 'none', color: C.bg, fontWeight: 600,
+                  cursor: exporting ? 'not-allowed' : 'pointer',
+                  display: 'flex', alignItems: 'center', gap: 5,
+                  opacity: exporting ? 0.7 : 1,
+                }}
+              >
+                {exporting ? '⏳' : '📥 Exportar'} <span style={{ fontSize: 9 }}>▾</span>
               </button>
-              <button onClick={handleExportEncuestas} disabled={exporting}
-                style={{ padding: '6px 12px', borderRadius: 6, fontSize: 11, background: `linear-gradient(135deg, ${C.gold}, ${C.goldDim})`, border: 'none', color: C.bg, fontWeight: 600, cursor: 'pointer' }}>
-                {exporting ? '⏳' : '📥 Excel'}
-              </button>
+              {showExportMenu && (
+                <div style={{
+                  position: 'absolute', top: 'calc(100% + 6px)', right: 0,
+                  background: C.surface, border: `1px solid ${C.border}`,
+                  borderRadius: 8, minWidth: 190, zIndex: 300,
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.35)',
+                  overflow: 'hidden',
+                }}>
+                  {[
+                    { icon: '📊', label: 'Resumen CSV',        action: () => { handleExportResumen(); setShowExportMenu(false); } },
+                    { icon: '📥', label: 'Datos completos CSV', action: () => { handleExportEncuestas(); setShowExportMenu(false); } },
+                    { icon: '🖨️', label: 'Imprimir / PDF',     action: () => { window.print(); setShowExportMenu(false); } },
+                  ].map(({ icon, label, action }) => (
+                    <button key={label} onClick={action}
+                      style={{
+                        display: 'flex', alignItems: 'center', gap: 8,
+                        width: '100%', padding: '10px 14px',
+                        background: 'none', border: 'none',
+                        color: C.textSec, fontSize: 12, textAlign: 'left',
+                        cursor: 'pointer',
+                      }}
+                      onMouseEnter={e => { e.currentTarget.style.background = C.surfaceEl; e.currentTarget.style.color = C.textPri; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = 'none'; e.currentTarget.style.color = C.textSec; }}
+                    >
+                      <span>{icon}</span>{label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -641,7 +695,7 @@ export default function DashboardPolitico({ onNavigateToMapa }) {
                   <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
                   <XAxis dataKey="semana" tick={{ fill:C.textMut, fontSize:11 }} axisLine={{ stroke:C.border }} />
                   <YAxis domain={yDomain} tick={{ fill:C.textMut, fontSize:11 }} axisLine={{ stroke:C.border }} />
-                  <RTooltip contentStyle={TooltipStyle} wrapperStyle={TooltipWrapperStyle} active={isMobile ? false : undefined} formatter={(v,n) => [`${v}%`, n]} />
+                  <RTooltip contentStyle={TooltipStyle} wrapperStyle={TooltipWrapperStyle} labelStyle={TooltipLabelStyle} itemStyle={TooltipItemStyle} active={isMobile ? false : undefined} formatter={(v,n) => [`${v}%`, n]} />
                   <Legend wrapperStyle={{ fontSize:11, color:C.textSec }} />
                   <Area type="monotone" dataKey="reconocimiento" stroke={C.greenLight} fill="url(#gReconocimiento)" strokeWidth={2} name="Reconocimiento" />
                   <Area type="monotone" dataKey="intencion"      stroke={C.greenAcc}  fill="url(#gIntencion)"     strokeWidth={2} name="Intención" />
@@ -658,7 +712,7 @@ export default function DashboardPolitico({ onNavigateToMapa }) {
                   <Pie data={D.conoce_candidato || []} cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={3} dataKey="value">
                     {(D.conoce_candidato || []).map((e,i) => <Cell key={i} fill={e.color} />)}
                   </Pie>
-                  <RTooltip contentStyle={TooltipStyle} wrapperStyle={TooltipWrapperStyle} active={isMobile ? false : undefined} formatter={v=>`${v}%`} />
+                  <RTooltip contentStyle={TooltipStyle} wrapperStyle={TooltipWrapperStyle} labelStyle={TooltipLabelStyle} itemStyle={TooltipItemStyle} active={isMobile ? false : undefined} formatter={v=>`${v}%`} />
                   <Legend wrapperStyle={{ fontSize:11, color:C.textSec }} />
                 </PieChart>
               </ResponsiveContainer>
@@ -672,7 +726,7 @@ export default function DashboardPolitico({ onNavigateToMapa }) {
                   <Pie data={D.evaluacion_gobierno || []} cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={3} dataKey="value">
                     {(D.evaluacion_gobierno || []).map((e,i) => <Cell key={i} fill={e.color} />)}
                   </Pie>
-                  <RTooltip contentStyle={TooltipStyle} wrapperStyle={TooltipWrapperStyle} active={isMobile ? false : undefined} formatter={v=>`${v}%`} />
+                  <RTooltip contentStyle={TooltipStyle} wrapperStyle={TooltipWrapperStyle} labelStyle={TooltipLabelStyle} itemStyle={TooltipItemStyle} active={isMobile ? false : undefined} formatter={v=>`${v}%`} />
                   <Legend wrapperStyle={{ fontSize:11, color:C.textSec }} />
                 </PieChart>
               </ResponsiveContainer>
@@ -694,7 +748,7 @@ export default function DashboardPolitico({ onNavigateToMapa }) {
                   <Pie data={D.demografia_genero || []} cx="50%" cy="50%" outerRadius={90} paddingAngle={4} dataKey="value">
                     {(D.demografia_genero || []).map((e,i) => <Cell key={i} fill={e.color} />)}
                   </Pie>
-                  <RTooltip contentStyle={TooltipStyle} wrapperStyle={TooltipWrapperStyle} active={isMobile ? false : undefined} formatter={v=>`${v}%`} />
+                  <RTooltip contentStyle={TooltipStyle} wrapperStyle={TooltipWrapperStyle} labelStyle={TooltipLabelStyle} itemStyle={TooltipItemStyle} active={isMobile ? false : undefined} formatter={v=>`${v}%`} />
                   <Legend wrapperStyle={{ fontSize:11, color:C.textSec }} />
                 </PieChart>
               </ResponsiveContainer>
@@ -708,7 +762,7 @@ export default function DashboardPolitico({ onNavigateToMapa }) {
                   <CartesianGrid strokeDasharray="3 3" stroke={C.border} horizontal={false} />
                   <XAxis type="number" tick={{ fill:C.textMut, fontSize:11 }} axisLine={{ stroke:C.border }} domain={[0,70]} tickFormatter={v=>`${v}%`} />
                   <YAxis type="category" dataKey="rango" tick={{ fill:C.textSec, fontSize:11 }} axisLine={{ stroke:C.border }} width={45} />
-                  <RTooltip contentStyle={TooltipStyle} wrapperStyle={TooltipWrapperStyle} active={isMobile ? false : undefined} formatter={v=>`${v}%`} />
+                  <RTooltip contentStyle={TooltipStyle} wrapperStyle={TooltipWrapperStyle} labelStyle={TooltipLabelStyle} itemStyle={TooltipItemStyle} active={isMobile ? false : undefined} formatter={v=>`${v}%`} />
                   <Bar dataKey="intencion" name="Intención" radius={[0,5,5,0]}>
                     {(D.demografia_edad || []).map((d,i) => <Cell key={i} fill={getColorPct(d.intencion)} />)}
                   </Bar>
@@ -749,7 +803,7 @@ export default function DashboardPolitico({ onNavigateToMapa }) {
                   <CartesianGrid strokeDasharray="3 3" stroke={C.border} horizontal={false} />
                   <XAxis type="number" tick={{ fill:C.textMut, fontSize:11 }} axisLine={{ stroke:C.border }} domain={[0,70]} tickFormatter={v=>`${v}%`} />
                   <YAxis type="category" dataKey="tema" tick={{ fill:C.textSec, fontSize:12 }} axisLine={{ stroke:C.border }} width={120} />
-                  <RTooltip contentStyle={TooltipStyle} wrapperStyle={TooltipWrapperStyle} active={isMobile ? false : undefined} formatter={v=>`${v}%`} />
+                  <RTooltip contentStyle={TooltipStyle} wrapperStyle={TooltipWrapperStyle} labelStyle={TooltipLabelStyle} itemStyle={TooltipItemStyle} active={isMobile ? false : undefined} formatter={v=>`${v}%`} />
                   <Bar dataKey="pct" name="% ciudadanos" radius={[0,6,6,0]}>
                     {(D.agenda || []).map((_,i) => <Cell key={i} fill={i<3?C.gold:i<5?C.green:C.greenDark} />)}
                   </Bar>
