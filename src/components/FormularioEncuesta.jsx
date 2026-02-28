@@ -1273,6 +1273,26 @@ export default function FormularioEncuesta({ onSubmit, encuestadorId: propEncId,
       
       {/* ── NAVBAR SIMPLE v3.1 (N6) ── */}
       <NavBar simple={true} campanaNombre={config.candidato} />
+
+      {/* ── WARNING: sin campaña vinculada ── */}
+      {!config.campanaId && (
+        <div style={{
+          background: `${C.amber}18`,
+          borderBottom: `1px solid ${C.amber}60`,
+          padding: '10px 20px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          fontSize: 12,
+          color: C.amber,
+        }}>
+          <span style={{ fontSize: 16 }}>⚠️</span>
+          <span>
+            Este formulario no está vinculado a ninguna campaña. Las encuestas <strong>no aparecerán</strong> en ningún dashboard.
+            Solicita a tu administrador el link correcto con <code style={{ background: `${C.amber}20`, padding: '1px 5px', borderRadius: 3 }}>?campana=ID</code>.
+          </span>
+        </div>
+      )}
       
       {/* ── MINI-HEADER DE ESTADO (N6) ── */}
       <div style={{ 

@@ -395,6 +395,11 @@ export default function AdminPanel({ campanaId }) {
               </div>
 
               <button onClick={saveCampana} style={btnPrimary}>💾 Guardar configuración</button>
+
+              {/* ── Link de encuesta para encuestadores ── */}
+              {campanaId && campanaId !== 'demo' && (
+                <SurveyLink campanaId={campanaId} />
+              )}
             </div>
           )}
 
@@ -572,6 +577,57 @@ export default function AdminPanel({ campanaId }) {
               </div>
             </div>
           )}
+      </div>
+    </div>
+  );
+}
+
+// ── Link de encuesta para compartir con encuestadores ────────
+function SurveyLink({ campanaId }) {
+  const [copied, setCopied] = useState(false);
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  const link = `${origin}/encuesta?campana=${campanaId}`;
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(link).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    });
+  };
+
+  return (
+    <div style={{ marginTop: 24, borderTop: `1px solid ${C.border}`, paddingTop: 20 }}>
+      <div style={{ fontSize: 11, color: C.textSec, textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>
+        Link de encuesta para encuestadores
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+        <div style={{
+          flex: 1, minWidth: 0,
+          padding: '9px 12px', borderRadius: 6,
+          border: `1px solid ${C.border}`,
+          background: 'rgba(0,0,0,0.3)',
+          fontSize: 12, color: C.textPri,
+          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+          fontFamily: 'monospace',
+        }}>
+          {link}
+        </div>
+        <button
+          onClick={handleCopy}
+          style={{
+            padding: '9px 16px', borderRadius: 6, fontSize: 12, fontWeight: 600,
+            border: `1px solid ${copied ? C.greenAcc + '60' : C.gold + '60'}`,
+            background: copied ? `${C.greenAcc}15` : 'transparent',
+            color: copied ? C.greenAcc : C.gold,
+            cursor: 'pointer', whiteSpace: 'nowrap', fontFamily: 'inherit',
+            transition: 'all .2s',
+          }}
+        >
+          {copied ? '✓ Copiado' : '📋 Copiar link'}
+        </button>
+      </div>
+      <div style={{ fontSize: 11, color: C.textMut, marginTop: 8 }}>
+        Comparte este link con tus encuestadores. Todas las respuestas se registrarán automáticamente en esta campaña.
       </div>
     </div>
   );
