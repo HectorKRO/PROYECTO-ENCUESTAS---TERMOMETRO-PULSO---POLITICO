@@ -536,9 +536,26 @@ export default function AdminPanel({ campanaId }) {
                   ))
                 )}
               </div>
-              <div style={{ color: C.textMut, fontSize: 11, marginTop: 16 }}>
-                Al desactivar un encuestador, su enlace de encuesta dejará de funcionar.
-                Sus encuestas ya levantadas se conservan.
+              <div style={{
+                marginTop: 16,
+                padding: '12px 14px',
+                borderRadius: 8,
+                background: 'rgba(201,168,76,0.06)',
+                border: `1px solid ${C.gold}30`,
+              }}>
+                <div style={{ color: C.gold, fontSize: 12, fontWeight: 600, marginBottom: 4 }}>
+                  ⚠️ Importante: acceso al formulario
+                </div>
+                <div style={{ color: C.textMut, fontSize: 11, lineHeight: 1.6 }}>
+                  Esta lista registra el equipo para estadísticas. Para que un encuestador
+                  pueda <strong style={{ color: C.textSec }}>iniciar sesión y usar el link de encuesta</strong>,
+                  debes crearle una cuenta en{' '}
+                  <strong style={{ color: C.textSec }}>Supabase Dashboard → Authentication → Users → Add user</strong>,
+                  y después agregarlo a la organización con rol <code style={{ color: C.gold }}>encuestador</code>.
+                </div>
+                <div style={{ color: C.textMut, fontSize: 11, marginTop: 6 }}>
+                  Al desactivar un encuestador su sesión deja de funcionar. Sus encuestas se conservan.
+                </div>
               </div>
             </div>
           )}

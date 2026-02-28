@@ -53,7 +53,10 @@ export async function middleware(request) {
 
     if (!session) {
       const loginUrl = new URL('/login', request.url);
-      loginUrl.searchParams.set('redirect', request.nextUrl.pathname);
+      // Preservar pathname + search params para redirigir de vuelta después del login
+      // Ejemplo: /encuesta?campana=UUID → después de login vuelve a /encuesta?campana=UUID
+      const fullPath = request.nextUrl.pathname + request.nextUrl.search;
+      loginUrl.searchParams.set('redirect', fullPath);
       return NextResponse.redirect(loginUrl);
     }
 
@@ -67,8 +70,11 @@ export async function middleware(request) {
   }
 }
 
-// ✅ FIX: /encuesta es público (no requiere auth). 
-// Rutas protegidas: dashboard, admin, war-room, perfil
+// Rutas protegidas: encuesta, dashboard, admin, war-room, perfil
+// NOTA: /encuesta requiere auth para que useOrganizacion pueda cargar
+// municipioActual y las colonias. Los encuestadores deben iniciar sesión
+// antes de abrir el link de encuesta.
 export const config = {
-  matcher: ['/dashboard/:path*', '/admin/:path*', '/war-room/:path*', '/perfil/:path*'],
+  // /encuesta sin /:path* porque la ruta es exactamente /encuesta (sin sub-páginas)
+  matcher: ['/encuesta', '/dashboard/:path*', '/admin/:path*', '/war-room/:path*', '/perfil/:path*'],
 };

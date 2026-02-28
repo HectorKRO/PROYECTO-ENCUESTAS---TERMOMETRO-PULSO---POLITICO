@@ -1,9 +1,8 @@
-'use client';
-
+import { Suspense } from 'react';
 import { LoginForm } from '@/components/auth/LoginForm';
 import { C } from '@/lib/theme';
 
-export default function LoginPage() {
+function LoginContainer() {
   return (
     <div style={{
       minHeight: '100vh',
@@ -19,5 +18,17 @@ export default function LoginPage() {
     }}>
       <LoginForm />
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: C.gold }}>
+        Cargando…
+      </div>
+    }>
+      <LoginContainer />
+    </Suspense>
   );
 }
