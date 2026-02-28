@@ -49,6 +49,17 @@ body {
 /* ── Leaflet reset ── */
 .leaflet-container { background: var(--bg) !important; }
 
+/* ── Eliminar focus ring del navegador en SVG interactivos (Leaflet + recharts) ──
+   El navegador dibuja un rectángulo negro alrededor del bounding-box del <path>
+   al recibir foco con click — se elimina aquí para todos los SVG del proyecto. */
+path:focus,
+circle:focus,
+rect:focus,
+svg:focus,
+svg *:focus {
+  outline: none !important;
+}
+
 /* ── War Room: Tooltip oscuro (hover sobre sección) ── */
 .warroom-tooltip {
   background: rgba(7, 16, 10, 0.97) !important;

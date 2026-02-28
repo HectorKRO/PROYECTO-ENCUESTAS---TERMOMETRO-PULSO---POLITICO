@@ -280,71 +280,135 @@ const StatsPanel = memo(function StatsPanel({ data, selectedSeccion, onClose }) 
     <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: '0 auto 12px' }} />
   ) : null;
 
-  // Estado vacío — en mobile no mostrar para no tapar el mapa
+  // Estado vacío — Leyenda en desktop, invisible en mobile (no tapa el mapa)
   if (!selectedSeccion) {
     if (isMobile) return null;
+    const totalEncuestas = data?.secciones?.reduce((a, s) => a + (s.total || 0), 0) || 0;
+    const seccionesActivas = data?.secciones?.filter(s => s.total > 0).length || 0;
+    const totalSecciones = data?.secciones?.length || 0;
     return (
-      <div style={{ ...baseStyle, width: 240 }}>
-        <p style={{ color: C.textMut, fontSize: 12, margin: '0 0 10px' }}>
-          Toca una sección para ver detalles
-        </p>
+      <div style={{ ...baseStyle, width: 200 }}>
+        <div style={{ fontSize: 10, color: C.textMut, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 10 }}>
+          Leyenda
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+          {[
+            { color: INTENCION_COLORS.muy_alta, label: 'Ganando  ≥55%' },
+            { color: INTENCION_COLORS.alta,     label: 'Sólido  45–55%' },
+            { color: INTENCION_COLORS.media,    label: 'Competido  35–45%' },
+            { color: INTENCION_COLORS.baja,     label: 'En riesgo  25–35%' },
+            { color: INTENCION_COLORS.muy_baja, label: 'Crítico  <25%' },
+            { color: INTENCION_COLORS.sin_datos, label: 'Sin datos' },
+          ].map(({ color, label }) => (
+            <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+              <div style={{ width: 12, height: 12, borderRadius: 3, background: color, flexShrink: 0 }} />
+              <span style={{ fontSize: 11, color: C.textSec }}>{label}</span>
+            </div>
+          ))}
+        </div>
         {data && (
-          <div style={{ color: C.textSec, fontSize: 12, display: 'flex', flexDirection: 'column', gap: 4 }}>
-            <div>📊 {data.secciones?.filter(s => s.total > 0).length || 0} secciones con datos</div>
-            <div>📝 {data.secciones?.reduce((a, s) => a + (s.total || 0), 0) || 0} encuestas totales</div>
+          <div style={{ marginTop: 12, paddingTop: 10, borderTop: `1px solid ${C.border}`, display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <div style={{ color: C.textSec, fontSize: 11 }}>📊 {seccionesActivas}/{totalSecciones} secciones</div>
+            <div style={{ color: C.textSec, fontSize: 11 }}>📝 {totalEncuestas} encuestas</div>
           </div>
         )}
+        <div style={{ marginTop: 8, fontSize: 10, color: C.textMut }}>
+          Haz clic en una sección
+        </div>
       </div>
     );
   }
 
+  // Estado con sección seleccionada — drill-down de colonias
   const seccionData = data?.secciones?.find(s => s.seccion_id === selectedSeccion);
-  if (!seccionData) {
+  const coloniasSeccion = (data?.colonias || [])
+    .filter(c => c.seccion_id === selectedSeccion)
+    .sort((a, b) => (b.pct_intencion_positiva || 0) - (a.pct_intencion_positiva || 0));
+
+  if (!seccionData && coloniasSeccion.length === 0) {
     return (
       <div style={{ ...baseStyle, width: isMobile ? '100%' : 280 }}>
         {dragHandle}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3 style={{ color: C.goldLight, margin: 0, fontSize: 16 }}>Sección {selectedSeccion}</h3>
+          <h3 style={{ color: C.goldLight, margin: 0, fontSize: 15 }}>Sección {selectedSeccion}</h3>
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: C.textMut, cursor: 'pointer', fontSize: 22, padding: '2px 6px', lineHeight: 1 }}>×</button>
         </div>
-        <p style={{ color: C.textMut, marginTop: 12, fontSize: 13 }}>Sin datos para esta sección</p>
+        <p style={{ color: C.textMut, marginTop: 12, fontSize: 12 }}>Sin datos para esta sección</p>
       </div>
     );
   }
 
-  const intencionColor = getIntencionColor(seccionData.pct_intencion_positiva);
-
   return (
-    <div style={{ ...baseStyle, width: isMobile ? '100%' : 320, maxHeight: isMobile ? '40vh' : '80vh' }}>
+    <div style={{ ...baseStyle, width: isMobile ? '100%' : 300, maxHeight: isMobile ? '40vh' : '72vh' }}>
       {dragHandle}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isMobile ? 8 : 12 }}>
-        <h3 style={{ color: C.goldLight, margin: 0, fontSize: isMobile ? 14 : 18 }}>Sección {selectedSeccion}</h3>
-        <button onClick={onClose} style={{ background: 'none', border: 'none', color: C.textMut, cursor: 'pointer', fontSize: 20, padding: '2px 6px', lineHeight: 1 }}>×</button>
+      {/* Header: sección + resumen rápido */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
+        <div>
+          <h3 style={{ color: C.goldLight, margin: '0 0 2px', fontSize: isMobile ? 13 : 15 }}>
+            Sección {selectedSeccion}
+          </h3>
+          {seccionData && (
+            <div style={{ fontSize: 11, color: C.textMut }}>
+              {seccionData.total || 0} encuestas
+              {seccionData.pct_intencion_positiva != null && (
+                <span style={{ color: getIntencionColor(seccionData.pct_intencion_positiva), fontWeight: 600, marginLeft: 6 }}>
+                  {seccionData.pct_intencion_positiva.toFixed(1)}% intención
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+        <button onClick={onClose} style={{ background: 'none', border: 'none', color: C.textMut, cursor: 'pointer', fontSize: 20, padding: '2px 6px', lineHeight: 1, flexShrink: 0 }}>×</button>
       </div>
 
-      <div style={{
-        background: C.surfaceEl,
-        borderRadius: 8,
-        padding: isMobile ? 8 : 12,
-        marginBottom: isMobile ? 8 : 12,
-        border: `1px solid ${intencionColor}33`,
-      }}>
-        <div style={{ fontSize: 10, color: C.textMut, marginBottom: 2 }}>Intención Positiva</div>
-        <div style={{ fontSize: isMobile ? 22 : 32, fontWeight: 900, color: intencionColor }}>
-          {seccionData.pct_intencion_positiva?.toFixed(1) || '0.0'}%
+      {/* Drill-down colonias */}
+      {coloniasSeccion.length > 0 ? (
+        <div>
+          <div style={{ fontSize: 10, color: C.textMut, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 7 }}>
+            Colonias · {coloniasSeccion.length}
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 3, maxHeight: isMobile ? 'none' : 280, overflowY: 'auto' }}>
+            {coloniasSeccion.map(c => {
+              const color = getIntencionColor(c.pct_intencion_positiva);
+              return (
+                <div key={c.colonia_id} style={{
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  padding: '5px 8px',
+                  background: C.surfaceEl,
+                  borderRadius: 5,
+                  borderLeft: `3px solid ${color}`,
+                }}>
+                  <span style={{ fontSize: 11, color: C.textSec, flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    {c.colonia}
+                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                    <span style={{ fontSize: 10, color: C.textMut }}>{c.total}</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color, minWidth: 36, textAlign: 'right' }}>
+                      {c.pct_intencion_positiva != null ? c.pct_intencion_positiva.toFixed(0) + '%' : '—'}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-        <div style={{ background: C.surfaceEl, padding: isMobile ? 7 : 10, borderRadius: 6 }}>
-          <div style={{ fontSize: 10, color: C.textMut }}>Encuestas</div>
-          <div style={{ fontSize: isMobile ? 15 : 18, fontWeight: 700, color: C.textPri }}>{seccionData.total || 0}</div>
-        </div>
-        <div style={{ background: C.surfaceEl, padding: isMobile ? 7 : 10, borderRadius: 6 }}>
-          <div style={{ fontSize: 10, color: C.textMut }}>Reconocimiento</div>
-          <div style={{ fontSize: isMobile ? 15 : 18, fontWeight: 700, color: C.textPri }}>{seccionData.pct_reconocimiento?.toFixed(1) || '0.0'}%</div>
-        </div>
-      </div>
+      ) : (
+        /* Fallback: sección sin colonias registradas — mostrar stats básicos */
+        seccionData && (
+          <div style={{
+            background: C.surfaceEl, borderRadius: 8, padding: 12,
+            border: `1px solid ${getIntencionColor(seccionData.pct_intencion_positiva)}33`,
+          }}>
+            <div style={{ fontSize: 10, color: C.textMut, marginBottom: 4 }}>Intención Positiva</div>
+            <div style={{ fontSize: 28, fontWeight: 900, color: getIntencionColor(seccionData.pct_intencion_positiva) }}>
+              {seccionData.pct_intencion_positiva?.toFixed(1) || '0.0'}%
+            </div>
+            <div style={{ marginTop: 8, fontSize: 11, color: C.textSec }}>
+              Reconocimiento: {seccionData.pct_reconocimiento?.toFixed(1) || '0.0'}%
+            </div>
+          </div>
+        )
+      )}
     </div>
   );
 });
@@ -618,7 +682,7 @@ const selectHeaderStyle = {
   outline: 'none',
   flex: 1,
   minWidth: 0,       // permite comprimir por debajo del contenido
-  maxWidth: 200,
+  maxWidth: 260,
 };
 
 export default function WarRoom() {
@@ -635,6 +699,9 @@ export default function WarRoom() {
     toggleComparison,
     municipiosDisponibles,
   } = useWarRoomComparison();
+
+  // Nombre de la campaña seleccionada (para mostrar en header)
+  const campanaSeleccionadaA = ladoA.campanasDisponibles?.find(c => c.id === ladoA.campanaId);
 
   return (
     <div style={{
@@ -711,19 +778,27 @@ export default function WarRoom() {
             height: 56,
             gap: 16,
           }}>
-            {/* Zona izquierda: título + semáforo */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-              <span style={{ fontSize: 16 }}>🗺️</span>
-              <span style={{ fontWeight: 700, fontSize: 15, color: C.textPri }}>War Room</span>
-              <span style={{ color: C.border, fontSize: 14 }}>·</span>
-              <span style={{ fontSize: 12, color: C.textMut }}>
+            {/* Zona izquierda: título + municipio + campaña + semáforo */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, minWidth: 0 }}>
+              <span style={{ fontSize: 16, flexShrink: 0 }}>🗺️</span>
+              <span style={{ fontWeight: 700, fontSize: 15, color: C.textPri, flexShrink: 0 }}>War Room</span>
+              <span style={{ color: C.border, fontSize: 14, flexShrink: 0 }}>·</span>
+              <span style={{ fontSize: 12, color: C.textMut, flexShrink: 0 }}>
                 {municipiosDisponibles.find(m => m.id === ladoA.municipioId)?.nombre || 'Mapa electoral'}
               </span>
+              {campanaSeleccionadaA && (
+                <>
+                  <span style={{ color: C.border, fontSize: 14, flexShrink: 0 }}>·</span>
+                  <span style={{ fontSize: 12, color: C.gold, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 220 }}>
+                    {campanaSeleccionadaA.nombre}
+                  </span>
+                </>
+              )}
               <Semaforo status={statusA} showLabel={true} />
             </div>
 
             {/* Zona central: selectors */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, justifyContent: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1 }}>
               <select
                 value={ladoA.municipioId || ''}
                 onChange={(e) => setMunicipioA(e.target.value ? Number(e.target.value) : null)}
