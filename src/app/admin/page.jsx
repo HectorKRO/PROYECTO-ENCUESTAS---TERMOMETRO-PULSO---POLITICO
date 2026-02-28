@@ -15,7 +15,7 @@ function AdminContent() {
     return <CampanasList />;
   }
 
-  return <AdminPanel />;
+  return <AdminPanel campanaId={campanaId} />;
 }
 
 export default function AdminPage() {

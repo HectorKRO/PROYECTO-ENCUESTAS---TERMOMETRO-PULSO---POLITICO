@@ -26,24 +26,18 @@ const TABS = [
 ];
 
 // ── COMPONENTE PRINCIPAL ────────────────────────────────────
-export default function AdminPanel() {
+export default function AdminPanel({ campanaId }) {
   const router = useRouter();
   const [tab, setTab] = useState("campana");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [saved, setSaved] = useState(false);
-  
+
   // Datos de la campaña
   const [campana, setCampana] = useState(null);
   const [, setCandidatosRivales] = useState([]);
   const [encuestadores, setEncuestadores] = useState([]);
   const [syncLog, setSyncLog] = useState([]);
-  
-  // Leer campana_id de la URL directamente en el estado inicial
-  const [campanaId] = useState(() => {
-    if (typeof window === 'undefined') return null;
-    return new URLSearchParams(window.location.search).get('campana') || null;
-  });
 
   // Estado para crear nuevo encuestador
   const [showNuevoEncuestador, setShowNuevoEncuestador] = useState(false);
