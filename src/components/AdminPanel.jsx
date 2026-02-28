@@ -56,9 +56,13 @@ export default function AdminPanel() {
   }, [campanaId]);
 
   const loadData = async () => {
+    if (!campanaId) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setError(null);
-    
+
     try {
       // ✅ FIX P2: Cargar campaña con JOIN al candidato para obtener nombre
       const { data: campanaData, error: campanaError } = await supabase
@@ -67,16 +71,18 @@ export default function AdminPanel() {
           *,
           candidato:candidato_id(nombre, cargo, partido, color_primario)
         `)
-        .eq('id', campanaId || 'demo')
+        .eq('id', campanaId)
         .single();
       
       if (campanaError) {
         // Usar datos demo si no hay conexión
+        // ✅ FIX: candidato SIEMPRE es string (candidatoObj es el objeto), igual que el else branch
         setCampana({
           id: 'demo',
           nombre: "Campaña Demo 2025",
-          candidato: { nombre: "Candidato Demo", cargo: "Presidente Municipal", partido: "" },
-          metaEncuestas: 400,
+          candidato: "Candidato Demo",
+          candidatoObj: { cargo: "Presidente Municipal", partido: "", color_primario: null },
+          meta_encuestas: 400,
           activa: true,
         });
       } else {
@@ -92,7 +98,7 @@ export default function AdminPanel() {
       const { data: encuestadoresData } = await supabase
         .from('encuestadores')
         .select('*')
-        .eq('campana_id', campanaId || 'demo')
+        .eq('campana_id', campanaId)
         .order('created_at', { ascending: false });
       
       setEncuestadores(encuestadoresData || []);
@@ -361,13 +367,13 @@ export default function AdminPanel() {
 
               <FormGroup label={`Meta de encuestas: ${campana.meta_encuestas}`}>
                 <input
-                  type="range" min="100" max="20000" step="500"
-                  value={campana.meta_encuestas || 400}
+                  type="range" min="500" max="20000" step="500"
+                  value={campana.meta_encuestas || 500}
                   onChange={e => updateCampana("meta_encuestas", parseInt(e.target.value))}
                   style={{ width: "100%", accentColor: C.gold }}
                 />
                 <div style={{ display: "flex", justifyContent: "space-between", color: C.textMut, fontSize: 10 }}>
-                  <span>100</span><span>20,000</span>
+                  <span>500</span><span>20,000</span>
                 </div>
               </FormGroup>
 
