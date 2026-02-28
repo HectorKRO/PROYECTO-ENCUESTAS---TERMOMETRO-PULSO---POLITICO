@@ -14,27 +14,9 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { C as themeC, NAV_HEIGHT } from "@/lib/theme";
+import { C, NAV_HEIGHT } from "@/lib/theme";
 import { supabase } from "@/lib/supabase";
 import CandidatosManager from "@/components/CandidatosManager";
-
-// ── PALETA ──────────────────────────────────────────────────
-const C = {
-  bg1: themeC.bg,
-  bg2: themeC.surface,
-  bg3: themeC.surfaceEl,
-  accent: themeC.gold,
-  accentDark: themeC.goldDim,
-  textMain: themeC.textPri,
-  textSub: themeC.textSec,
-  textMuted: themeC.textMut,
-  border: `rgba(201,168,76,0.18)`,
-  borderSub: `rgba(255,255,255,0.06)`,
-  cardBg: "rgba(26,46,26,0.45)",
-  positive: themeC.greenAcc,
-  negative: themeC.danger,
-  warning: themeC.amber,
-};
 
 const TABS = [
   { key: "campana", label: "⚙️ Campaña", icon: "⚙️" },
@@ -269,124 +251,97 @@ export default function AdminPanel() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: "100vh", background: C.bg1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ color: C.textMuted }}>Cargando panel de administración...</div>
+      <div style={{ minHeight: "100vh", background: C.bg, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ color: C.textMut }}>Cargando panel de administración...</div>
       </div>
     );
   }
 
   if (!campana) {
     return (
-      <div style={{ minHeight: "100vh", background: C.bg1, display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ color: C.negative }}>No se pudo cargar la campaña</div>
+      <div style={{ minHeight: "100vh", background: C.bg, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ color: C.danger }}>No se pudo cargar la campaña</div>
       </div>
     );
   }
 
   return (
-    <div style={{ minHeight: `calc(100vh - ${NAV_HEIGHT}px)`, background: C.bg1, fontFamily: "'Segoe UI',system-ui,sans-serif", color: C.textMain }}>
-      {/* Header */}
+    <div style={{ minHeight: `calc(100vh - ${NAV_HEIGHT}px)`, background: C.bg, fontFamily: "'Segoe UI',system-ui,sans-serif", color: C.textPri }}>
+      {/* ── HEADER COMPACTO v3.2 ── */}
       <div style={{
-        background: `linear-gradient(90deg, ${C.bg2}, ${C.bg3})`,
-        borderBottom: `2px solid ${C.accent}`,
-        padding: "16px 24px",
-        display: "flex", justifyContent: "space-between", alignItems: "center",
-        flexWrap: "wrap", gap: 12,
+        background: C.surface,
+        borderBottom: `1px solid ${C.border}`,
+        height: 64,
+        display: 'flex',
+        alignItems: 'center',
+        padding: '0 24px',
+        flexShrink: 0,
       }}>
-        <div>
-          <div style={{ color: C.accent, fontSize: 11, letterSpacing: 3, textTransform: "uppercase" }}>
-            Panel de Administración
-          </div>
-          <div style={{ fontSize: 18, fontWeight: "bold", color: C.textMain }}>
-            {campana.nombre}
-          </div>
-          {error && (
-            <div style={{ color: C.warning, fontSize: 11, marginTop: 4 }}>
-              ⚠️ {error}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', gap: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <button
+              onClick={() => router.push('/admin')}
+              style={{ padding: '5px 10px', borderRadius: 6, border: `1px solid ${C.border}`, background: 'transparent', color: C.textMut, fontSize: 12, cursor: 'pointer' }}
+            >
+              ←
+            </button>
+            <div>
+              <div style={{ fontSize: 11, color: C.textMut, textTransform: 'uppercase', letterSpacing: '.04em' }}>Admin</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: C.textPri }}>{campana.nombre}</div>
             </div>
-          )}
-        </div>
-        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-          <button
-            onClick={() => router.push('/admin')}
-            style={{
-              padding: '8px 16px',
-              borderRadius: 6,
-              border: `1px solid ${C.border}`,
-              background: 'transparent',
-              color: C.textSub,
-              fontSize: 13,
-              cursor: 'pointer',
-            }}
-          >
-            ← Volver a campañas
-          </button>
-          {saved && (
-            <div style={{
-              padding: "6px 16px", borderRadius: 6,
-              background: "rgba(34,197,94,0.1)", border: `1px solid ${C.positive}40`,
-              color: C.positive, fontSize: 12,
-            }}>
-              ✓ Guardado
-            </div>
-          )}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            {error && <span style={{ fontSize: 12, color: C.amber }}>⚠️ {error}</span>}
+            {saved && <span style={{ fontSize: 12, color: C.greenAcc }}>✓ Guardado</span>}
+          </div>
         </div>
       </div>
 
-      <div style={{ display: "flex", minHeight: `calc(100vh - ${NAV_HEIGHT}px - 80px)` }}>
-        {/* Sidebar */}
-        <div style={{
-          width: 200, background: C.bg2,
-          borderRight: `1px solid ${C.borderSub}`,
-          padding: "16px 0", flexShrink: 0,
-          display: "flex", flexDirection: "column",
-        }}>
-          <div>
-            {TABS.map(t => (
-              <button
-                key={t.key}
-                onClick={() => setTab(t.key)}
-                style={{
-                  display: "block", width: "100%", padding: "12px 20px",
-                  background: tab === t.key ? "rgba(201,168,76,0.08)" : "transparent",
-                  borderLeft: tab === t.key ? `3px solid ${C.accent}` : "3px solid transparent",
-                  borderRight: "none", borderTop: "none", borderBottom: "none",
-                  color: tab === t.key ? C.accent : C.textSub,
-                  fontSize: 13, cursor: "pointer", textAlign: "left",
-                  fontFamily: "inherit", transition: "all 0.2s",
-                }}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
-          {/* 
-            NOTA: La sección "Ir a Dashboard/War Room" se eliminó porque 
-            el NavBar global (v3.1) ya proporciona esa navegación.
-          */}
-        </div>
+      {/* ── TABS HORIZONTAL ── */}
+      <div style={{ display: 'flex', gap: 0, borderBottom: `2px solid ${C.border}`, padding: '0 24px' }}>
+        {TABS.map(t => (
+          <button
+            key={t.key}
+            onClick={() => setTab(t.key)}
+            style={{
+              padding: '10px 20px', fontSize: 13,
+              fontWeight: tab === t.key ? 600 : 400,
+              border: 'none',
+              borderBottom: tab === t.key ? `2px solid ${C.gold}` : '2px solid transparent',
+              marginBottom: -2,
+              background: 'transparent',
+              color: tab === t.key ? C.goldLight : C.textMut,
+              cursor: 'pointer',
+              transition: 'color .2s, border-color .2s',
+              fontFamily: 'inherit',
+            }}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
 
-        {/* Content */}
-        <div style={{ flex: 1, padding: 24, maxWidth: 800 }}>
+      {/* Content */}
+      <div style={{ padding: '24px', maxWidth: 860, margin: '0 auto' }}>
 
           {/* ── TAB: CAMPAÑA ──────────────────────────────── */}
           {tab === "campana" && (
             <div>
               <TabTitle>Configuración de campaña</TabTitle>
               
-              <div style={{ ...cardStyle, marginBottom: 20, borderColor: C.accent + "40" }}>
+              <div style={{ ...cardStyle, marginBottom: 20, borderColor: C.gold + "40" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
                   <div style={{
                     width: 50, height: 50, borderRadius: "50%",
-                    background: `linear-gradient(135deg, ${campana.candidatoObj?.color_primario || C.accent}, ${C.accentDark})`,
+                    background: `linear-gradient(135deg, ${campana.candidatoObj?.color_primario || C.gold}, ${C.goldDim})`,
                     display: "flex", alignItems: "center", justifyContent: "center",
                     fontSize: 20, fontWeight: "bold", color: "#fff"
                   }}>
                     {campana.candidato?.charAt(0)}
                   </div>
                   <div>
-                    <div style={{ color: C.textMain, fontWeight: "bold" }}>{campana.candidato}</div>
-                    <div style={{ color: C.textMuted, fontSize: 12 }}>{campana.candidatoObj?.cargo} • {campana.candidatoObj?.partido}</div>
+                    <div style={{ color: C.textPri, fontWeight: "bold" }}>{campana.candidato}</div>
+                    <div style={{ color: C.textMut, fontSize: 12 }}>{campana.candidatoObj?.cargo} • {campana.candidatoObj?.partido}</div>
                   </div>
                 </div>
               </div>
@@ -409,9 +364,9 @@ export default function AdminPanel() {
                   type="range" min="100" max="2000" step="50"
                   value={campana.meta_encuestas || 400}
                   onChange={e => updateCampana("meta_encuestas", parseInt(e.target.value))}
-                  style={{ width: "100%", accentColor: C.accent }}
+                  style={{ width: "100%", accentColor: C.gold }}
                 />
-                <div style={{ display: "flex", justifyContent: "space-between", color: C.textMuted, fontSize: 10 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", color: C.textMut, fontSize: 10 }}>
                   <span>100</span><span>2,000</span>
                 </div>
               </FormGroup>
@@ -420,7 +375,7 @@ export default function AdminPanel() {
                 <FormGroup label="Color primario" style={{ flex: 1 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <input type="color" value={campana.candidatoObj?.color_primario || '#c9a84c'} onChange={e => updateCampana("colorPrimario", e.target.value)} style={{ width: 40, height: 32, border: "none", borderRadius: 4, cursor: "pointer" }} />
-                    <span style={{ color: C.textSub, fontSize: 12 }}>{campana.candidatoObj?.color_primario || '#c9a84c'}</span>
+                    <span style={{ color: C.textSec, fontSize: 12 }}>{campana.candidatoObj?.color_primario || '#c9a84c'}</span>
                   </div>
                 </FormGroup>
                 <FormGroup label="Estado" style={{ flex: 1 }}>
@@ -428,9 +383,9 @@ export default function AdminPanel() {
                     onClick={() => updateCampana("activa", !campana.activa)}
                     style={{
                       padding: "8px 16px", borderRadius: 6,
-                      border: `1px solid ${campana.activa ? C.positive : C.negative}40`,
+                      border: `1px solid ${campana.activa ? C.greenAcc : C.danger}40`,
                       background: campana.activa ? "rgba(34,197,94,0.08)" : "rgba(239,68,68,0.08)",
-                      color: campana.activa ? C.positive : C.negative,
+                      color: campana.activa ? C.greenAcc : C.danger,
                       fontSize: 12, cursor: "pointer",
                     }}
                   >
@@ -457,9 +412,9 @@ export default function AdminPanel() {
                   onClick={() => setShowNuevoEncuestador(v => !v)}
                   style={{
                     padding: "7px 16px", borderRadius: 6,
-                    border: `1px solid ${C.accent}40`,
+                    border: `1px solid ${C.gold}40`,
                     background: showNuevoEncuestador ? "rgba(201,168,76,0.1)" : "transparent",
-                    color: C.accent, fontSize: 12, cursor: "pointer",
+                    color: C.gold, fontSize: 12, cursor: "pointer",
                     fontFamily: "inherit",
                   }}
                 >
@@ -472,15 +427,15 @@ export default function AdminPanel() {
                 <div style={{
                   ...cardStyle,
                   marginBottom: 16,
-                  borderColor: C.accent + "40",
+                  borderColor: C.gold + "40",
                   background: "rgba(201,168,76,0.04)",
                 }}>
-                  <div style={{ color: C.accent, fontSize: 13, fontWeight: 600, marginBottom: 12 }}>
+                  <div style={{ color: C.gold, fontSize: 13, fontWeight: 600, marginBottom: 12 }}>
                     Nuevo encuestador
                   </div>
                   <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
                     <div style={{ flex: 1, minWidth: 160 }}>
-                      <label style={{ color: C.textSub, fontSize: 11, display: "block", marginBottom: 4, letterSpacing: 1 }}>NOMBRE</label>
+                      <label style={{ color: C.textSec, fontSize: 11, display: "block", marginBottom: 4, letterSpacing: 1 }}>NOMBRE</label>
                       <Input
                         value={nuevoEnc.nombre}
                         onChange={v => setNuevoEnc(p => ({ ...p, nombre: v }))}
@@ -488,7 +443,7 @@ export default function AdminPanel() {
                       />
                     </div>
                     <div style={{ flex: 1, minWidth: 160 }}>
-                      <label style={{ color: C.textSub, fontSize: 11, display: "block", marginBottom: 4, letterSpacing: 1 }}>EMAIL</label>
+                      <label style={{ color: C.textSec, fontSize: 11, display: "block", marginBottom: 4, letterSpacing: 1 }}>EMAIL</label>
                       <Input
                         value={nuevoEnc.email}
                         onChange={v => setNuevoEnc(p => ({ ...p, email: v }))}
@@ -514,7 +469,7 @@ export default function AdminPanel() {
               {/* Lista de encuestadores */}
               <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                 {encuestadores.length === 0 ? (
-                  <div style={{ color: C.textMuted, fontSize: 13, padding: 20, textAlign: "center" }}>
+                  <div style={{ color: C.textMut, fontSize: 13, padding: 20, textAlign: "center" }}>
                     No hay encuestadores registrados. Agrega el primero con el botón de arriba.
                   </div>
                 ) : (
@@ -524,29 +479,29 @@ export default function AdminPanel() {
                         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                           <div style={{
                             width: 36, height: 36, borderRadius: "50%",
-                            background: e.activo ? `linear-gradient(135deg, ${C.positive}44, ${C.positive}22)` : C.bg3,
+                            background: e.activo ? `linear-gradient(135deg, ${C.greenAcc}44, ${C.greenAcc}22)` : C.surfaceEl,
                             display: "flex", alignItems: "center", justifyContent: "center",
-                            fontSize: 14, fontWeight: "bold", color: e.activo ? C.positive : C.textMuted
+                            fontSize: 14, fontWeight: "bold", color: e.activo ? C.greenAcc : C.textMut
                           }}>
                             {e.nombre.charAt(0)}
                           </div>
                           <div>
-                            <div style={{ color: C.textMain, fontSize: 14, fontWeight: "bold" }}>{e.nombre}</div>
-                            <div style={{ color: C.textMuted, fontSize: 11 }}>{e.email}</div>
+                            <div style={{ color: C.textPri, fontSize: 14, fontWeight: "bold" }}>{e.nombre}</div>
+                            <div style={{ color: C.textMut, fontSize: 11 }}>{e.email}</div>
                           </div>
                         </div>
                         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
                           <div style={{ textAlign: "right" }}>
-                            <div style={{ color: C.accent, fontSize: 18, fontWeight: "bold" }}>{e.encuestas || 0}</div>
-                            <div style={{ color: C.textMuted, fontSize: 9 }}>encuestas</div>
+                            <div style={{ color: C.gold, fontSize: 18, fontWeight: "bold" }}>{e.encuestas || 0}</div>
+                            <div style={{ color: C.textMut, fontSize: 9 }}>encuestas</div>
                           </div>
                           <button
                             onClick={() => toggleEncuestador(e.id)}
                             style={{
                               padding: "6px 14px", borderRadius: 6, border: "1px solid",
-                              borderColor: e.activo ? C.negative + "40" : C.positive + "40",
+                              borderColor: e.activo ? C.danger + "40" : C.greenAcc + "40",
                               background: "transparent",
-                              color: e.activo ? C.negative : C.positive,
+                              color: e.activo ? C.danger : C.greenAcc,
                               fontSize: 11, cursor: "pointer",
                             }}
                           >
@@ -558,7 +513,7 @@ export default function AdminPanel() {
                   ))
                 )}
               </div>
-              <div style={{ color: C.textMuted, fontSize: 11, marginTop: 16 }}>
+              <div style={{ color: C.textMut, fontSize: 11, marginTop: 16 }}>
                 Al desactivar un encuestador, su enlace de encuesta dejará de funcionar.
                 Sus encuestas ya levantadas se conservan.
               </div>
@@ -581,33 +536,33 @@ export default function AdminPanel() {
 
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
                 {syncLog.length === 0 ? (
-                  <div style={{ color: C.textMuted, padding: 20, textAlign: "center" }}>
+                  <div style={{ color: C.textMut, padding: 20, textAlign: "center" }}>
                     No hay sincronizaciones registradas.
                   </div>
                 ) : (
                   syncLog.map(s => (
                     <div key={s.id} style={{
                       ...cardStyle,
-                      borderLeftColor: s.status === "ok" ? C.positive : C.negative,
+                      borderLeftColor: s.status === "ok" ? C.greenAcc : C.danger,
                       borderLeftWidth: 3,
                     }}>
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
                         <div>
-                          <div style={{ color: C.textMain, fontSize: 13 }}>
+                          <div style={{ color: C.textPri, fontSize: 13 }}>
                             {s.encuestador}
                             <span style={{
                               marginLeft: 8, padding: "1px 6px", borderRadius: 3, fontSize: 10,
                               background: s.status === "ok" ? "rgba(34,197,94,0.1)" : "rgba(239,68,68,0.1)",
-                              color: s.status === "ok" ? C.positive : C.negative,
+                              color: s.status === "ok" ? C.greenAcc : C.danger,
                             }}>
                               {s.status === "ok" ? "✓ Exitosa" : "✗ Error"}
                             </span>
                           </div>
-                          <div style={{ color: C.textMuted, fontSize: 11 }}>
+                          <div style={{ color: C.textMut, fontSize: 11 }}>
                             {s.dispositivo} • {s.fecha}
                           </div>
                         </div>
-                        <div style={{ color: C.accent, fontSize: 14, fontWeight: "bold" }}>
+                        <div style={{ color: C.gold, fontSize: 14, fontWeight: "bold" }}>
                           +{s.cantidad}
                         </div>
                       </div>
@@ -617,7 +572,6 @@ export default function AdminPanel() {
               </div>
             </div>
           )}
-        </div>
       </div>
     </div>
   );
@@ -627,7 +581,7 @@ export default function AdminPanel() {
 function TabTitle({ children, style = {} }) {
   return (
     <div style={{
-      color: C.accent, fontSize: 16, fontWeight: "bold",
+      color: C.gold, fontSize: 16, fontWeight: "bold",
       marginBottom: 20, paddingBottom: 10,
       borderBottom: `1px solid ${C.border}`,
       ...style,
@@ -640,7 +594,7 @@ function TabTitle({ children, style = {} }) {
 function FormGroup({ label, children, style = {} }) {
   return (
     <div style={{ marginBottom: 18, ...style }}>
-      <label style={{ color: C.textSub, fontSize: 11, display: "block", marginBottom: 6, letterSpacing: 1 }}>
+      <label style={{ color: C.textSec, fontSize: 11, display: "block", marginBottom: 6, letterSpacing: 1 }}>
         {label}
       </label>
       {children}
@@ -657,8 +611,8 @@ function Input({ value, onChange, placeholder }) {
       placeholder={placeholder}
       style={{
         width: "100%", padding: "10px 12px", borderRadius: 6,
-        border: `1px solid ${C.borderSub}`, background: "rgba(10,17,10,0.6)",
-        color: C.textMain, fontSize: 13, outline: "none", boxSizing: "border-box",
+        border: `1px solid ${C.border}`, background: "rgba(10,17,10,0.6)",
+        color: C.textPri, fontSize: 13, outline: "none", boxSizing: "border-box",
         fontFamily: "inherit",
       }}
     />
@@ -666,21 +620,21 @@ function Input({ value, onChange, placeholder }) {
 }
 
 const cardStyle = {
-  background: C.cardBg,
-  border: `1px solid ${C.borderSub}`,
+  background: C.surfaceEl,
+  border: `1px solid ${C.border}`,
   borderRadius: 8, padding: "12px 16px",
 };
 
 const btnPrimary = {
   padding: "10px 24px", borderRadius: 6, border: "none",
-  background: `linear-gradient(135deg, ${C.accent}, ${C.accentDark})`,
-  color: C.bg1, fontWeight: "bold", fontSize: 13, cursor: "pointer",
+  background: `linear-gradient(135deg, ${C.gold}, ${C.goldDim})`,
+  color: C.bg, fontWeight: "bold", fontSize: 13, cursor: "pointer",
   fontFamily: "inherit",
 };
 
 const btnSecondary = {
   padding: "10px 24px", borderRadius: 6,
   border: `1px solid ${C.border}`, background: "transparent",
-  color: C.accent, fontSize: 13, cursor: "pointer",
+  color: C.gold, fontSize: 13, cursor: "pointer",
   fontFamily: "inherit",
 };
