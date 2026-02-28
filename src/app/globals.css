@@ -49,6 +49,32 @@ body {
 /* ── Leaflet reset ── */
 .leaflet-container { background: var(--bg) !important; }
 
+/* ── War Room: Popup oscuro ── */
+.leaflet-popup-content-wrapper {
+  background: rgba(7, 16, 10, 0.97) !important;
+  border: 1px solid rgba(38, 64, 48, 0.8) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5) !important;
+  color: #d1fae5 !important;
+  padding: 14px 16px !important;
+}
+.leaflet-popup-tip {
+  background: rgba(7, 16, 10, 0.97) !important;
+}
+.leaflet-popup-close-button {
+  color: #6b7280 !important;
+  font-size: 18px !important;
+  top: 8px !important;
+  right: 10px !important;
+}
+.leaflet-popup-close-button:hover {
+  color: #e4be45 !important;
+}
+.leaflet-popup-content {
+  margin: 0 !important;
+  line-height: 1.4 !important;
+}
+
 /* ── WR4 FIX: Animaciones globales ── */
 @keyframes spin {
   to { transform: rotate(360deg); }

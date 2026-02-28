@@ -351,6 +351,9 @@ const MapaWarRoom = memo(function MapaWarRoom({
   const { geoData, loading: geoLoading, error: geoError } = useMunicipioGeoJSON(municipioId);
   const { data, loading: dataLoading, error: dataError } = useCampanaData(campanaId, municipioId);
   const [selectedSeccion, setSelectedSeccion] = useState(null);
+  // Ref para acceder al selectedSeccion actual dentro de handlers de Leaflet sin stale closure
+  const selectedSeccionRef = useRef(null);
+  useEffect(() => { selectedSeccionRef.current = selectedSeccion; }, [selectedSeccion]);
 
   const loading = geoLoading || dataLoading;
   const error = geoError || dataError;
@@ -369,8 +372,8 @@ const MapaWarRoom = memo(function MapaWarRoom({
           ...feature,
           properties: {
             ...feature.properties,
-            intencion: seccionStats?.pct_intencion_positiva || null,
-            reconocimiento: seccionStats?.pct_reconocimiento || null,
+            intencion: seccionStats?.pct_intencion_positiva ?? null,
+            reconocimiento: seccionStats?.pct_reconocimiento ?? null,
             total_encuestas: seccionStats?.total || 0,
           },
         };
@@ -380,35 +383,82 @@ const MapaWarRoom = memo(function MapaWarRoom({
 
   const styleFeature = useCallback((feature) => {
     const intencion = feature.properties.intencion;
+    const isSelected = selectedSeccion === feature.properties.seccion;
     return {
       fillColor: getIntencionColor(intencion),
-      weight: selectedSeccion === feature.properties.seccion ? 3 : 2,
+      weight: isSelected ? 3 : 1,
       opacity: 1,
-      color: selectedSeccion === feature.properties.seccion ? C.gold : '#fff',
-      fillOpacity: 0.7,
+      color: isSelected ? C.gold : 'rgba(255,255,255,0.45)',
+      fillOpacity: isSelected ? 0.88 : 0.65,
     };
   }, [selectedSeccion]);
 
   const onEachFeature = useCallback((feature, layer) => {
-    const { seccion, zona, intencion, total_encuestas } = feature.properties;
+    const { seccion, zona, tipo, intencion, reconocimiento, total_encuestas } = feature.properties;
+    const baseColor = getIntencionColor(intencion);
+    const intPct = intencion ?? null;
+    const recoPct = reconocimiento ?? null;
+    const count = total_encuestas || 0;
 
+    // Popup rico con barras de progreso y badge de tipo
     layer.bindPopup(`
-      <div style="font-family: system-ui; min-width: 180px;">
-        <strong style="color: ${C.goldLight}; font-size: 16px;">Sección ${seccion}</strong>
-        <div style="color: #666; font-size: 12px; margin: 4px 0;">${zona || 'Sin zona'}</div>
-        <hr style="border: none; border-top: 1px solid #ddd; margin: 8px 0;" />
-        <div style="display: flex; justify-content: space-between; margin: 4px 0;">
-          <span>Intención:</span>
-          <strong style="color: ${getIntencionColor(intencion)};">${intencion?.toFixed(1) || '0.0'}%</strong>
+      <div class="wrp-popup" style="font-family: system-ui, sans-serif; min-width: 230px; padding: 4px 0;">
+        <div style="border-left: 4px solid ${baseColor}; padding-left: 10px; margin-bottom: 14px;">
+          <div style="font-size: 15px; font-weight: 700; color: #e4be45;">Sección ${seccion}</div>
+          <div style="display:flex; align-items:center; gap:6px; margin-top:4px; flex-wrap:wrap;">
+            <span style="font-size:11px; color:#9ca3af;">${zona || 'Sin zona'}</span>
+            ${tipo ? `<span style="font-size:9px; background:#0f2018; color:#6ee7b7; padding:1px 7px; border-radius:4px; font-weight:700; letter-spacing:.06em;">${tipo}</span>` : ''}
+          </div>
         </div>
-        <div style="display: flex; justify-content: space-between; margin: 4px 0;">
-          <span>Encuestas:</span>
-          <strong>${total_encuestas || 0}</strong>
+
+        <div style="margin-bottom:10px;">
+          <div style="display:flex; justify-content:space-between; font-size:11px; color:#9ca3af; margin-bottom:4px;">
+            <span>Intención positiva</span>
+            <strong style="color:${baseColor};">${intPct != null ? intPct.toFixed(1) + '%' : '—'}</strong>
+          </div>
+          <div style="background:#0a1a10; border-radius:3px; height:6px; overflow:hidden;">
+            <div style="width:${Math.min(intPct ?? 0, 100)}%; height:100%; background:${baseColor}; border-radius:3px; transition:width .4s;"></div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:14px;">
+          <div style="display:flex; justify-content:space-between; font-size:11px; color:#9ca3af; margin-bottom:4px;">
+            <span>Reconocimiento</span>
+            <strong style="color:#60a5fa;">${recoPct != null ? recoPct.toFixed(1) + '%' : '—'}</strong>
+          </div>
+          <div style="background:#0a1a10; border-radius:3px; height:6px; overflow:hidden;">
+            <div style="width:${Math.min(recoPct ?? 0, 100)}%; height:100%; background:#60a5fa; border-radius:3px; transition:width .4s;"></div>
+          </div>
+        </div>
+
+        <div style="border-top:1px solid #1e3a2a; padding-top:9px; display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:11px; color:${count > 0 ? '#6ee7b7' : '#6b7280'};">
+            ${count > 0 ? `📋 ${count} encuesta${count !== 1 ? 's' : ''}` : 'Sin encuestas aún'}
+          </span>
+          ${count > 0 ? `<span style="font-size:10px; color:#4b5563;">Ver detalles →</span>` : `<span style="font-size:10px; color:#374151;">Selecciona campaña</span>`}
         </div>
       </div>
-    `);
+    `, { maxWidth: 300, offset: [0, -4] });
 
-    layer.on({ click: () => setSelectedSeccion(seccion) });
+    layer.on({
+      mouseover: (e) => {
+        e.target.setStyle({
+          weight: 2.5,
+          color: C.gold,
+          fillOpacity: 0.88,
+        });
+        e.target.bringToFront();
+      },
+      mouseout: (e) => {
+        const isSelected = selectedSeccionRef.current === seccion;
+        e.target.setStyle({
+          weight: isSelected ? 3 : 1,
+          color: isSelected ? C.gold : 'rgba(255,255,255,0.45)',
+          fillOpacity: isSelected ? 0.88 : 0.65,
+        });
+      },
+      click: () => setSelectedSeccion(seccion),
+    });
   }, []);
 
   // Calcular centro del mapa basado en geoData o usar default
