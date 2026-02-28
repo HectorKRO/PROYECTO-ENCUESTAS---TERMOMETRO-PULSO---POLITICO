@@ -207,42 +207,43 @@ function useCampanaData(campanaId, municipioId) {
   return { data, loading, error, refetch: fetchData };
 }
 
-// Legend memoizado
-const Legend = memo(function Legend() {
-  const isMobile = useIsMobile();
-  const items = [
-    { color: INTENCION_COLORS.muy_alta, label: '≥55% (Muy Alta)' },
-    { color: INTENCION_COLORS.alta, label: '45-54% (Alta)' },
-    { color: INTENCION_COLORS.media, label: '35-44% (Media)' },
-    { color: INTENCION_COLORS.baja, label: '25-34% (Baja)' },
-    { color: INTENCION_COLORS.muy_baja, label: '<25% (Muy Baja)' },
-    { color: INTENCION_COLORS.sin_datos, label: 'Sin datos' },
-  ];
+// Semáforo de campaña — 3 puntos, el activo brilla
+// status: 'green' | 'yellow' | 'red' | null
+const SEMAFORO_DOTS = [
+  { key: 'green',  color: '#22c55e', glow: 'rgba(34,197,94,0.55)',  label: 'Ganando'     },
+  { key: 'yellow', color: '#eab308', glow: 'rgba(234,179,8,0.55)',  label: 'Compitiendo' },
+  { key: 'red',    color: '#ef4444', glow: 'rgba(239,68,68,0.55)',  label: 'En riesgo'   },
+];
 
+const Semaforo = memo(function Semaforo({ status, showLabel = false }) {
+  if (!status) return null;
+  const active = SEMAFORO_DOTS.find(d => d.key === status);
   return (
-    <div style={{
-      position: 'absolute',
-      // En mobile: top-right para no quedar tapado por el bottom sheet
-      // En desktop: bottom-right
-      ...(isMobile
-        ? { top: 10, right: 10 }
-        : { bottom: 20, right: 20 }),
-      background: 'rgba(7, 16, 10, 0.95)',
-      padding: isMobile ? '8px 10px' : '12px 16px',
-      borderRadius: 8,
-      border: `1px solid ${C.border}`,
-      zIndex: 1000,
-      fontSize: isMobile ? 10 : 12,
-    }}>
-      <div style={{ fontWeight: 700, color: C.goldLight, marginBottom: 6 }}>
-        Intención de Voto
+    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+      <div style={{ display: 'flex', gap: 5, alignItems: 'center' }}>
+        {SEMAFORO_DOTS.map(dot => {
+          const isActive = dot.key === status;
+          return (
+            <div
+              key={dot.key}
+              title={dot.label}
+              style={{
+                width: 10, height: 10,
+                borderRadius: '50%',
+                background: isActive ? dot.color : 'rgba(255,255,255,0.12)',
+                boxShadow: isActive ? `0 0 7px 2px ${dot.glow}` : 'none',
+                transition: 'background .4s ease, box-shadow .4s ease',
+                flexShrink: 0,
+              }}
+            />
+          );
+        })}
       </div>
-      {items.map((item) => (
-        <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
-          <div style={{ width: isMobile ? 10 : 16, height: isMobile ? 10 : 16, borderRadius: 2, background: item.color, flexShrink: 0 }} />
-          <span style={{ color: C.textSec }}>{item.label}</span>
-        </div>
-      ))}
+      {showLabel && active && (
+        <span style={{ fontSize: 11, color: active.color, fontWeight: 600, whiteSpace: 'nowrap' }}>
+          {active.label}
+        </span>
+      )}
     </div>
   );
 });
@@ -354,6 +355,7 @@ const MapaWarRoom = memo(function MapaWarRoom({
   campanaId,
   label,
   showStats = true,
+  onStatusChange,
 }) {
   const { geoData, loading: geoLoading, error: geoError } = useMunicipioGeoJSON(municipioId);
   const { data, loading: dataLoading, error: dataError } = useCampanaData(campanaId, municipioId);
@@ -361,6 +363,21 @@ const MapaWarRoom = memo(function MapaWarRoom({
   // Ref para acceder al selectedSeccion actual dentro de handlers de Leaflet sin stale closure
   const selectedSeccionRef = useRef(null);
   useEffect(() => { selectedSeccionRef.current = selectedSeccion; }, [selectedSeccion]);
+
+  // Calcular estado global de la campaña para el semáforo
+  const campaignStatus = useMemo(() => {
+    if (!data?.secciones) return null;
+    const withData = data.secciones.filter(s => s.total > 0);
+    if (withData.length === 0) return null;
+    const green  = withData.filter(s => s.pct_intencion_positiva >= 45).length;
+    const yellow = withData.filter(s => s.pct_intencion_positiva >= 35 && s.pct_intencion_positiva < 45).length;
+    const red    = withData.filter(s => s.pct_intencion_positiva < 35).length;
+    if (green >= yellow && green >= red) return 'green';
+    if (yellow >= red) return 'yellow';
+    return 'red';
+  }, [data?.secciones]);
+
+  useEffect(() => { onStatusChange?.(campaignStatus); }, [campaignStatus, onStatusChange]);
 
   const loading = geoLoading || dataLoading;
   const error = geoError || dataError;
@@ -560,7 +577,6 @@ const MapaWarRoom = memo(function MapaWarRoom({
           />
         )}
 
-        <Legend />
         {showStats && (
           <StatsPanel
             data={data}
@@ -591,6 +607,7 @@ const selectHeaderStyle = {
 
 export default function WarRoom() {
   const isMobile = useIsMobile();
+  const [statusA, setStatusA] = useState(null);
   const {
     ladoA,
     ladoB,
@@ -618,11 +635,12 @@ export default function WarRoom() {
         {isMobile ? (
           /* ── MOBILE: dos filas ── */
           <div>
-            {/* Fila 1: título + botón comparar */}
+            {/* Fila 1: título + semáforo + botón comparar */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 16px', gap: 8 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ fontSize: 15 }}>🗺️</span>
                 <span style={{ fontWeight: 700, fontSize: 14, color: C.textPri }}>War Room</span>
+                <Semaforo status={statusA} />
               </div>
               <button
                 onClick={toggleComparison}
@@ -677,7 +695,7 @@ export default function WarRoom() {
             height: 56,
             gap: 16,
           }}>
-            {/* Zona izquierda: título */}
+            {/* Zona izquierda: título + semáforo */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
               <span style={{ fontSize: 16 }}>🗺️</span>
               <span style={{ fontWeight: 700, fontSize: 15, color: C.textPri }}>War Room</span>
@@ -685,6 +703,7 @@ export default function WarRoom() {
               <span style={{ fontSize: 12, color: C.textMut }}>
                 {municipiosDisponibles.find(m => m.id === ladoA.municipioId)?.nombre || 'Mapa electoral'}
               </span>
+              <Semaforo status={statusA} showLabel={true} />
             </div>
 
             {/* Zona central: selectors */}
@@ -781,6 +800,7 @@ export default function WarRoom() {
           campanaId={ladoA.campanaId}
           label="Campaña"
           showStats={!showComparison}
+          onStatusChange={setStatusA}
         />
 
         {/* Mapa B (solo en comparación) */}
