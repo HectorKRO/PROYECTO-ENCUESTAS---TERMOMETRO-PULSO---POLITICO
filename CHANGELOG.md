@@ -20,6 +20,7 @@
 
 | Versión | Fecha | Estado | Cambios Principales |
 |---------|-------|--------|---------------------|
+| **v3.2.1** | 2026-02-27 | ✅ Estable | Auditoría UX: fixes F1-F2, N1-N2, C1-C2 — flujos rotos y navegación |
 | **v3.2.0** | 2026-02-27 | ✅ Estable | Rediseño profesional UI/UX — 4 fases (Dashboard, War Room, Admin, Login) |
 | **v3.1.0** | 2026-02-27 | 🚧 Parche | NavBar global, gestión campañas/candidatos, fixes P1-P4 |
 | **v3.0.1** | 2026-02-27 | ✅ Estable | Fix crítico login loop: createBrowserClient + bienvenido rewrite |
@@ -167,6 +168,59 @@
 3. **Badge PE:** `width: 56-64px`, `background: linear-gradient(135deg, ${C.gold}, ${C.goldDim})`, `borderRadius: 14-16px`, texto "PE" weight 800
 4. **Selectores inline:** `padding: 5px 10px`, `fontSize: 12`, `minWidth: 130`, fondo `rgba(7,16,10,0.7)`
 5. **Cero sidebars innecesarios:** Contenido siempre full-width con `maxWidth: 860px` y `margin: 0 auto`
+
+---
+
+## 🔧 v3.2.1 (2026-02-27) — "Auditoría UX: Flujos Rotos y Navegación"
+
+**Estado:** ✅ Completado  
+**Contexto:** Auditoría completa de UX para identificar botones inútiles, flujos circulares y oportunidades de mejora. Revisados: NavBar, DashboardPolitico, AdminPanel, CampanasList, CandidatosManager, WarRoom, FormularioEncuesta, perfil/page.  
+**Impacto:** 5 flujos corregidos, 2 inconsistencias unificadas, 0 errores de build.
+
+---
+
+### 🚨 Flujos Rotos Corregidos
+
+| ID | Archivo | Problema | Solución |
+|----|---------|----------|----------|
+| **F1** | `CampanasList.jsx` | Dependencia circular: para crear campaña necesitabas candidato, pero para crear candidato necesitabas campaña. Mensaje de ayuda estaba AL REVÉS. | Mini-form inline para crear candidato antes de crear campaña. Selección automática del nuevo candidato. Mensaje corregido. |
+| **F2** | `FormularioEncuesta.jsx` | Pantalla de éxito sin salida — solo botón "Nueva encuesta", el encuestador quedaba atrapado. | Agregado botón "Ir al inicio" → `/dashboard` debajo del botón de nueva encuesta. |
+
+### 🧭 Navegación Faltante Agregada
+
+| ID | Archivo | Cambio |
+|----|---------|--------|
+| **N1** | `DashboardPolitico.jsx` | Botón "⚙️ Admin" en header del dashboard (visible solo para `admin`/`superadmin`). Usa `esAdmin` del hook `useOrganizacion()` existente. |
+| **N2** | `NavBar.jsx` | Logo "PE" + texto "PulsoElectoral" ahora son clicables → `/dashboard`. Cursor pointer agregado. |
+
+### 🎨 Inconsistencias Unificadas
+
+| ID | Archivo | Antes | Después |
+|----|---------|-------|---------|
+| **C1** | `NavBar.jsx` | Logout tenía 3 nombres: "Salir ↗" (desktop), "Cerrar sesión ↗" (mobile), "Salir" (simple) | Mobile ahora usa "Salir ↗" (igual que desktop). Simple mantiene "Salir" (contexto minimalista). |
+| **C2** | `CampanasList.jsx` + `AdminPanel.jsx` | Slider meta: max 5,000 / max 2,000 (demasiado bajo para Atlixco ~90k padrón) | Ambos: max **20,000**, step **500** (consistente con municipios grandes) |
+
+### 📁 Archivos Modificados
+
+```
+src/components/CampanasList.jsx          +68 líneas (form inline candidato, handler, estados)
+src/components/AdminPanel.jsx            ±2 líneas (slider max 20k, step 500)
+src/components/DashboardPolitico.jsx     +11 líneas (esAdmin + botón Admin)
+src/components/NavBar.jsx                ±4 líneas (logo clickable, logout unificado)
+src/components/FormularioEncuesta.jsx    +7 líneas (useRouter, botón Ir al inicio)
+```
+
+### 🧪 Verificación de Cambios
+
+| Flujo | Estado |
+|-------|--------|
+| /admin → Nueva campaña → sin candidatos → "Crear candidato" → inline form → crear → auto-selecciona → crear campaña | ✅ |
+| Slider meta: 100–20,000 en CampanasList + AdminPanel | ✅ |
+| Dashboard como admin → botón "⚙️ Admin" visible → click → /admin | ✅ |
+| Dashboard como analista → botón Admin NO visible | ✅ |
+| NavBar logo click → /dashboard | ✅ |
+| NavBar mobile logout → "Salir ↗" | ✅ |
+| FormularioEncuesta enviada → "Ir al inicio" button → /dashboard | ✅ |
 
 ---
 

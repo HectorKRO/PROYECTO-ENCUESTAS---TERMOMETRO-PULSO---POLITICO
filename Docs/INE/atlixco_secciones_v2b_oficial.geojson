@@ -1,0 +1,3970 @@
+{
+  "type": "FeatureCollection",
+  "metadata": {
+    "fuente": "INE Cartografía Electoral 2024 — Municipio 019 Atlixco, Puebla",
+    "nota": "Secciones 2874/2875/2876 del mapa INE corresponden a la sección 0163 (error de mapeo INE). Corregido según Catálogo Oficial de Colonias y Secciones INE.",
+    "total_secciones": 74,
+    "generado": "2026-02-26",
+    "metodo": "Polígonos Voronoi desde centroides INE, recortados al límite municipal",
+    "version": "v2b — 68 secciones estrictamente oficiales (Catálogo INE)",
+    "secciones_eliminadas": [
+      "0222",
+      "0223",
+      "0224",
+      "0225",
+      "0228",
+      "0229"
+    ]
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0154",
+        "zona": "Centro Histórico (norte)",
+        "tipo": "urbana",
+        "lat_centro": 18.911,
+        "lng_centro": -98.438,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 10,
+        "colonias": [
+          "ANTORCHA POPULAR CAMPESINA",
+          "CUARTA SECCION",
+          "IXTEPEC",
+          "LA JOYA",
+          "LOMAS DEL FUERTE",
+          "METEPEC",
+          "QUINTA SECCION",
+          "SEGUNDA SECCION",
+          "SOLIDARIDAD METEPEC",
+          "TERCERA SECCION"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.43787499999999,
+              18.909375
+            ],
+            [
+              -98.44066666666667,
+              18.912166666666664
+            ],
+            [
+              -98.437625,
+              18.913687499999998
+            ],
+            [
+              -98.43531818181819,
+              18.910227272727276
+            ],
+            [
+              -98.43787499999999,
+              18.909375
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0155",
+        "zona": "Centro Histórico (sur)",
+        "tipo": "urbana",
+        "lat_centro": 18.908,
+        "lng_centro": -98.437,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 1,
+        "colonias": [
+          "METEPEC"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.43467647058823,
+              18.909970588235296
+            ],
+            [
+              -98.43563461538461,
+              18.90709615384615
+            ],
+            [
+              -98.43847368421054,
+              18.905960526315795
+            ],
+            [
+              -98.43865625000001,
+              18.90604166666667
+            ],
+            [
+              -98.43933333333334,
+              18.906944444444445
+            ],
+            [
+              -98.43787499999999,
+              18.909375
+            ],
+            [
+              -98.43531818181819,
+              18.910227272727276
+            ],
+            [
+              -98.43467647058823,
+              18.909970588235296
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0156",
+        "zona": "Barrio de San Juan",
+        "tipo": "urbana",
+        "lat_centro": 18.9065,
+        "lng_centro": -98.432,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 1,
+        "colonias": [
+          "METEPEC"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.43354166666667,
+              18.904583333333328
+            ],
+            [
+              -98.432421875,
+              18.909062499999997
+            ],
+            [
+              -98.43020454545454,
+              18.907795454545454
+            ],
+            [
+              -98.42875862068965,
+              18.90393965517241
+            ],
+            [
+              -98.43168421052631,
+              18.903039473684213
+            ],
+            [
+              -98.4333125,
+              18.904125000000004
+            ],
+            [
+              -98.43354166666667,
+              18.904583333333328
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0157",
+        "zona": "Barrio de la Merced",
+        "tipo": "urbana",
+        "lat_centro": 18.913,
+        "lng_centro": -98.435,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 6,
+        "colonias": [
+          "6a SECCION",
+          "ESMERALDA",
+          "IXTEPEC",
+          "METEPEC",
+          "RANCHO EL RODEO",
+          "SOLIDARIDAD METEPEC"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.43464285714286,
+              18.914785714285717
+            ],
+            [
+              -98.43277272727273,
+              18.91104545454546
+            ],
+            [
+              -98.43327777777779,
+              18.910203703703704
+            ],
+            [
+              -98.43467647058823,
+              18.909970588235296
+            ],
+            [
+              -98.43531818181819,
+              18.910227272727276
+            ],
+            [
+              -98.437625,
+              18.913687499999998
+            ],
+            [
+              -98.43757692307692,
+              18.913807692307692
+            ],
+            [
+              -98.43464285714286,
+              18.914785714285717
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0158",
+        "zona": "Barrio de Santiago",
+        "tipo": "urbana",
+        "lat_centro": 18.915,
+        "lng_centro": -98.44,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "MIXTO",
+        "num_colonias": 5,
+        "colonias": [
+          "EL LEON",
+          "EL LEON",
+          "ING CUAUHTEMOC CARDENAS (LA VILLA)",
+          "LA VILLA 1A SECCION",
+          "VILLAS EL LEON"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.43757692307692,
+              18.913807692307692
+            ],
+            [
+              -98.437625,
+              18.913687499999998
+            ],
+            [
+              -98.44066666666667,
+              18.912166666666664
+            ],
+            [
+              -98.44132142857143,
+              18.912107142857142
+            ],
+            [
+              -98.44366860465117,
+              18.91288953488372
+            ],
+            [
+              -98.44353378378378,
+              18.914777027027018
+            ],
+            [
+              -98.44204032258064,
+              18.91726612903226
+            ],
+            [
+              -98.43804166666666,
+              18.915666666666667
+            ],
+            [
+              -98.43757692307692,
+              18.913807692307692
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0159",
+        "zona": "Barrio de San Pedro",
+        "tipo": "urbana",
+        "lat_centro": 18.905,
+        "lng_centro": -98.441,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "MIXTO",
+        "num_colonias": 23,
+        "colonias": [
+          "AHUEHUETE",
+          "BUGAMBILIAS",
+          "CABRERA",
+          "CAMPESTRE LA SOLEDAD",
+          "DE CABRERA",
+          "FOVISSSTE",
+          "LA SOLEDAD",
+          "LADERA",
+          "LAS BUGAMBILIAS",
+          "LAS LILAS",
+          "LAS MARIANAS",
+          "LAS MONJAS",
+          "LAS MONJAS",
+          "LOS COMPADRES",
+          "LOS VILLA",
+          "LUNA CANELA",
+          "RICARDO TREVIÑO",
+          "RINCONADA CABRERA",
+          "SAN AGUSTIN XALPATLACO",
+          "SAN ANTONIO LAS MONJAS",
+          "SAN JOSE",
+          "SOLARES CHICOS",
+          "TENERIA"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.4427,
+              18.906700000000004
+            ],
+            [
+              -98.44035714285714,
+              18.907285714285713
+            ],
+            [
+              -98.43933333333334,
+              18.906944444444445
+            ],
+            [
+              -98.43865625000001,
+              18.90604166666667
+            ],
+            [
+              -98.4401875,
+              18.904
+            ],
+            [
+              -98.443375,
+              18.904
+            ],
+            [
+              -98.4427,
+              18.906700000000004
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0160",
+        "zona": "Col. Cabrera",
+        "tipo": "urbana",
+        "lat_centro": 18.902,
+        "lng_centro": -98.435,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 45,
+        "colonias": [
+          "ARCOS DEL CERRIL",
+          "ATLIXCO",
+          "ATLIXCO 90",
+          "BENITO JUAREZ - LA CANOA",
+          "DE LOS MAYORAZGOS",
+          "DE SAN FELIPE",
+          "DE SAN PEDRO",
+          "DE SANTA LUCIA",
+          "DE SANTIAGO",
+          "DEPARTAMENTOS LOMAS VERDES",
+          "EL BARREAL",
+          "EL ENCANTO",
+          "EL ENCANTO DEL CERRIL",
+          "FRATERNIDAD",
+          "HUERTA SAN JOSE",
+          "LOMA BONITA",
+          "LOMA ENCANTADA",
+          "LOS ANGELES",
+          "LOS CARRIZALES",
+          "LOS LLANOS",
+          "LOS LLANOS",
+          "LOS MOLINOS",
+          "LOS PEPES",
+          "LOS VIVEROS",
+          "LUNA CANELA",
+          "MATHSA",
+          "NUEVA XALPATLACO",
+          "PLAZUELA SAN JUAN",
+          "PUEBLOS MAGICOS",
+          "REAL CONVEIMA",
+          "SAN JOSE",
+          "SOAPAMA",
+          "TIZAYUCA",
+          "TIZAYUCA",
+          "EX-HACIENDA             TIZAYUCA",
+          "UNIDAD 8 NORTE NUEVA XALPATLACO",
+          "UNIVERSIDAD",
+          "VILLAS REALES",
+          "VISTA BELLA",
+          "VISTA DEL EDEN",
+          "VISTA HERMOSA",
+          "VISTA VERDE",
+          "EX-HACIENDA           XALPATLACO",
+          "XALPATLALCO",
+          "-                     ZONA RESTAURANTERA"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.43168421052631,
+              18.903039473684213
+            ],
+            [
+              -98.43321428571429,
+              18.899214285714287
+            ],
+            [
+              -98.43436363636363,
+              18.89902272727273
+            ],
+            [
+              -98.43590217391305,
+              18.899706521739134
+            ],
+            [
+              -98.43689705882353,
+              18.902691176470586
+            ],
+            [
+              -98.4333125,
+              18.904125000000004
+            ],
+            [
+              -98.43168421052631,
+              18.903039473684213
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0161",
+        "zona": "Col. Reforma",
+        "tipo": "urbana",
+        "lat_centro": 18.9,
+        "lng_centro": -98.43,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 3,
+        "colonias": [
+          "BENITO JUAREZ - LA CANOA",
+          "INFONAVIT",
+          "XALPATLACO"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.42321875,
+              18.8975
+            ],
+            [
+              -98.4315,
+              18.897499999999997
+            ],
+            [
+              -98.43321428571429,
+              18.899214285714287
+            ],
+            [
+              -98.43168421052631,
+              18.903039473684213
+            ],
+            [
+              -98.42875862068965,
+              18.90393965517241
+            ],
+            [
+              -98.426,
+              18.903249999999996
+            ],
+            [
+              -98.42476724137931,
+              18.901732758620696
+            ],
+            [
+              -98.42352586206897,
+              18.898974137931038
+            ],
+            [
+              -98.42321875,
+              18.8975
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0162",
+        "zona": "Col. 5 de Mayo",
+        "tipo": "urbana",
+        "lat_centro": 18.917,
+        "lng_centro": -98.431,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 2,
+        "colonias": [
+          "INFONAVIT",
+          "VISTA HERMOSA"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.42717647058824,
+              18.92388235294118
+            ],
+            [
+              -98.42670238095238,
+              18.92151190476189
+            ],
+            [
+              -98.42690789473684,
+              18.91822368421052
+            ],
+            [
+              -98.43107954545455,
+              18.914886363636363
+            ],
+            [
+              -98.43350000000001,
+              18.916500000000006
+            ],
+            [
+              -98.43405882352941,
+              18.919294117647055
+            ],
+            [
+              -98.42717647058824,
+              18.92388235294118
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0163",
+        "zona": "Las Animas / Paseos de Atlixco",
+        "tipo": "urbana",
+        "lat_centro": 18.927,
+        "lng_centro": -98.408,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 28,
+        "colonias": [
+          "ALMAZANTLA",
+          "CORTIJO DE LOS SOLES",
+          "EL REFUGIO",
+          "EL TECOLOCHE",
+          "EX HACIENDA LAS ANIMAS",
+          "EX HACIENDA LAS ANIMAS",
+          "HUERTA SAN JOSE",
+          "LA GUARDIA",
+          "LA GUARDIA",
+          "LAS ANIMAS",
+          "LAS ANIMAS",
+          "LAS ANIMAS III",
+          "LAS NIEVES",
+          "LOMAS DE TEJALUCA",
+          "LOMAS DE TEMAXCALAPA",
+          "LOS ANGELES",
+          "LOS PEPES",
+          "MAXIMINO AVILA CAMACHO",
+          "MONTE CRISTO",
+          "PASEOS DE ATLIXCO",
+          "RICARDO FLORES MAGON",
+          "SAN ALFONSO",
+          "SAN JOSE",
+          "SAN JOSE ACATOCHA",
+          "TERCERA SECCION DE SAN ALFONSO",
+          "VILLA HELENA",
+          "VISTA HERMOSA",
+          "-                     ZONA RESTAURANTERA"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.40939361702128,
+              18.917989361702126
+            ],
+            [
+              -98.41325,
+              18.924416666666666
+            ],
+            [
+              -98.40938235294118,
+              18.933441176470588
+            ],
+            [
+              -98.40185000000001,
+              18.934599999999996
+            ],
+            [
+              -98.40584615384616,
+              18.918615384615386
+            ],
+            [
+              -98.40939361702128,
+              18.917989361702126
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0164",
+        "zona": "Col. Las Granjas",
+        "tipo": "urbana",
+        "lat_centro": 18.923,
+        "lng_centro": -98.435,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 6,
+        "colonias": [
+          "ALTA VISTA",
+          "EL TECOLOCHE",
+          "LOS ANGELES",
+          "MAXIMINO AVILA CAMACHO",
+          "SAN ALFONSO",
+          "VISTA HERMOSA"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.43826229508197,
+              18.921168032786884
+            ],
+            [
+              -98.44018085106383,
+              18.927882978723403
+            ],
+            [
+              -98.42797058823528,
+              18.932970588235293
+            ],
+            [
+              -98.42720370370371,
+              18.932796296296296
+            ],
+            [
+              -98.42578651685393,
+              18.928747191011237
+            ],
+            [
+              -98.42717647058824,
+              18.92388235294118
+            ],
+            [
+              -98.43405882352941,
+              18.919294117647055
+            ],
+            [
+              -98.43608333333333,
+              18.919583333333332
+            ],
+            [
+              -98.43826229508197,
+              18.921168032786884
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0165",
+        "zona": "Barrio del Carmen",
+        "tipo": "urbana",
+        "lat_centro": 18.909,
+        "lng_centro": -98.442,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 1,
+        "colonias": [
+          "ALTA VISTA"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.44132142857143,
+              18.912107142857142
+            ],
+            [
+              -98.44035714285714,
+              18.907285714285713
+            ],
+            [
+              -98.4427,
+              18.906700000000004
+            ],
+            [
+              -98.44579999999999,
+              18.9098
+            ],
+            [
+              -98.44487295081967,
+              18.9119631147541
+            ],
+            [
+              -98.44366860465117,
+              18.91288953488372
+            ],
+            [
+              -98.44132142857143,
+              18.912107142857142
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0166",
+        "zona": "Col. Revolución",
+        "tipo": "urbana",
+        "lat_centro": 18.906,
+        "lng_centro": -98.445,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 3,
+        "colonias": [
+          "AHUEHUETE",
+          "BENITO JUAREZ - LA CANOA",
+          "EX-HACIENDA           LAS ANIMAS"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.44492857142856,
+              18.902642857142855
+            ],
+            [
+              -98.447,
+              18.905750000000005
+            ],
+            [
+              -98.447375,
+              18.908749999999998
+            ],
+            [
+              -98.44579999999999,
+              18.9098
+            ],
+            [
+              -98.4427,
+              18.906700000000004
+            ],
+            [
+              -98.443375,
+              18.904
+            ],
+            [
+              -98.44395454545455,
+              18.903227272727264
+            ],
+            [
+              -98.44492857142856,
+              18.902642857142855
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0167",
+        "zona": "Col. La Alfonsina",
+        "tipo": "urbana",
+        "lat_centro": 18.904,
+        "lng_centro": -98.448,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 3,
+        "colonias": [
+          "AHUEHUETE",
+          "CENTRO",
+          "RICARDO TREVIÑO"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.4495,
+              18.9005
+            ],
+            [
+              -98.45063157894737,
+              18.903328947368415
+            ],
+            [
+              -98.447,
+              18.905750000000005
+            ],
+            [
+              -98.44492857142856,
+              18.902642857142855
+            ],
+            [
+              -98.44512499999999,
+              18.90225
+            ],
+            [
+              -98.4495,
+              18.9005
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0168",
+        "zona": "Fracc. Jardines de Atlixco",
+        "tipo": "urbana",
+        "lat_centro": 18.918,
+        "lng_centro": -98.445,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 3,
+        "colonias": [
+          "CENTRO",
+          "RICARDO TREVIÑO",
+          "SOLARES GRANDES"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.44353378378378,
+              18.914777027027018
+            ],
+            [
+              -98.45471822033895,
+              18.9237245762712
+            ],
+            [
+              -98.4503148148148,
+              18.926314814814816
+            ],
+            [
+              -98.44198076923077,
+              18.91798076923077
+            ],
+            [
+              -98.44204032258064,
+              18.91726612903226
+            ],
+            [
+              -98.44353378378378,
+              18.914777027027018
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0169",
+        "zona": "Col. San Isidro",
+        "tipo": "urbana",
+        "lat_centro": 18.912,
+        "lng_centro": -98.449,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 10,
+        "colonias": [
+          "CABRERA",
+          "EX-HACIENDA           CABRERA",
+          "CAMARA DE COMERCIO",
+          "CRUCERO",
+          "EL BOSQUE",
+          "EL POPO",
+          "EX-HACIENDA           GAMBOA",
+          "LOS SOLARES",
+          "RANCHO GAMBOA",
+          "SANTA CRUZ AXOCOPAN"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.44579999999999,
+              18.9098
+            ],
+            [
+              -98.447375,
+              18.908749999999998
+            ],
+            [
+              -98.45537499999999,
+              18.90875
+            ],
+            [
+              -98.47495161290321,
+              18.916580645161297
+            ],
+            [
+              -98.47244941634241,
+              18.918165369649802
+            ],
+            [
+              -98.46096828358212,
+              18.921160447761185
+            ],
+            [
+              -98.44487295081967,
+              18.9119631147541
+            ],
+            [
+              -98.44579999999999,
+              18.9098
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0170",
+        "zona": "Zona Industrial / Metepec",
+        "tipo": "mixta",
+        "lat_centro": 18.895,
+        "lng_centro": -98.43,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 9,
+        "colonias": [
+          "CABRERA",
+          "EJIDO EL BOSQUE",
+          "EL BOSQUE",
+          "EL LEON",
+          "EX-HACIENDA             EL LEON LA HEREDAD",
+          "MARAVILLAS",
+          "MARAVILLAS 1a SECCION",
+          "PRADOS EL LEON",
+          "SANTA CECILIA"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.42321875,
+              18.8975
+            ],
+            [
+              -98.42315441176471,
+              18.89739705882354
+            ],
+            [
+              -98.4293,
+              18.893300000000004
+            ],
+            [
+              -98.4319,
+              18.895899999999987
+            ],
+            [
+              -98.4315,
+              18.897499999999997
+            ],
+            [
+              -98.42321875,
+              18.8975
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0171",
+        "zona": "San Baltazar Atlimeyaya",
+        "tipo": "rural",
+        "lat_centro": 18.88,
+        "lng_centro": -98.42,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 2,
+        "colonias": [
+          "METEPEC",
+          "QUINTA SECCION"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.41228571428572,
+              18.880607142857144
+            ],
+            [
+              -98.41503658536585,
+              18.859975609756102
+            ],
+            [
+              -98.42520329670329,
+              18.85319780219781
+            ],
+            [
+              -98.43165151515151,
+              18.873348484848496
+            ],
+            [
+              -98.41766666666666,
+              18.88733333333333
+            ],
+            [
+              -98.41228571428572,
+              18.880607142857144
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0172",
+        "zona": "San Jerónimo Coyula",
+        "tipo": "rural",
+        "lat_centro": 18.87,
+        "lng_centro": -98.45,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 2,
+        "colonias": [
+          "METEPEC",
+          "SEXTA SECCION"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.45790000000001,
+              18.8825
+            ],
+            [
+              -98.45209999999999,
+              18.8825
+            ],
+            [
+              -98.43853125000003,
+              18.848578124999996
+            ],
+            [
+              -98.44396874999998,
+              18.847671875000003
+            ],
+            [
+              -98.45790000000001,
+              18.8825
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0173",
+        "zona": "Santa María Huazulco",
+        "tipo": "rural",
+        "lat_centro": 18.942,
+        "lng_centro": -98.468,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 6,
+        "colonias": [
+          "AXOCOPAN",
+          "METEPEC 6A SECCION O LOMAS DE TEMANAXTLA",
+          "MOYOTZINGO",
+          "SANTA CECILIA",
+          "SANTA CRUZ AXOCOPAN",
+          "SANTA ELENA AXOCOPAN"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.45975,
+              18.94175
+            ],
+            [
+              -98.47244941634241,
+              18.918165369649802
+            ],
+            [
+              -98.47495161290321,
+              18.916580645161297
+            ],
+            [
+              -98.5118103448276,
+              18.902758620689653
+            ],
+            [
+              -98.51,
+              18.91
+            ],
+            [
+              -98.49,
+              18.93
+            ],
+            [
+              -98.47319999999999,
+              18.95520000000001
+            ],
+            [
+              -98.45975,
+              18.94175
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0174",
+        "zona": "San Andrés Calpan (norte)",
+        "tipo": "rural",
+        "lat_centro": 18.935,
+        "lng_centro": -98.44,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "MIXTO",
+        "num_colonias": 10,
+        "colonias": [
+          "AXOCOPAN",
+          "EX-HACIENDA             CASCO DE MARTIR DE CHINAMECA",
+          "EX-HACIENDA             CASCO EXHACIENDA DE MARTIRES DE CHINAMECA",
+          "CHAPULTEPEC",
+          "LA TRAPERA",
+          "LOMAS DE AXOCOPAN",
+          "MARTIR DE CHINAMECA",
+          "MOYOTZINGO",
+          "SAN ISIDRO - RANCHO TRAPERA",
+          "SANTA MONICA"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.44018085106383,
+              18.927882978723403
+            ],
+            [
+              -98.44749999999999,
+              18.928928571428568
+            ],
+            [
+              -98.44749999999999,
+              18.94583333333333
+            ],
+            [
+              -98.44464285714285,
+              18.949642857142845
+            ],
+            [
+              -98.42797058823528,
+              18.932970588235293
+            ],
+            [
+              -98.44018085106383,
+              18.927882978723403
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0175",
+        "zona": "Col. Emiliano Zapata",
+        "tipo": "urbana",
+        "lat_centro": 18.907,
+        "lng_centro": -98.434,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 5,
+        "colonias": [
+          "EL CARMEN",
+          "EL POPO",
+          "INSURGENTES",
+          "LA CAROLINA",
+          "SANTA MONICA"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.43406250000001,
+              18.905
+            ],
+            [
+              -98.43563461538461,
+              18.90709615384615
+            ],
+            [
+              -98.43467647058823,
+              18.909970588235296
+            ],
+            [
+              -98.43327777777779,
+              18.910203703703704
+            ],
+            [
+              -98.432421875,
+              18.909062499999997
+            ],
+            [
+              -98.43354166666667,
+              18.904583333333328
+            ],
+            [
+              -98.43406250000001,
+              18.905
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0176",
+        "zona": "Col. Obrera",
+        "tipo": "urbana",
+        "lat_centro": 18.9055,
+        "lng_centro": -98.436,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 8,
+        "colonias": [
+          "EL POPO",
+          "EMPLEADO FEDERAL",
+          "HOGAR DEL OBRERO",
+          "LA CANDELARIA",
+          "LA CANDELARIA",
+          "LOS ARCOS",
+          "PUERTA DE HIERRO",
+          "PUERTA DIAMANTE"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.43847368421054,
+              18.905960526315795
+            ],
+            [
+              -98.43563461538461,
+              18.90709615384615
+            ],
+            [
+              -98.43406250000001,
+              18.905
+            ],
+            [
+              -98.43783333333333,
+              18.905
+            ],
+            [
+              -98.43847368421054,
+              18.905960526315795
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0177",
+        "zona": "Col. Independencia",
+        "tipo": "urbana",
+        "lat_centro": 18.9095,
+        "lng_centro": -98.4395,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 2,
+        "colonias": [
+          "SANTA ROSA CHAPULAPA",
+          "SOLARES GRANDES"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.43933333333334,
+              18.906944444444445
+            ],
+            [
+              -98.44035714285714,
+              18.907285714285713
+            ],
+            [
+              -98.44132142857143,
+              18.912107142857142
+            ],
+            [
+              -98.44066666666667,
+              18.912166666666664
+            ],
+            [
+              -98.43787499999999,
+              18.909375
+            ],
+            [
+              -98.43933333333334,
+              18.906944444444445
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0178",
+        "zona": "Fracc. Las Fuentes",
+        "tipo": "urbana",
+        "lat_centro": 18.914,
+        "lng_centro": -98.433,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 3,
+        "colonias": [
+          "CENTRO",
+          "SANTA ROSA CHAPULAPA",
+          "SOLARES GRANDES"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.43107954545455,
+              18.914886363636363
+            ],
+            [
+              -98.43078571428572,
+              18.912535714285717
+            ],
+            [
+              -98.43277272727273,
+              18.91104545454546
+            ],
+            [
+              -98.43464285714286,
+              18.914785714285717
+            ],
+            [
+              -98.43350000000001,
+              18.916500000000006
+            ],
+            [
+              -98.43107954545455,
+              18.914886363636363
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0179",
+        "zona": "Col. La Paz",
+        "tipo": "urbana",
+        "lat_centro": 18.916,
+        "lng_centro": -98.436,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 1,
+        "colonias": [
+          "CENTRO"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.43405882352941,
+              18.919294117647055
+            ],
+            [
+              -98.43350000000001,
+              18.916500000000006
+            ],
+            [
+              -98.43464285714286,
+              18.914785714285717
+            ],
+            [
+              -98.43757692307692,
+              18.913807692307692
+            ],
+            [
+              -98.43804166666666,
+              18.915666666666667
+            ],
+            [
+              -98.43608333333333,
+              18.919583333333332
+            ],
+            [
+              -98.43405882352941,
+              18.919294117647055
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0180",
+        "zona": "Fracc. Las Flores",
+        "tipo": "urbana",
+        "lat_centro": 18.9175,
+        "lng_centro": -98.439,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 1,
+        "colonias": [
+          "CENTRO"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.43804166666666,
+              18.915666666666667
+            ],
+            [
+              -98.44204032258064,
+              18.91726612903226
+            ],
+            [
+              -98.44198076923077,
+              18.91798076923077
+            ],
+            [
+              -98.43826229508197,
+              18.921168032786884
+            ],
+            [
+              -98.43608333333333,
+              18.919583333333332
+            ],
+            [
+              -98.43804166666666,
+              18.915666666666667
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0181",
+        "zona": "Col. El Parque",
+        "tipo": "urbana",
+        "lat_centro": 18.91,
+        "lng_centro": -98.43,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 1,
+        "colonias": [
+          "CENTRO"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.42797222222222,
+              18.91002777777778
+            ],
+            [
+              -98.43020454545454,
+              18.907795454545454
+            ],
+            [
+              -98.432421875,
+              18.909062499999997
+            ],
+            [
+              -98.43327777777779,
+              18.910203703703704
+            ],
+            [
+              -98.43277272727273,
+              18.91104545454546
+            ],
+            [
+              -98.43078571428572,
+              18.912535714285717
+            ],
+            [
+              -98.42929545454547,
+              18.912204545454546
+            ],
+            [
+              -98.42805882352941,
+              18.910720588235293
+            ],
+            [
+              -98.42797222222222,
+              18.91002777777778
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0182",
+        "zona": "Col. Guadalupe",
+        "tipo": "urbana",
+        "lat_centro": 18.908,
+        "lng_centro": -98.428,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 1,
+        "colonias": [
+          "CENTRO"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.426,
+              18.903249999999996
+            ],
+            [
+              -98.42875862068965,
+              18.90393965517241
+            ],
+            [
+              -98.43020454545454,
+              18.907795454545454
+            ],
+            [
+              -98.42797222222222,
+              18.91002777777778
+            ],
+            [
+              -98.42602777777778,
+              18.908472222222226
+            ],
+            [
+              -98.42558333333334,
+              18.904916666666654
+            ],
+            [
+              -98.426,
+              18.903249999999996
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0183",
+        "zona": "Fracc. Santa Cruz",
+        "tipo": "urbana",
+        "lat_centro": 18.9145,
+        "lng_centro": -98.429,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 1,
+        "colonias": [
+          "CENTRO"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.43078571428572,
+              18.912535714285717
+            ],
+            [
+              -98.43107954545455,
+              18.914886363636363
+            ],
+            [
+              -98.42690789473684,
+              18.91822368421052
+            ],
+            [
+              -98.42661363636364,
+              18.917340909090907
+            ],
+            [
+              -98.42696428571429,
+              18.91453571428572
+            ],
+            [
+              -98.42929545454547,
+              18.912204545454546
+            ],
+            [
+              -98.43078571428572,
+              18.912535714285717
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0184",
+        "zona": "Col. Lázaro Cárdenas",
+        "tipo": "urbana",
+        "lat_centro": 18.914,
+        "lng_centro": -98.425,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 1,
+        "colonias": [
+          "CENTRO"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.42297222222223,
+              18.911527777777774
+            ],
+            [
+              -98.42518181818183,
+              18.912159090909093
+            ],
+            [
+              -98.42696428571429,
+              18.91453571428572
+            ],
+            [
+              -98.42661363636364,
+              18.917340909090907
+            ],
+            [
+              -98.42025,
+              18.91225
+            ],
+            [
+              -98.42175000000002,
+              18.91174999999999
+            ],
+            [
+              -98.42297222222223,
+              18.911527777777774
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0185",
+        "zona": "Col. Nueva Atlixco",
+        "tipo": "urbana",
+        "lat_centro": 18.9165,
+        "lng_centro": -98.423,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 4,
+        "colonias": [
+          "ALTA VISTA",
+          "EL TECOLOCHE",
+          "MAXIMINO AVILA CAMACHO",
+          "MOLINO DEL CARMEN"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.42025,
+              18.91225
+            ],
+            [
+              -98.42661363636364,
+              18.917340909090907
+            ],
+            [
+              -98.42690789473684,
+              18.91822368421052
+            ],
+            [
+              -98.42670238095238,
+              18.92151190476189
+            ],
+            [
+              -98.41512499999999,
+              18.91225
+            ],
+            [
+              -98.42025,
+              18.91225
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0186",
+        "zona": "Fracc. El Mirador",
+        "tipo": "urbana",
+        "lat_centro": 18.919,
+        "lng_centro": -98.421,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 2,
+        "colonias": [
+          "LAS ANIMAS",
+          "RICARDO FLORES MAGON"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.42670238095238,
+              18.92151190476189
+            ],
+            [
+              -98.42717647058824,
+              18.92388235294118
+            ],
+            [
+              -98.42578651685393,
+              18.928747191011237
+            ],
+            [
+              -98.42507142857143,
+              18.92835714285714
+            ],
+            [
+              -98.4142966101695,
+              18.912194915254233
+            ],
+            [
+              -98.41430661434978,
+              18.912177130044846
+            ],
+            [
+              -98.41432407407405,
+              18.91217592592593
+            ],
+            [
+              -98.41502678571432,
+              18.91223214285715
+            ],
+            [
+              -98.41512499999999,
+              18.91225
+            ],
+            [
+              -98.42670238095238,
+              18.92151190476189
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0187",
+        "zona": "Col. San Miguel",
+        "tipo": "urbana",
+        "lat_centro": 18.921,
+        "lng_centro": -98.418,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 2,
+        "colonias": [
+          "CASCO EX-RANCHO LAS TABLAS",
+          "REVOLUCION"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.41325,
+              18.924416666666666
+            ],
+            [
+              -98.40939361702128,
+              18.917989361702126
+            ],
+            [
+              -98.4142966101695,
+              18.912194915254233
+            ],
+            [
+              -98.42507142857143,
+              18.92835714285714
+            ],
+            [
+              -98.41325,
+              18.924416666666666
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0188",
+        "zona": "Col. Los Pinos",
+        "tipo": "urbana",
+        "lat_centro": 18.9125,
+        "lng_centro": -98.427,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 3,
+        "colonias": [
+          "CENTRO",
+          "PRADOS SUR",
+          "REVOLUCION"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.42929545454547,
+              18.912204545454546
+            ],
+            [
+              -98.42696428571429,
+              18.91453571428572
+            ],
+            [
+              -98.42518181818183,
+              18.912159090909093
+            ],
+            [
+              -98.42805882352941,
+              18.910720588235293
+            ],
+            [
+              -98.42929545454547,
+              18.912204545454546
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0189",
+        "zona": "Col. Del Valle",
+        "tipo": "urbana",
+        "lat_centro": 18.9105,
+        "lng_centro": -98.426,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 2,
+        "colonias": [
+          "ALVARO OBREGON",
+          "PRADOS SUR"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.42797222222222,
+              18.91002777777778
+            ],
+            [
+              -98.42805882352941,
+              18.910720588235293
+            ],
+            [
+              -98.42518181818183,
+              18.912159090909093
+            ],
+            [
+              -98.42297222222223,
+              18.911527777777774
+            ],
+            [
+              -98.42602777777778,
+              18.908472222222226
+            ],
+            [
+              -98.42797222222222,
+              18.91002777777778
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0190",
+        "zona": "Col. Juárez",
+        "tipo": "urbana",
+        "lat_centro": 18.9085,
+        "lng_centro": -98.424,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 1,
+        "colonias": [
+          "HOGAR DEL OBRERO"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.42558333333334,
+              18.904916666666654
+            ],
+            [
+              -98.42602777777778,
+              18.908472222222226
+            ],
+            [
+              -98.42297222222223,
+              18.911527777777774
+            ],
+            [
+              -98.42175000000002,
+              18.91174999999999
+            ],
+            [
+              -98.42475,
+              18.905749999999994
+            ],
+            [
+              -98.42558333333334,
+              18.904916666666654
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0191",
+        "zona": "Col. 20 de Noviembre",
+        "tipo": "urbana",
+        "lat_centro": 18.9065,
+        "lng_centro": -98.422,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 3,
+        "colonias": [
+          "EL CARMEN",
+          "LA CAROLINA",
+          "SANTA MONICA"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.41502678571432,
+              18.91223214285715
+            ],
+            [
+              -98.41432407407405,
+              18.91217592592593
+            ],
+            [
+              -98.42476724137931,
+              18.901732758620696
+            ],
+            [
+              -98.426,
+              18.903249999999996
+            ],
+            [
+              -98.42558333333334,
+              18.904916666666654
+            ],
+            [
+              -98.42475,
+              18.905749999999994
+            ],
+            [
+              -98.41502678571432,
+              18.91223214285715
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0192",
+        "zona": "Col. El Vergel",
+        "tipo": "mixta",
+        "lat_centro": 18.9045,
+        "lng_centro": -98.42,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 1,
+        "colonias": [
+          "GUADALUPE VICTORIA"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.41430661434978,
+              18.912177130044846
+            ],
+            [
+              -98.41323780487805,
+              18.909262195121944
+            ],
+            [
+              -98.42352586206897,
+              18.898974137931038
+            ],
+            [
+              -98.42476724137931,
+              18.901732758620696
+            ],
+            [
+              -98.41432407407405,
+              18.91217592592593
+            ],
+            [
+              -98.41430661434978,
+              18.912177130044846
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0193",
+        "zona": "Col. San Lorenzo",
+        "tipo": "urbana",
+        "lat_centro": 18.9025,
+        "lng_centro": -98.418,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 2,
+        "colonias": [
+          "ALVARO OBREGON",
+          "GUADALUPE VICTORIA"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.41126315789475,
+              18.90583947368422
+            ],
+            [
+              -98.42254347826086,
+              18.896815217391293
+            ],
+            [
+              -98.42315441176471,
+              18.89739705882354
+            ],
+            [
+              -98.42321875,
+              18.8975
+            ],
+            [
+              -98.42352586206897,
+              18.898974137931038
+            ],
+            [
+              -98.41323780487805,
+              18.909262195121944
+            ],
+            [
+              -98.41126315789475,
+              18.90583947368422
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0194",
+        "zona": "Santa Cruz Ajajalpan",
+        "tipo": "mixta",
+        "lat_centro": 18.898,
+        "lng_centro": -98.415,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 4,
+        "colonias": [
+          "FLORES MAGON",
+          "FRACC TIERRA CAOBA",
+          "LA CONCORDIA",
+          "REVOLUCION"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.40820000000001,
+              18.9025
+            ],
+            [
+              -98.41079411764706,
+              18.893852941176473
+            ],
+            [
+              -98.41822727272726,
+              18.890136363636362
+            ],
+            [
+              -98.41982110091743,
+              18.891362385321102
+            ],
+            [
+              -98.42187500000001,
+              18.895812500000023
+            ],
+            [
+              -98.40831249999998,
+              18.90259374999998
+            ],
+            [
+              -98.40820000000001,
+              18.9025
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0195",
+        "zona": "San Mateo Ozolco",
+        "tipo": "rural",
+        "lat_centro": 18.888,
+        "lng_centro": -98.41,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "MIXTO",
+        "num_colonias": 7,
+        "colonias": [
+          "BOSQUES DE SANT JOAN",
+          "CLUB DE GOLF EL CRISTO",
+          "DON BOSCO",
+          "FRANCISCO PRIMO DE VERDAD",
+          "LA MORALEDA",
+          "LAS CALANDRIAS",
+          "REAL LA ALFONSINA"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.41079411764706,
+              18.893852941176473
+            ],
+            [
+              -98.4025,
+              18.88792857142857
+            ],
+            [
+              -98.4025,
+              18.8855
+            ],
+            [
+              -98.41228571428572,
+              18.880607142857144
+            ],
+            [
+              -98.41766666666666,
+              18.88733333333333
+            ],
+            [
+              -98.41822727272726,
+              18.890136363636362
+            ],
+            [
+              -98.41079411764706,
+              18.893852941176473
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0196",
+        "zona": "San Diego Acapulco",
+        "tipo": "rural",
+        "lat_centro": 18.895,
+        "lng_centro": -98.45,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 22,
+        "colonias": [
+          "EX-HACIENDA           CASCO SANTA MARIA LA ALFONSINA",
+          "EL ANTOJO",
+          "EL ENCANTO",
+          "EL PEDREGAL",
+          "EL ROSARIO",
+          "FRANCISCO I MADERO",
+          "GUADALUPE",
+          "LA CASTELLANA",
+          "LA ESMERALDA",
+          "LA HACIENDA",
+          "LA JOYA",
+          "LOS LAURELES",
+          "LOS VIRREYES",
+          "LUPITA",
+          "REAL LA ALFONSINA",
+          "REFORMA SANTA CRUZ",
+          "REVOLUCION",
+          "SAN DIEGO ACAPULCO",
+          "SANTA CRUZ",
+          "SANTA CRUZ",
+          "SANTA FE",
+          "VAL DE CRISTO"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.44133378016086,
+              18.88484048257373
+            ],
+            [
+              -98.45209999999999,
+              18.8825
+            ],
+            [
+              -98.45790000000001,
+              18.8825
+            ],
+            [
+              -98.47950000000002,
+              18.886499999999998
+            ],
+            [
+              -98.4501,
+              18.8991
+            ],
+            [
+              -98.44260714285714,
+              18.891607142857136
+            ],
+            [
+              -98.44134722222222,
+              18.885055555555553
+            ],
+            [
+              -98.44133378016086,
+              18.88484048257373
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0197",
+        "zona": "Coyula (oriente)",
+        "tipo": "rural",
+        "lat_centro": 18.872,
+        "lng_centro": -98.445,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 1,
+        "colonias": [
+          "FRANCISCO I MADERO"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.45209999999999,
+              18.8825
+            ],
+            [
+              -98.44133378016086,
+              18.88484048257373
+            ],
+            [
+              -98.43975531914894,
+              18.884117021276598
+            ],
+            [
+              -98.43787209302324,
+              18.882918604651163
+            ],
+            [
+              -98.43165151515151,
+              18.873348484848496
+            ],
+            [
+              -98.42520329670329,
+              18.85319780219781
+            ],
+            [
+              -98.43,
+              18.85
+            ],
+            [
+              -98.43853125000003,
+              18.848578124999996
+            ],
+            [
+              -98.45209999999999,
+              18.8825
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0198",
+        "zona": "San Jerónimo Caleras",
+        "tipo": "rural",
+        "lat_centro": 18.868,
+        "lng_centro": -98.455,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 1,
+        "colonias": [
+          "GUADALUPE VICTORIA"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.44396874999998,
+              18.847671875000003
+            ],
+            [
+              -98.46,
+              18.845
+            ],
+            [
+              -98.48,
+              18.85
+            ],
+            [
+              -98.5,
+              18.86
+            ],
+            [
+              -98.51,
+              18.87
+            ],
+            [
+              -98.51464179104478,
+              18.888567164179097
+            ],
+            [
+              -98.47950000000002,
+              18.886499999999998
+            ],
+            [
+              -98.45790000000001,
+              18.8825
+            ],
+            [
+              -98.44396874999998,
+              18.847671875000003
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0199",
+        "zona": "Colonia Independencia",
+        "tipo": "urbana",
+        "lat_centro": 18.908,
+        "lng_centro": -98.423,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 2,
+        "colonias": [
+          "SAN JOSE CUAUHTEMOC",
+          "VALLE SUR"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.42175000000002,
+              18.91174999999999
+            ],
+            [
+              -98.42025,
+              18.91225
+            ],
+            [
+              -98.41512499999999,
+              18.91225
+            ],
+            [
+              -98.41502678571432,
+              18.91223214285715
+            ],
+            [
+              -98.42475,
+              18.905749999999994
+            ],
+            [
+              -98.42175000000002,
+              18.91174999999999
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0200",
+        "zona": "Barrio San Francisco",
+        "tipo": "urbana",
+        "lat_centro": 18.9035,
+        "lng_centro": -98.439,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 3,
+        "colonias": [
+          "1ER REGIMIENTO CABALLERIA MOTORIZADA",
+          "MILITAR",
+          "VALLE SUR"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.43963636363637,
+              18.90179545454546
+            ],
+            [
+              -98.4401875,
+              18.904
+            ],
+            [
+              -98.43865625000001,
+              18.90604166666667
+            ],
+            [
+              -98.43847368421054,
+              18.905960526315795
+            ],
+            [
+              -98.43783333333333,
+              18.905
+            ],
+            [
+              -98.43710294117646,
+              18.90280882352941
+            ],
+            [
+              -98.43963636363637,
+              18.90179545454546
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0201",
+        "zona": "Fracc. Bugambilias",
+        "tipo": "urbana",
+        "lat_centro": 18.901,
+        "lng_centro": -98.442,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 1,
+        "colonias": [
+          "VALLE SUR"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.44,
+              18.901250000000005
+            ],
+            [
+              -98.44,
+              18.89853571428571
+            ],
+            [
+              -98.44190625,
+              18.895812499999998
+            ],
+            [
+              -98.44512499999999,
+              18.90225
+            ],
+            [
+              -98.44492857142856,
+              18.902642857142855
+            ],
+            [
+              -98.44395454545455,
+              18.903227272727264
+            ],
+            [
+              -98.44,
+              18.901250000000005
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0202",
+        "zona": "Col. La Palma",
+        "tipo": "mixta",
+        "lat_centro": 18.899,
+        "lng_centro": -98.446,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "MIXTO",
+        "num_colonias": 5,
+        "colonias": [
+          "MEXICO",
+          "PARQUE INDUSTRIAL SANTA RITA",
+          "SAN DIEGO ACAPULCO",
+          "SAN JUAN CASTILLOTLA",
+          "VALLE SUR"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.4501,
+              18.8991
+            ],
+            [
+              -98.4495,
+              18.9005
+            ],
+            [
+              -98.44512499999999,
+              18.90225
+            ],
+            [
+              -98.44190625,
+              18.895812499999998
+            ],
+            [
+              -98.44260714285714,
+              18.891607142857136
+            ],
+            [
+              -98.4501,
+              18.8991
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0203",
+        "zona": "Barrio Tlacotepec",
+        "tipo": "urbana",
+        "lat_centro": 18.9055,
+        "lng_centro": -98.449,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "MIXTO",
+        "num_colonias": 8,
+        "colonias": [
+          "EX-HACIENDA           CASCO LA SABANA",
+          "EX-HACIENDA           CASCO LA TRINIDAD",
+          "LA SABANA",
+          "LA TRINIDAD TEPANGO",
+          "LOS AMATES",
+          "PARAISO",
+          "SANTA GERTRUDIS",
+          "VERACRUZ"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.45537499999999,
+              18.90875
+            ],
+            [
+              -98.447375,
+              18.908749999999998
+            ],
+            [
+              -98.447,
+              18.905750000000005
+            ],
+            [
+              -98.45063157894737,
+              18.903328947368415
+            ],
+            [
+              -98.45537499999999,
+              18.90875
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0204",
+        "zona": "Col. El Contadero",
+        "tipo": "mixta",
+        "lat_centro": 18.902,
+        "lng_centro": -98.453,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "MIXTO",
+        "num_colonias": 5,
+        "colonias": [
+          "FINCA TENEXTEZALAN",
+          "LA TRINIDAD TEPANGO",
+          "LA VIA",
+          "SAN DIEGO ACAPULCO",
+          "SAN JUAN DE LOS LAURELES"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.51464179104478,
+              18.888567164179097
+            ],
+            [
+              -98.515,
+              18.89
+            ],
+            [
+              -98.5118103448276,
+              18.902758620689653
+            ],
+            [
+              -98.47495161290321,
+              18.916580645161297
+            ],
+            [
+              -98.45537499999999,
+              18.90875
+            ],
+            [
+              -98.45063157894737,
+              18.903328947368415
+            ],
+            [
+              -98.4495,
+              18.9005
+            ],
+            [
+              -98.4501,
+              18.8991
+            ],
+            [
+              -98.47950000000002,
+              18.886499999999998
+            ],
+            [
+              -98.51464179104478,
+              18.888567164179097
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0205",
+        "zona": "Fracc. Real de Atlixco",
+        "tipo": "urbana",
+        "lat_centro": 18.9155,
+        "lng_centro": -98.447,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 3,
+        "colonias": [
+          "EMILIANO ZAPATA",
+          "SAN JUAN OCOTEPEC",
+          "SAN PEDRO BENITO JUAREZ"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.44366860465117,
+              18.91288953488372
+            ],
+            [
+              -98.44487295081967,
+              18.9119631147541
+            ],
+            [
+              -98.46096828358212,
+              18.921160447761185
+            ],
+            [
+              -98.45471822033895,
+              18.9237245762712
+            ],
+            [
+              -98.44353378378378,
+              18.914777027027018
+            ],
+            [
+              -98.44366860465117,
+              18.91288953488372
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0206",
+        "zona": "Col. Vista Hermosa",
+        "tipo": "urbana",
+        "lat_centro": 18.921,
+        "lng_centro": -98.442,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 4,
+        "colonias": [
+          "EL TECABALLO",
+          "SAN JUAN OCOTEPEC",
+          "SAN LORENZO MENAGTLA",
+          "SAN PEDRO BENITO JUAREZ"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.44198076923077,
+              18.91798076923077
+            ],
+            [
+              -98.4503148148148,
+              18.926314814814816
+            ],
+            [
+              -98.44749999999999,
+              18.928928571428568
+            ],
+            [
+              -98.44018085106383,
+              18.927882978723403
+            ],
+            [
+              -98.43826229508197,
+              18.921168032786884
+            ],
+            [
+              -98.44198076923077,
+              18.91798076923077
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0207",
+        "zona": "San Sebastián Tepalcatepec",
+        "tipo": "rural",
+        "lat_centro": 18.935,
+        "lng_centro": -98.455,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "MIXTO",
+        "num_colonias": 3,
+        "colonias": [
+          "OCOTEPEC (COLONIA AGRICOLA)",
+          "SAN JUAN OCOTEPEC",
+          "SAN PEDRO BENITO JUAREZ"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.46096828358212,
+              18.921160447761185
+            ],
+            [
+              -98.47244941634241,
+              18.918165369649802
+            ],
+            [
+              -98.45975,
+              18.94175
+            ],
+            [
+              -98.44749999999999,
+              18.94583333333333
+            ],
+            [
+              -98.44749999999999,
+              18.928928571428568
+            ],
+            [
+              -98.4503148148148,
+              18.926314814814816
+            ],
+            [
+              -98.45471822033895,
+              18.9237245762712
+            ],
+            [
+              -98.46096828358212,
+              18.921160447761185
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0208",
+        "zona": "San Gabriel Ometoxtla",
+        "tipo": "rural",
+        "lat_centro": 18.94,
+        "lng_centro": -98.41,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "RURAL",
+        "num_colonias": 26,
+        "colonias": [
+          "BUENOS AIRES",
+          "EL NOVILLERO",
+          "EMILIANO ZAPATA (COLONIA EJIDAL)",
+          "ENTRE ALAMEDAS",
+          "ESTACION LOS MOLINOS",
+          "LA TRINIDAD",
+          "LAS FLORES",
+          "LOMAS DE TEHUIXPANGO",
+          "LOMAS DE TEHUIXPANGO",
+          "MARIA AUXILIADORA",
+          "REFUGIO SAN AGUSTIN",
+          "EX-HACIENDA           SAN AGUSTIN",
+          "SAN AGUSTIN LOS CERRITOS",
+          "SAN AGUSTIN LOS MOLINOS",
+          "SAN GABRIEL",
+          "SANTA JULIA TIZAYUCA",
+          "SECCION CORAZON",
+          "SECCION H",
+          "SECCION LA HACIENDA",
+          "SECCION MARGARITAS",
+          "SECCION PALMAS",
+          "SECCION TABACHINES",
+          "TEHUIXPANGO",
+          "TIZAYUCA",
+          "VALLE REAL",
+          "ZANELLA"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.40185000000001,
+              18.934599999999996
+            ],
+            [
+              -98.40938235294118,
+              18.933441176470588
+            ],
+            [
+              -98.42083333333333,
+              18.939166666666672
+            ],
+            [
+              -98.41420000000001,
+              18.965700000000002
+            ],
+            [
+              -98.41,
+              18.965
+            ],
+            [
+              -98.38,
+              18.95
+            ],
+            [
+              -98.37977272727272,
+              18.949318181818175
+            ],
+            [
+              -98.40185000000001,
+              18.934599999999996
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0209",
+        "zona": "San Nicolás de los Ranchos",
+        "tipo": "rural",
+        "lat_centro": 18.945,
+        "lng_centro": -98.43,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "RURAL",
+        "num_colonias": 18,
+        "colonias": [
+          "ALMAZANTLA",
+          "AQUILES CORDOVA MORAN",
+          "LA JOYA",
+          "LA MARTINA",
+          "LAS ALICIAS",
+          "LAS CANOAS",
+          "RESIDENCIAL SANTA ELENA",
+          "RINCON DE SAN AGUSTIN",
+          "EX-HACIENDA           SAN AGUSTIN",
+          "SAN AGUSTIN HUIXAXTLA",
+          "SAN ALFONSO",
+          "SAN IGNACIO",
+          "SAN JOSE ACATOCHA",
+          "SANTA CRUZ",
+          "SANTA CRUZ",
+          "TERCERA SECCION DE SAN ALFONSO",
+          "TOLOMETLA",
+          "-                     ZONA RESTAURANTERA"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.42083333333333,
+              18.939166666666672
+            ],
+            [
+              -98.42720370370371,
+              18.932796296296296
+            ],
+            [
+              -98.42797058823528,
+              18.932970588235293
+            ],
+            [
+              -98.44464285714285,
+              18.949642857142845
+            ],
+            [
+              -98.44132352941176,
+              18.96955882352941
+            ],
+            [
+              -98.44,
+              18.97
+            ],
+            [
+              -98.41420000000001,
+              18.965700000000002
+            ],
+            [
+              -98.42083333333333,
+              18.939166666666672
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0210",
+        "zona": "La Trinidad Tianguismanalco",
+        "tipo": "rural",
+        "lat_centro": 18.95,
+        "lng_centro": -98.46,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "RURAL",
+        "num_colonias": 1,
+        "colonias": [
+          "GUADALUPE HUEXOCOAPAN"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.44464285714285,
+              18.949642857142845
+            ],
+            [
+              -98.44749999999999,
+              18.94583333333333
+            ],
+            [
+              -98.45975,
+              18.94175
+            ],
+            [
+              -98.47319999999999,
+              18.95520000000001
+            ],
+            [
+              -98.47,
+              18.96
+            ],
+            [
+              -98.44132352941176,
+              18.96955882352941
+            ],
+            [
+              -98.44464285714285,
+              18.949642857142845
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0211",
+        "zona": "Col. Bugambilias (sur)",
+        "tipo": "urbana",
+        "lat_centro": 18.8975,
+        "lng_centro": -98.437,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 2,
+        "colonias": [
+          "SAN JERONIMO COYULA",
+          "SAN MIGUEL AYALA"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.44260714285714,
+              18.891607142857136
+            ],
+            [
+              -98.44190625,
+              18.895812499999998
+            ],
+            [
+              -98.44,
+              18.89853571428571
+            ],
+            [
+              -98.43590217391305,
+              18.899706521739134
+            ],
+            [
+              -98.43436363636363,
+              18.89902272727273
+            ],
+            [
+              -98.44134722222222,
+              18.885055555555553
+            ],
+            [
+              -98.44260714285714,
+              18.891607142857136
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0212",
+        "zona": "Fracc. Jardines del Sur",
+        "tipo": "urbana",
+        "lat_centro": 18.896,
+        "lng_centro": -98.434,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "MIXTO",
+        "num_colonias": 28,
+        "colonias": [
+          "CAMPESTRE LOS CIPRESES",
+          "EL MEZQUITE",
+          "EL PARAISO",
+          "EL PASTOR",
+          "EL PEDREGAL",
+          "EX-HACIENDA           EL REFUGIO",
+          "GUADALUPE CENTRO PORCINO",
+          "HUERTAS DE JESUS 1A SECCION",
+          "HUERTAS DE JESUS 2A SECCION",
+          "HUERTAS DE JESUS 4A SECCION",
+          "EX-HACIENDA           LA CONCORDIA",
+          "EX-HACIENDA           LA JOYA",
+          "EX-HACIENDA           LA PRIMOROSA",
+          "LOS CIPRESES",
+          "LOS PERICOS",
+          "MAGEBA",
+          "MARIA FERNANDA",
+          "SAN JERONIMO COYULA",
+          "SAN JUAN CASTILLOTLA",
+          "SAN LORENZO",
+          "SAN ROBERTO",
+          "SANTA AMALIA",
+          "EX-HACIENDA           SANTA AMALIA",
+          "EX-HACIENDA           SANTA AMALIA",
+          "SANTA MARIA",
+          "SANTA RITA",
+          "SOLARES TENEXTEPEC",
+          "EX-HACIENDA           TENEXTEPEC"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.4315,
+              18.897499999999997
+            ],
+            [
+              -98.4319,
+              18.895899999999987
+            ],
+            [
+              -98.43975531914894,
+              18.884117021276598
+            ],
+            [
+              -98.44133378016086,
+              18.88484048257373
+            ],
+            [
+              -98.44134722222222,
+              18.885055555555553
+            ],
+            [
+              -98.43436363636363,
+              18.89902272727273
+            ],
+            [
+              -98.43321428571429,
+              18.899214285714287
+            ],
+            [
+              -98.4315,
+              18.897499999999997
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0213",
+        "zona": "Col. Las Palmas",
+        "tipo": "urbana",
+        "lat_centro": 18.894,
+        "lng_centro": -98.431,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "URBANO",
+        "num_colonias": 5,
+        "colonias": [
+          "EL CALVARIO",
+          "JERUSALEM",
+          "SAN JERONIMO COYULA",
+          "SAN MIGUEL AYALA",
+          "SANTA CRUZ"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.43787209302324,
+              18.882918604651163
+            ],
+            [
+              -98.43975531914894,
+              18.884117021276598
+            ],
+            [
+              -98.4319,
+              18.895899999999987
+            ],
+            [
+              -98.4293,
+              18.893300000000004
+            ],
+            [
+              -98.4349,
+              18.884900000000002
+            ],
+            [
+              -98.43787209302324,
+              18.882918604651163
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0214",
+        "zona": "Col. Santa Catarina",
+        "tipo": "mixta",
+        "lat_centro": 18.892,
+        "lng_centro": -98.428,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "RURAL",
+        "num_colonias": 6,
+        "colonias": [
+          "EX-HACIENDA           CASCO",
+          "EX-HACIENDA           CASCO SANTO DOMINGO",
+          "DIEZ DE ABRIL (LA SEGUNDA)",
+          "POPULAR BUGAMBILIAS",
+          "SAN JUAN PORTEZUELO",
+          "SANTO DOMINGO ATOYATEMPAN"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.42187500000001,
+              18.895812500000023
+            ],
+            [
+              -98.41982110091743,
+              18.891362385321102
+            ],
+            [
+              -98.4349,
+              18.884900000000002
+            ],
+            [
+              -98.4293,
+              18.893300000000004
+            ],
+            [
+              -98.42315441176471,
+              18.89739705882354
+            ],
+            [
+              -98.42254347826086,
+              18.896815217391293
+            ],
+            [
+              -98.42187500000001,
+              18.895812500000023
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0215",
+        "zona": "San Félix Resas",
+        "tipo": "rural",
+        "lat_centro": 18.885,
+        "lng_centro": -98.425,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "RURAL",
+        "num_colonias": 11,
+        "colonias": [
+          "EL ENCANTO",
+          "FLORES MAGON",
+          "FRANCISCO VILLA",
+          "LOS LAURELES",
+          "LOS MANCILLA",
+          "RANCHO TEQUIXQUEMETL",
+          "SAN FELIX (EX-HACIENDA)",
+          "SAN FELIX HIDALGO",
+          "SAN ISIDRO",
+          "SANTA AMADA",
+          "TOLOMETLA"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.41766666666666,
+              18.88733333333333
+            ],
+            [
+              -98.43165151515151,
+              18.873348484848496
+            ],
+            [
+              -98.43787209302324,
+              18.882918604651163
+            ],
+            [
+              -98.4349,
+              18.884900000000002
+            ],
+            [
+              -98.41982110091743,
+              18.891362385321102
+            ],
+            [
+              -98.41822727272726,
+              18.890136363636362
+            ],
+            [
+              -98.41766666666666,
+              18.88733333333333
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0216",
+        "zona": "San Juan Tianguismanalco",
+        "tipo": "rural",
+        "lat_centro": 18.91,
+        "lng_centro": -98.405,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "RURAL",
+        "num_colonias": 6,
+        "colonias": [
+          "IXTAHUIXTLA (SAN AGUSTIN)",
+          "LOMAS DE TEJALUCA",
+          "LOS PINOS",
+          "RANCHO EL GENERAL",
+          "SAN ALFONSO",
+          "SAN JUAN TEJALUCA"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.4142966101695,
+              18.912194915254233
+            ],
+            [
+              -98.40939361702128,
+              18.917989361702126
+            ],
+            [
+              -98.40584615384616,
+              18.918615384615386
+            ],
+            [
+              -98.39546153846155,
+              18.91515384615385
+            ],
+            [
+              -98.3906923076923,
+              18.90323076923077
+            ],
+            [
+              -98.3923,
+              18.9025
+            ],
+            [
+              -98.40820000000001,
+              18.9025
+            ],
+            [
+              -98.40831249999998,
+              18.90259374999998
+            ],
+            [
+              -98.41126315789475,
+              18.90583947368422
+            ],
+            [
+              -98.41323780487805,
+              18.909262195121944
+            ],
+            [
+              -98.41430661434978,
+              18.912177130044846
+            ],
+            [
+              -98.4142966101695,
+              18.912194915254233
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0217",
+        "zona": "La Magdalena Yancuitlalpan",
+        "tipo": "rural",
+        "lat_centro": 18.878,
+        "lng_centro": -98.405,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "RURAL",
+        "num_colonias": 7,
+        "colonias": [
+          "EX-HACIENDA           CASCO MAURER",
+          "EL FRESNO",
+          "EMILIANO ZAPATA (NEJATENGO)",
+          "FLORISOL",
+          "RANCHO EL PUENTE",
+          "SANTA ANA YANCUITLALPAN",
+          "SANTA ELENA"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.4025,
+              18.8855
+            ],
+            [
+              -98.3935,
+              18.876500000000004
+            ],
+            [
+              -98.4,
+              18.87
+            ],
+            [
+              -98.41503658536585,
+              18.859975609756102
+            ],
+            [
+              -98.41228571428572,
+              18.880607142857144
+            ],
+            [
+              -98.4025,
+              18.8855
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0218",
+        "zona": "Santa Isabel Cholula",
+        "tipo": "rural",
+        "lat_centro": 18.93,
+        "lng_centro": -98.415,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "RURAL",
+        "num_colonias": 2,
+        "colonias": [
+          "EX-HACIENDA             CASCO SANTA LUCIA",
+          "SANTA LUCIA COSAMALOAPAN"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.42083333333333,
+              18.939166666666672
+            ],
+            [
+              -98.40938235294118,
+              18.933441176470588
+            ],
+            [
+              -98.41325,
+              18.924416666666666
+            ],
+            [
+              -98.42507142857143,
+              18.92835714285714
+            ],
+            [
+              -98.42578651685393,
+              18.928747191011237
+            ],
+            [
+              -98.42720370370371,
+              18.932796296296296
+            ],
+            [
+              -98.42083333333333,
+              18.939166666666672
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0219",
+        "zona": "San Lorenzo Chiautzingo",
+        "tipo": "rural",
+        "lat_centro": 18.925,
+        "lng_centro": -98.4,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "RURAL",
+        "num_colonias": 6,
+        "colonias": [
+          "EJIDO RICARDO FLORES MAGON",
+          "PBLO EL RECREO XONACA",
+          "SAN FELIX ALMAZAN",
+          "SAN ISIDRO",
+          "SAN ISIDRO HUILOTEPEC",
+          "SANTA CECILIA YANCUITLALPAN"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.40185000000001,
+              18.934599999999996
+            ],
+            [
+              -98.37977272727272,
+              18.949318181818175
+            ],
+            [
+              -98.37966666666667,
+              18.949000000000016
+            ],
+            [
+              -98.39546153846155,
+              18.91515384615385
+            ],
+            [
+              -98.40584615384616,
+              18.918615384615386
+            ],
+            [
+              -98.40185000000001,
+              18.934599999999996
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0220",
+        "zona": "Col. La Pradera",
+        "tipo": "mixta",
+        "lat_centro": 18.9,
+        "lng_centro": -98.416,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "RURAL",
+        "num_colonias": 4,
+        "colonias": [
+          "EX-HACIENDA             CASCO OTILIO MONTAÑO",
+          "JUAN UVERA",
+          "LA JOYA",
+          "OTILIO MONTAÑO"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.40831249999998,
+              18.90259374999998
+            ],
+            [
+              -98.42187500000001,
+              18.895812500000023
+            ],
+            [
+              -98.42254347826086,
+              18.896815217391293
+            ],
+            [
+              -98.41126315789475,
+              18.90583947368422
+            ],
+            [
+              -98.40831249999998,
+              18.90259374999998
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "seccion": "0221",
+        "zona": "Col. El Progreso",
+        "tipo": "mixta",
+        "lat_centro": 18.901,
+        "lng_centro": -98.438,
+        "intencion": null,
+        "reconocimiento": null,
+        "total_encuestas": 0,
+        "tipo_oficial": "RURAL",
+        "num_colonias": 3,
+        "colonias": [
+          "SAN ESTEBAN ZOAPILTEPEC",
+          "SAN FELIPE XONACAYUCAN",
+          "SAN JERONIMO CALERAS"
+        ]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -98.43590217391305,
+              18.899706521739134
+            ],
+            [
+              -98.44,
+              18.89853571428571
+            ],
+            [
+              -98.44,
+              18.901250000000005
+            ],
+            [
+              -98.43963636363637,
+              18.90179545454546
+            ],
+            [
+              -98.43710294117646,
+              18.90280882352941
+            ],
+            [
+              -98.43689705882353,
+              18.902691176470586
+            ],
+            [
+              -98.43590217391305,
+              18.899706521739134
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}
