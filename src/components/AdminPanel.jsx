@@ -161,7 +161,8 @@ export default function AdminPanel({ campanaId }) {
   const saveCampana = async () => {
     try {
       if (campanaId && campanaId !== 'demo') {
-        const { error } = await supabase
+        // 1. Guardar campos de la campaña (nombre, meta, activa)
+        const { error: campanaError } = await supabase
           .from('campanas')
           .update({
             nombre: campana.nombre,
@@ -170,12 +171,27 @@ export default function AdminPanel({ campanaId }) {
           })
           .eq('id', campanaId);
 
-        if (error) throw error;
+        if (campanaError) throw campanaError;
+
+        // 2. Guardar candidato principal (nombre, cargo, color_primario)
+        //    Estos campos viven en la tabla `candidatos`, no en `campanas`.
+        //    campana.candidato_id es la FK que viene del JOIN inicial.
+        if (campana.candidato_id) {
+          const { error: candidatoError } = await supabase
+            .from('candidatos')
+            .update({
+              nombre:         campana.candidato,
+              cargo:          campana.cargo          ?? campana.candidatoObj?.cargo          ?? '',
+              color_primario: campana.colorPrimario  ?? campana.candidatoObj?.color_primario ?? null,
+            })
+            .eq('id', campana.candidato_id);
+
+          if (candidatoError) throw candidatoError;
+        }
       }
       showSaved();
     } catch (err) {
       console.error('Error guardando:', err);
-      // ✅ FIX M4: Mostrar error en UI en lugar de alert() nativo
       setError('Error al guardar: ' + (err.message || 'Error desconocido'));
       setTimeout(() => setError(null), 5000);
     }
