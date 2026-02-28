@@ -23,6 +23,9 @@ export default function CampanasList() {
   const [showModal, setShowModal] = useState(false);
   const [saving, setSaving] = useState(false);
   const [orgId, setOrgId] = useState(null);
+  const [showNuevoCandidato, setShowNuevoCandidato] = useState(false);
+  const [formCandidato, setFormCandidato] = useState({ nombre: '', cargo: 'Presidente Municipal', partido: '' });
+  const [savingCandidato, setSavingCandidato] = useState(false);
 
   // Formulario nueva campaña
   const [form, setForm] = useState({
@@ -124,6 +127,27 @@ export default function CampanasList() {
       setError('Error al crear campaña: ' + err.message);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleCrearCandidatoInline = async () => {
+    if (!formCandidato.nombre.trim()) return;
+    setSavingCandidato(true);
+    try {
+      const { data, error } = await supabase
+        .from('candidatos')
+        .insert({ ...formCandidato, organizacion_id: orgId })
+        .select('id, nombre, cargo')
+        .single();
+      if (error) throw error;
+      setCandidatos(prev => [...prev, data]);
+      setForm(f => ({ ...f, candidato_id: data.id }));
+      setShowNuevoCandidato(false);
+      setFormCandidato({ nombre: '', cargo: 'Presidente Municipal', partido: '' });
+    } catch (err) {
+      setError('Error creando candidato: ' + err.message);
+    } finally {
+      setSavingCandidato(false);
     }
   };
 
@@ -410,9 +434,53 @@ export default function CampanasList() {
                     </option>
                   ))}
                 </select>
-                {candidatos.length === 0 && (
-                  <div style={{ fontSize: 12, color: C.amber, marginTop: 6 }}>
-                    ⚠️ Crea una campaña primero, luego podrás agregar candidatos desde el tab "Candidatos" del panel de administración.
+                {candidatos.length === 0 && !showNuevoCandidato && (
+                  <div style={{ fontSize: 12, color: C.amber, marginTop: 6, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    <span>⚠️ No hay candidatos registrados.</span>
+                    <button
+                      onClick={() => setShowNuevoCandidato(true)}
+                      style={{ fontSize: 12, color: C.gold, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
+                    >
+                      Crear candidato
+                    </button>
+                  </div>
+                )}
+                {showNuevoCandidato && (
+                  <div style={{ marginTop: 10, padding: '14px', background: C.bg, border: `1px solid ${C.border}`, borderRadius: 8, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <div style={{ fontSize: 12, color: C.gold, fontWeight: 600 }}>Nuevo candidato</div>
+                    <input
+                      placeholder="Nombre completo *"
+                      value={formCandidato.nombre}
+                      onChange={e => setFormCandidato(f => ({ ...f, nombre: e.target.value }))}
+                      style={{ padding: '8px 10px', background: C.surfaceEl, border: `1px solid ${C.border}`, borderRadius: 6, color: C.textPri, fontSize: 13, outline: 'none' }}
+                    />
+                    <input
+                      placeholder="Cargo (ej: Presidente Municipal)"
+                      value={formCandidato.cargo}
+                      onChange={e => setFormCandidato(f => ({ ...f, cargo: e.target.value }))}
+                      style={{ padding: '8px 10px', background: C.surfaceEl, border: `1px solid ${C.border}`, borderRadius: 6, color: C.textPri, fontSize: 13, outline: 'none' }}
+                    />
+                    <input
+                      placeholder="Partido (ej: MORENA, PAN...)"
+                      value={formCandidato.partido}
+                      onChange={e => setFormCandidato(f => ({ ...f, partido: e.target.value }))}
+                      style={{ padding: '8px 10px', background: C.surfaceEl, border: `1px solid ${C.border}`, borderRadius: 6, color: C.textPri, fontSize: 13, outline: 'none' }}
+                    />
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button
+                        onClick={() => setShowNuevoCandidato(false)}
+                        style={{ flex: 1, padding: '8px', borderRadius: 6, border: `1px solid ${C.border}`, background: 'transparent', color: C.textSec, fontSize: 12, cursor: 'pointer' }}
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        onClick={handleCrearCandidatoInline}
+                        disabled={savingCandidato || !formCandidato.nombre.trim()}
+                        style={{ flex: 1, padding: '8px', borderRadius: 6, border: 'none', background: `linear-gradient(135deg, ${C.gold}, ${C.goldDim})`, color: C.bg, fontSize: 12, fontWeight: 700, cursor: 'pointer', opacity: savingCandidato ? 0.6 : 1 }}
+                      >
+                        {savingCandidato ? 'Creando...' : 'Crear y seleccionar'}
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -448,15 +516,15 @@ export default function CampanasList() {
                 <input
                   type="range"
                   min="100"
-                  max="5000"
-                  step="100"
+                  max="20000"
+                  step="500"
                   value={form.meta_encuestas}
                   onChange={(e) => setForm({ ...form, meta_encuestas: parseInt(e.target.value) })}
                   style={{ width: '100%', accentColor: C.gold }}
                 />
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: C.textMut, marginTop: 4 }}>
                   <span>100</span>
-                  <span>5000</span>
+                  <span>20,000</span>
                 </div>
               </div>
             </div>

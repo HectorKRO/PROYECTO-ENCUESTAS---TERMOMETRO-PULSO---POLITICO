@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { supabase, syncOfflineQueue, savePendingOffline, getPendingCount, fetchColonias } from '@/lib/supabase';
 import { useOrganizacion } from '@/hooks/useOrganizacion';
 import { C } from '@/lib/theme';
@@ -920,6 +921,7 @@ function Step4({ form, update, candidato }) {
 
 // ─── COMPONENTE PRINCIPAL ──────────────────────────────────────────────────────
 export default function FormularioEncuesta({ onSubmit, encuestadorId: propEncId, encuestadorNombre: propEncNombre }) {
+  const router = useRouter();
   const [step, setStep] = useState(1);
   const [form, setForm] = useState(initForm);
   const [errors, setErrors] = useState([]);
@@ -1245,6 +1247,11 @@ export default function FormularioEncuesta({ onSubmit, encuestadorId: propEncId,
             onClick={() => { setForm(initForm()); setStep(1); setSubmitted(false); setErrors([]); setWarnings([]); startTime.current = Date.now(); }}
             style={{ padding:'12px 28px', borderRadius:10, fontSize:15, fontWeight:700, background:C.gold, color:C.bg, border:'none', cursor:'pointer' }}>
             Nueva encuesta
+          </button>
+          <button type="button"
+            onClick={() => router.push('/dashboard')}
+            style={{ display:'block', marginTop:10, padding:'10px 28px', borderRadius:10, fontSize:14, fontWeight:600, background:'transparent', color:C.textSec, border:`1px solid ${C.border}`, cursor:'pointer' }}>
+            Ir al inicio
           </button>
         </div>
       </div>

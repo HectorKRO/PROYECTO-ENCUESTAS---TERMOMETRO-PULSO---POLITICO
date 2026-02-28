@@ -298,12 +298,13 @@ export default function DashboardPolitico({ onNavigateToMapa }) {
   const [campanaInfo, setCampanaInfo] = useState(null);
 
   // v3.0: Contexto multi-municipio
-  const { 
-    municipios, 
-    municipioActual, 
+  const {
+    municipios,
+    municipioActual,
     cambiarMunicipio,
     organizacion,
-    loading: orgLoading 
+    esAdmin,
+    loading: orgLoading
   } = useOrganizacion();
 
   // D2 FIX: Usar useSearchParams para evitar hydration mismatch
@@ -479,6 +480,16 @@ export default function DashboardPolitico({ onNavigateToMapa }) {
 
             {!isMobile && (
               <span style={{ fontSize: 11, color: C.textMut }}>{lastUpdate}</span>
+            )}
+
+            {/* Botón Admin — solo admin/superadmin */}
+            {esAdmin && (
+              <button
+                onClick={() => router.push('/admin')}
+                style={{ padding: '6px 12px', borderRadius: 6, fontSize: 11, background: 'transparent', border: `1px solid ${C.gold}60`, color: C.gold, cursor: 'pointer' }}
+              >
+                ⚙️ Admin
+              </button>
             )}
 
             {/* Exportar */}

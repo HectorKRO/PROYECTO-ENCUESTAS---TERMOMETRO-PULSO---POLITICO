@@ -361,13 +361,13 @@ export default function AdminPanel() {
 
               <FormGroup label={`Meta de encuestas: ${campana.meta_encuestas}`}>
                 <input
-                  type="range" min="100" max="2000" step="50"
+                  type="range" min="100" max="20000" step="500"
                   value={campana.meta_encuestas || 400}
                   onChange={e => updateCampana("meta_encuestas", parseInt(e.target.value))}
                   style={{ width: "100%", accentColor: C.gold }}
                 />
                 <div style={{ display: "flex", justifyContent: "space-between", color: C.textMut, fontSize: 10 }}>
-                  <span>100</span><span>2,000</span>
+                  <span>100</span><span>20,000</span>
                 </div>
               </FormGroup>
 

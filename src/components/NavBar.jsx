@@ -128,8 +128,11 @@ export default function NavBar({ simple = false, campanaNombre = null }) {
         justifyContent: 'space-between',
         alignItems: 'center',
       }}>
-        {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        {/* Logo — clicable → /dashboard */}
+        <div
+          onClick={() => router.push('/dashboard')}
+          style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}
+        >
           <div style={{
             width: 32, height: 32, borderRadius: 8,
             background: `linear-gradient(135deg, ${C.gold}, ${C.goldDim})`,
@@ -138,9 +141,9 @@ export default function NavBar({ simple = false, campanaNombre = null }) {
           }}>
             PE
           </div>
-          <span style={{ 
-            color: C.textPri, 
-            fontSize: 16, 
+          <span style={{
+            color: C.textPri,
+            fontSize: 16,
             fontWeight: 700,
             fontFamily: "'Syne', sans-serif",
             letterSpacing: '-0.02em',
@@ -294,7 +297,7 @@ export default function NavBar({ simple = false, campanaNombre = null }) {
               fontFamily: "inherit",
             }}
           >
-            Cerrar sesión ↗
+            Salir ↗
           </button>
         </div>
       )}
