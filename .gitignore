@@ -10,3 +10,8 @@ dist/
 .eslintcache
 .DS_Store
 .vercel
+
+# Shapefiles INE (binarios grandes, ya procesados — no van al repo)
+Docs/INE/bgd_21_Shapefile/
+Docs/INE/bgde_21_Shapefile*/
+Docs/INE/*.zip
