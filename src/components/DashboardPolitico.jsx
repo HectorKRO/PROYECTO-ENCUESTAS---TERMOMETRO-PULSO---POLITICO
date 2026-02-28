@@ -16,6 +16,10 @@ import { C, NAV_HEIGHT } from '@/lib/theme';
 import { IS_DEMO } from '@/lib/constants';
 import { exportEncuestasToCSV, exportResumenToCSV, fetchEncuestasForExport } from '@/lib/exportData';
 import { MOCK, TEMAS_SENT, MOCK_ANALISIS } from '@/lib/mockData';
+import dynamic from 'next/dynamic';
+
+// CampoMapa usa Leaflet → importar con ssr:false para evitar "window is not defined"
+const CampoMapa = dynamic(() => import('./CampoMapa'), { ssr: false });
 
 // ─── HOOK DE DATOS REALES ───────────────────────────────────────────────────────
 // v3.0: Ahora acepta municipioId para filtrar datos
@@ -116,6 +120,74 @@ function useDashboardData(campanaId, municipioId) {
   }, [campanaId, fetchAll]);
 
   return { data, loading, error, refetch: fetchAll };
+}
+
+// ─── HOOK: Datos del Tab Campo (encuestadores + ubicaciones en tiempo real) ─────
+function useCampoData(campanaId) {
+  const [ranking, setRanking]       = useState([]);
+  const [ubicaciones, setUbicaciones] = useState([]);
+  const [campoLoading, setCampoLoading] = useState(false);
+
+  // Ranking real: agrupar respuestas por encuestador con JOIN a encuestadores
+  const fetchRanking = useCallback(async () => {
+    if (!campanaId || IS_DEMO) return;
+    const { data, error } = await supabase
+      .from('respuestas')
+      .select('encuestador_id, encuestadores(nombre, zona_asignada)')
+      .eq('campana_id', campanaId)
+      .not('encuestador_id', 'is', null);
+    if (error) { console.error('[Campo] Error ranking:', error); return; }
+
+    // Agrupar en cliente (la vista SQL de ranking no existe aún)
+    const byEnc = {};
+    (data || []).forEach(r => {
+      const id = r.encuestador_id;
+      if (!byEnc[id]) byEnc[id] = {
+        id,
+        nombre: r.encuestadores?.nombre || 'Encuestador',
+        zona:   r.encuestadores?.zona_asignada || '—',
+        total:  0,
+      };
+      byEnc[id].total++;
+    });
+    setRanking(Object.values(byEnc).sort((a, b) => b.total - a.total));
+  }, [campanaId]);
+
+  // Ubicaciones activas: updated_at < 5 min atrás
+  const fetchUbicaciones = useCallback(async () => {
+    if (!campanaId || IS_DEMO) return;
+    const cutoff = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+    const { data, error } = await supabase
+      .from('encuestador_ubicaciones')
+      .select('*')
+      .eq('campana_id', campanaId)
+      .gt('updated_at', cutoff)
+      .order('updated_at', { ascending: false });
+    if (!error) setUbicaciones(data || []);
+  }, [campanaId]);
+
+  // Carga inicial
+  useEffect(() => {
+    if (!campanaId) return;
+    setCampoLoading(true);
+    Promise.all([fetchRanking(), fetchUbicaciones()]).finally(() => setCampoLoading(false));
+  }, [campanaId, fetchRanking, fetchUbicaciones]);
+
+  // Realtime: re-leer ubicaciones cada vez que algún encuestador hace upsert
+  useEffect(() => {
+    if (!campanaId || IS_DEMO) return;
+    const channel = supabase
+      .channel(`campo-ubicaciones-${campanaId}`)
+      .on('postgres_changes', {
+        event: '*', schema: 'public',
+        table: 'encuestador_ubicaciones',
+        filter: `campana_id=eq.${campanaId}`,
+      }, () => fetchUbicaciones())
+      .subscribe();
+    return () => supabase.removeChannel(channel);
+  }, [campanaId, fetchUbicaciones]);
+
+  return { ranking, ubicaciones, campoLoading };
 }
 
 // Selector de municipio para el header
@@ -328,6 +400,8 @@ export default function DashboardPolitico({ onNavigateToMapa }) {
 
   // v3.0: Pasar municipioId al hook
   const { data: realData, loading, error } = useDashboardData(campanaId, municipioActual?.id);
+  // Campo: ranking real + ubicaciones en tiempo real
+  const { ranking: campoRanking, ubicaciones: campoUbicaciones, campoLoading } = useCampoData(campanaId);
 
   // Cargar info de campaña para el contexto lateral
   useEffect(() => {
@@ -856,70 +930,160 @@ export default function DashboardPolitico({ onNavigateToMapa }) {
         )}
 
         {/* ── TAB CAMPO ── */}
-        {activeTab === 'campo' && (
-          <div style={{ display:'grid', gridTemplateColumns:grid2, gap:20 }}>
+        {activeTab === 'campo' && (() => {
+          // Cobertura real: agrupar D.secciones por zona (meta = 30 enc/sección)
+          const coberturaReal = (() => {
+            const secs = D.secciones || [];
+            const byZona = {};
+            secs.forEach(s => {
+              const z = s.zona || 'Sin zona';
+              if (!byZona[z]) byZona[z] = { zona: z, total: 0, meta: 0 };
+              byZona[z].total += (s.total || 0);
+              byZona[z].meta  += 30; // meta: 30 enc/sección
+            });
+            return Object.values(byZona)
+              .map(z => ({ ...z, pct: z.meta > 0 ? Math.min(100, Math.round((z.total / z.meta) * 100)) : 0 }))
+              .sort((a, b) => b.pct - a.pct);
+          })();
 
-            {/* Ranking encuestadores */}
-            <Card>
-              <SectionTitle>🏆 Ranking de encuestadores</SectionTitle>
-              <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
-                {MOCK.encuestadores.map((e,i) => (
-                  <div key={e.nombre} style={{ display:'flex', alignItems:'center', gap:12, padding:'10px 12px', background:C.surfaceEl, borderRadius:10, border:`1px solid ${i===0?C.gold:C.border}33` }}>
-                    <div style={{ width:28, height:28, borderRadius:'50%', flexShrink:0, background:i===0?C.gold:i===1?'#aaa':i===2?'#c88':C.greenDark, display:'flex', alignItems:'center', justifyContent:'center', fontSize:13, fontWeight:800, color:C.bg }}>
-                      {i+1}
-                    </div>
-                    <div style={{ flex:1 }}>
-                      <div style={{ fontSize:13, fontWeight:600, color:C.textPri }}>{e.nombre}</div>
-                      <div style={{ fontSize:11, color:C.textMut }}>{e.zona}</div>
-                    </div>
-                    <div style={{ fontSize:14, fontWeight:700, color:i===0?C.gold:C.greenAcc }}>{e.encuestas}</div>
-                    <div style={{ fontSize:11, color:C.textMut }}>enc.</div>
+          // Centro del mapa: primer encuestador con ubicación, o Atlixco por defecto
+          const mapCenter = campoUbicaciones.length > 0
+            ? [campoUbicaciones[0].lat, campoUbicaciones[0].lng]
+            : [18.9088, -98.4321];
+
+          return (
+          <div style={{ display:'flex', flexDirection:'column', gap:20 }}>
+
+            {/* Fila 1: Ranking + Activos */}
+            <div style={{ display:'grid', gridTemplateColumns:grid2, gap:20 }}>
+
+              {/* Ranking real */}
+              <Card>
+                <SectionTitle>🏆 Ranking de encuestadores</SectionTitle>
+                {campoLoading && <div style={{ color:C.textMut, fontSize:13 }}>Cargando…</div>}
+                {!campoLoading && campoRanking.length === 0 && (
+                  <div style={{ color:C.textMut, fontSize:13, padding:'12px 0' }}>
+                    Sin encuestas registradas todavía. El ranking aparecerá al levantar la primera encuesta.
                   </div>
-                ))}
-              </div>
-            </Card>
+                )}
+                <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+                  {campoRanking.slice(0, 10).map((e, i) => (
+                    <div key={e.id} style={{ display:'flex', alignItems:'center', gap:12, padding:'10px 12px', background:C.surfaceEl, borderRadius:10, border:`1px solid ${i===0?C.gold:C.border}33` }}>
+                      <div style={{ width:28, height:28, borderRadius:'50%', flexShrink:0, background:i===0?C.gold:i===1?'#aaa':i===2?'#c88':C.greenDark, display:'flex', alignItems:'center', justifyContent:'center', fontSize:13, fontWeight:800, color:C.bg }}>
+                        {i + 1}
+                      </div>
+                      <div style={{ flex:1 }}>
+                        <div style={{ fontSize:13, fontWeight:600, color:C.textPri }}>{e.nombre}</div>
+                        <div style={{ fontSize:11, color:C.textMut }}>{e.zona}</div>
+                      </div>
+                      <div style={{ fontSize:14, fontWeight:700, color:i===0?C.gold:C.greenAcc }}>{e.total}</div>
+                      <div style={{ fontSize:11, color:C.textMut }}>enc.</div>
+                    </div>
+                  ))}
+                </div>
+              </Card>
 
-            {/* Cobertura por zona */}
-            <Card>
-              <SectionTitle>🗺️ Cobertura por zona</SectionTitle>
-              <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
-                {MOCK.cobertura_zona.map(z => (
-                  <BarraProgreso key={z.zona} label={z.zona} pct={z.actual} meta={z.meta} color={z.actual>=z.meta?C.green:C.amber} />
-                ))}
-              </div>
-            </Card>
-
-            {/* Tabla de secciones */}
-            <Card style={{ gridColumn:'1/-1' }}>
-              <SectionTitle>📍 Resultados por sección electoral</SectionTitle>
-              <div style={{ overflowX:'auto' }}>
-                <table style={{ width:'100%', borderCollapse:'collapse', fontSize:13 }}>
-                  <thead>
-                    <tr>
-                      {['Sección','Zona','Encuestas','Intención','Simpatía','Estado'].map(h => (
-                        <th key={h} style={{ padding:'8px 12px', textAlign:'left', color:C.textMut, fontSize:11, fontWeight:600, letterSpacing:'.04em', textTransform:'uppercase', borderBottom:`1px solid ${C.border}` }}>{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {(D.secciones || []).map((s,i) => (
-                      <tr key={s.seccion} style={{ background:i%2===0?'transparent':C.surfaceEl }}>
-                        <td style={{ padding:'8px 12px', color:C.gold, fontWeight:700 }}>{s.seccion}</td>
-                        <td style={{ padding:'8px 12px', color:C.textSec }}>{s.zona}</td>
-                        <td style={{ padding:'8px 12px', color:C.textPri }}>{s.total}</td>
-                        <td style={{ padding:'8px 12px', color:getColorPct(s.intencion), fontWeight:700 }}>{s.intencion}%</td>
-                        <td style={{ padding:'8px 12px', color:getColorPct(s.simpatia), fontWeight:700 }}>{s.simpatia}%</td>
-                        <td style={{ padding:'8px 12px', color:getColorPct(s.intencion) }}>{getLabelPct(s.intencion)}</td>
-                      </tr>
+              {/* Cobertura real por zona */}
+              <Card>
+                <SectionTitle>🗺️ Cobertura por zona</SectionTitle>
+                {coberturaReal.length === 0 ? (
+                  <div style={{ color:C.textMut, fontSize:13 }}>Sin datos de secciones disponibles.</div>
+                ) : (
+                  <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+                    {coberturaReal.map(z => (
+                      <BarraProgreso key={z.zona} label={z.zona} pct={z.pct} meta={100} color={z.pct>=100?C.green:C.amber} />
                     ))}
-                  </tbody>
-                </table>
+                  </div>
+                )}
+              </Card>
+
+            </div>
+
+            {/* Fila 2: Mapa de encuestadores activos */}
+            <Card>
+              <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12, paddingBottom:8, borderBottom:`1px solid ${C.border}` }}>
+                <h3 style={{ fontSize:14, fontWeight:700, color:C.goldLight, margin:0 }}>
+                  📍 En campo ahora
+                </h3>
+                <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+                  {campoUbicaciones.length > 0 ? (
+                    <span style={{ fontSize:11, color:C.greenAcc, fontWeight:600 }}>
+                      ● {campoUbicaciones.length} activo{campoUbicaciones.length !== 1 ? 's' : ''}
+                    </span>
+                  ) : (
+                    <span style={{ fontSize:11, color:C.textMut }}>Sin encuestadores activos</span>
+                  )}
+                  <span style={{ fontSize:10, color:C.textMut }}>(actualiza en tiempo real · activo = último ping &lt;5 min)</span>
+                </div>
               </div>
 
+              {/* Lista de encuestadores activos */}
+              {campoUbicaciones.length > 0 && (
+                <div style={{ display:'flex', flexWrap:'wrap', gap:8, marginBottom:14 }}>
+                  {campoUbicaciones.map(u => {
+                    const hace = Math.round((Date.now() - new Date(u.updated_at).getTime()) / 1000);
+                    const hacelabel = hace < 60 ? `hace ${hace}s` : `hace ${Math.round(hace/60)}min`;
+                    return (
+                      <div key={u.user_id} style={{ display:'flex', alignItems:'center', gap:8, padding:'6px 12px', background:C.surfaceEl, borderRadius:20, border:`1px solid ${C.greenDark}` }}>
+                        <div style={{ width:7, height:7, borderRadius:'50%', background:C.greenAcc }} />
+                        <span style={{ fontSize:12, color:C.textPri, fontWeight:600 }}>{u.encuestador_nombre || 'Encuestador'}</span>
+                        <span style={{ fontSize:10, color:C.textMut }}>· {hacelabel}</span>
+                        {u.precision_m && <span style={{ fontSize:10, color:C.textMut }}>· ±{u.precision_m}m</span>}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Mini-mapa Leaflet */}
+              <div style={{ height:300, borderRadius:10, overflow:'hidden', border:`1px solid ${C.border}` }}>
+                {campoUbicaciones.length === 0 ? (
+                  <div style={{ height:'100%', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', background:C.surfaceEl, gap:8 }}>
+                    <span style={{ fontSize:32 }}>🗺️</span>
+                    <span style={{ fontSize:13, color:C.textMut }}>El mapa se activará cuando los encuestadores abran la encuesta desde campo</span>
+                    <span style={{ fontSize:11, color:C.textMut }}>Requiere GPS habilitado en el dispositivo</span>
+                  </div>
+                ) : (
+                  <CampoMapa ubicaciones={campoUbicaciones} center={mapCenter} />
+                )}
+              </div>
+            </Card>
+
+            {/* Fila 3: Tabla de secciones (datos reales) */}
+            <Card>
+              <SectionTitle>📋 Resultados por sección electoral</SectionTitle>
+              {(D.secciones || []).length === 0 ? (
+                <div style={{ color:C.textMut, fontSize:13 }}>Sin encuestas por sección todavía.</div>
+              ) : (
+                <div style={{ overflowX:'auto' }}>
+                  <table style={{ width:'100%', borderCollapse:'collapse', fontSize:13 }}>
+                    <thead>
+                      <tr>
+                        {['Sección','Zona','Encuestas','Intención','Simpatía','Estado'].map(h => (
+                          <th key={h} style={{ padding:'8px 12px', textAlign:'left', color:C.textMut, fontSize:11, fontWeight:600, letterSpacing:'.04em', textTransform:'uppercase', borderBottom:`1px solid ${C.border}` }}>{h}</th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {(D.secciones || []).map((s, i) => (
+                        <tr key={s.seccion} style={{ background:i%2===0?'transparent':C.surfaceEl }}>
+                          <td style={{ padding:'8px 12px', color:C.gold, fontWeight:700 }}>{s.seccion}</td>
+                          <td style={{ padding:'8px 12px', color:C.textSec }}>{s.zona}</td>
+                          <td style={{ padding:'8px 12px', color:C.textPri }}>{s.total}</td>
+                          <td style={{ padding:'8px 12px', color:getColorPct(s.intencion), fontWeight:700 }}>{s.intencion}%</td>
+                          <td style={{ padding:'8px 12px', color:getColorPct(s.simpatia), fontWeight:700 }}>{s.simpatia}%</td>
+                          <td style={{ padding:'8px 12px', color:getColorPct(s.intencion) }}>{getLabelPct(s.intencion)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </Card>
 
           </div>
-        )}
+          );
+        })()}
 
         {/* ── TAB COMENTARIOS ── */}
         {activeTab === 'comentarios' && (

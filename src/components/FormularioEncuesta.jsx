@@ -1038,6 +1038,40 @@ export default function FormularioEncuesta({ onSubmit, encuestadorId: propEncId,
     });
   }, [propEncId]);
 
+  // ─── HEARTBEAT GPS: actualiza posición del encuestador cada 60s ──────────────
+  // Requisitos: encuestadorId + campanaId + GPS permission + no modo demo
+  // Limitación conocida: iOS Safari detiene el GPS cuando la pantalla se bloquea
+  useEffect(() => {
+    if (!encuestadorId || !config.campanaId || IS_DEMO) return;
+    if (typeof navigator === 'undefined' || !navigator.geolocation) return;
+
+    const upsertUbicacion = () => {
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          await supabase.from('encuestador_ubicaciones').upsert({
+            user_id:             encuestadorId,
+            campana_id:          config.campanaId,
+            lat:                 pos.coords.latitude,
+            lng:                 pos.coords.longitude,
+            precision_m:         Math.round(pos.coords.accuracy),
+            encuestador_nombre:  encuestadorNombre || 'Encuestador',
+            updated_at:          new Date().toISOString(),
+          }, { onConflict: 'user_id,campana_id' });
+        },
+        () => { /* silencioso — el encuestador ya vio el error en GPSWidget */ },
+        { enableHighAccuracy: false, timeout: 10000, maximumAge: 30000 }
+      );
+    };
+
+    // Primera lectura inmediata
+    upsertUbicacion();
+    // Luego cada 60 segundos
+    const timer = setInterval(upsertUbicacion, 60_000);
+
+    // Limpiar el intervalo al desmontar (o cuando se cierra la encuesta)
+    return () => clearInterval(timer);
+  }, [encuestadorId, config.campanaId, encuestadorNombre]);
+
   // v3.0: Cargar colonias y secciones según municipio actual
   useEffect(() => {
     if (IS_DEMO) {
