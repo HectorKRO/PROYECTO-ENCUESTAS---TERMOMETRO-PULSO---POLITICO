@@ -378,6 +378,23 @@ export default function CampanasList() {
                         {campana.activa ? 'Activa' : 'Inactiva'}
                       </button>
 
+                      {/* Botón Dashboard */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          router.push(`/dashboard?campana=${campana.id}`);
+                        }}
+                        title="Ver dashboard de resultados"
+                        style={{
+                          padding: '6px 12px', borderRadius: 8,
+                          border: `1px solid ${C.gold}40`,
+                          background: 'transparent', color: C.gold,
+                          fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                        }}
+                      >
+                        📊 Dashboard
+                      </button>
+
                       {/* Botón eliminar */}
                       <button
                         onClick={(e) => {
@@ -395,7 +412,7 @@ export default function CampanasList() {
                         🗑️
                       </button>
 
-                      {/* Flecha */}
+                      {/* Flecha Admin */}
                       <span style={{ fontSize: 20, color: C.textMut }}>→</span>
                     </>
                   )}

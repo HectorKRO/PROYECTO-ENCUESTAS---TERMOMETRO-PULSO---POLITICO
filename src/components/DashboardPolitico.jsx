@@ -485,7 +485,7 @@ export default function DashboardPolitico({ onNavigateToMapa }) {
             {/* Botón Admin — solo admin/superadmin */}
             {esAdmin && (
               <button
-                onClick={() => router.push('/admin')}
+                onClick={() => router.push(campanaId ? `/admin?campana=${campanaId}` : '/admin')}
                 style={{ padding: '6px 12px', borderRadius: 6, fontSize: 11, background: 'transparent', border: `1px solid ${C.gold}60`, color: C.gold, cursor: 'pointer' }}
               >
                 ⚙️ Admin
