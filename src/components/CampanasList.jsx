@@ -17,7 +17,7 @@ import { useOrganizacion } from '@/hooks/useOrganizacion';
 
 export default function CampanasList() {
   const router = useRouter();
-  const { organizacion, loading: orgLoading } = useOrganizacion();
+  const { organizacion, loading: orgLoading, municipioActual } = useOrganizacion();
   const orgId = organizacion?.id;
   const [campanas, setCampanas] = useState([]);
   const [candidatos, setCandidatos] = useState([]);
@@ -37,7 +37,7 @@ export default function CampanasList() {
     nombre: '',
     candidato_id: '',
     fecha_inicio: new Date().toISOString().split('T')[0],
-    meta_encuestas: 400,
+    meta_encuestas: 500,
     color_primario: '#c9a84c',
   });
 
@@ -93,6 +93,7 @@ export default function CampanasList() {
           nombre: form.nombre.trim(),
           candidato_id: form.candidato_id,
           organizacion_id: orgId,
+          municipio_id: municipioActual?.id,
           fecha_inicio: form.fecha_inicio,
           meta_encuestas: form.meta_encuestas,
           activa: true,
@@ -107,7 +108,7 @@ export default function CampanasList() {
         nombre: '',
         candidato_id: '',
         fecha_inicio: new Date().toISOString().split('T')[0],
-        meta_encuestas: 400,
+        meta_encuestas: 500,
         color_primario: '#c9a84c',
       });
       setShowModal(false);
@@ -483,14 +484,16 @@ export default function CampanasList() {
                     </option>
                   ))}
                 </select>
-                {candidatos.length === 0 && !showNuevoCandidato && (
-                  <div style={{ fontSize: 12, color: C.amber, marginTop: 6, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                    <span>⚠️ No hay candidatos registrados.</span>
+                {!showNuevoCandidato && (
+                  <div style={{ fontSize: 12, marginTop: 6, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                    {candidatos.length === 0 && (
+                      <span style={{ color: C.amber }}>⚠️ No hay candidatos registrados.</span>
+                    )}
                     <button
                       onClick={() => setShowNuevoCandidato(true)}
                       style={{ fontSize: 12, color: C.gold, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline', padding: 0 }}
                     >
-                      Crear candidato
+                      + Nuevo candidato
                     </button>
                   </div>
                 )}
@@ -564,7 +567,7 @@ export default function CampanasList() {
                 </label>
                 <input
                   type="range"
-                  min="100"
+                  min="500"
                   max="20000"
                   step="500"
                   value={form.meta_encuestas}
@@ -572,7 +575,7 @@ export default function CampanasList() {
                   style={{ width: '100%', accentColor: C.gold }}
                 />
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: C.textMut, marginTop: 4 }}>
-                  <span>100</span>
+                  <span>500</span>
                   <span>20,000</span>
                 </div>
               </div>
