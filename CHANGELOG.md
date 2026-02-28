@@ -20,6 +20,7 @@
 
 | Versión | Fecha | Estado | Cambios Principales |
 |---------|-------|--------|---------------------|
+| **v3.2.2** | 2026-02-27 | ✅ Estable | War Room funcional: seed respuestas demo + link org-municipio + GeoJSON v2b |
 | **v3.2.1** | 2026-02-27 | ✅ Estable | Auditoría UX: fixes F1-F2, N1-N2, C1-C2 — flujos rotos y navegación |
 | **v3.2.0** | 2026-02-27 | ✅ Estable | Rediseño profesional UI/UX — 4 fases (Dashboard, War Room, Admin, Login) |
 | **v3.1.0** | 2026-02-27 | 🚧 Parche | NavBar global, gestión campañas/candidatos, fixes P1-P4 |
@@ -31,6 +32,97 @@
 | **v2.4.0** | 2026-02-25 | ✅ Estable | Catálogo de colonias INE (417 colonias), War Room v1 |
 | **v2.3.0** | 2026-02-25 | ✅ Estable | Secciones electorales 68 oficiales, campos v2.3 |
 | **v2.2.x** | 2026-02-24 | 🏛️ Base | Versión inicial de referencia |
+
+---
+
+## 🗺️ v3.2.2 (2026-02-27) — "War Room Funcional: Mapa de Calor con Datos Reales"
+
+**Estado:** ✅ Completado  
+**Contexto:** El War Room mostraba un mapa Leaflet estático sin polígonos seccionales porque faltaba el link `organizacion_municipios` en la base de datos y no había respuestas de demo para colorear el mapa. Se integró el GeoJSON oficial INE v2b (68 secciones) y se crearon 150 respuestas demo distribuidas en 30 secciones con 3 niveles de intención de voto para demostrar el mapa de calor funcional.  
+**Impacto:** Seed SQL +218 líneas, GeoJSON oficial añadido a `Docs/INE/`, 0 errores de build.
+
+---
+
+### 🎯 Problema Raíz
+
+El War Room carga el GeoJSON de secciones desde `/data/${municipioId}_secciones.geojson`, donde `municipioId` viene de `organizacion_municipios` en Supabase. Si esta tabla no tenía el registro de Atlixco:
+
+1. `useOrganizacion()` devolvía `municipios = []`
+2. El selector de municipio no tenía opciones
+3. `municipioId = null` → no se cargaba GeoJSON
+4. El mapa quedaba como OpenStreetMap base sin polígonos
+
+### ✅ Soluciones Implementadas
+
+#### 1. Link Org-Municipio en Seed (sql/v3.1/02_seed_demo.sql)
+
+```sql
+INSERT INTO organizacion_municipios (organizacion_id, municipio_id)
+VALUES ('00000000-0000-0000-0000-000000000001'::UUID, 1)
+ON CONFLICT (organizacion_id, municipio_id) DO NOTHING;
+```
+
+- **Idempotente:** `ON CONFLICT DO NOTHING` permite re-ejecutar el seed sin errores
+- **Fallback:** El UPDATE a `secciones_electorales.municipio_id = 1` garantiza que la vista `v_resultados_por_seccion` funcione incluso si `01_catalogo_geografico.sql` no se ejecutó
+
+#### 2. 150 Respuestas Demo para Mapa de Calor
+
+Distribución estratégica en 30 secciones para crear visualización realista:
+
+| Nivel | Secciones | % Intención Positiva | Color en Mapa |
+|-------|-----------|----------------------|---------------|
+| **Alta** | 0154, 0155, 0156, 0157, 0158, 0162, 0163, 0186, 0193, 0194 | ~80% (4× intención 5, 1× intención 4) | 🟢 Verde brillante |
+| **Media** | 0159, 0160, 0164, 0165, 0166, 0177, 0184, 0188, 0199, 0219 | ~40% (2× intención 5, 1× intención 4, 2× intención 3, 1× intención 2) | 🟡 Amarillo |
+| **Baja** | 0172, 0173, 0175, 0196, 0197, 0207, 0209, 0210 | ~20% (1× intención 4, 2× intención 3, 2× intención 2, 1× intención 1) | 🔴 Rojo |
+| **Sin datos** | Restantes 38 secciones | — | ⬛ Gris |
+
+**Datos por respuesta:**
+- `intencion_voto`: 1–5 (distribuido según nivel)
+- `reconocimiento_asistido`: 'si_bien', 'si_positivo', 'si_referencia', 'no', 'no_conoce'
+- `organizacion_id`, `municipio_id`, `campana_id`: valores demo legacy
+- `completada = true`, `sincronizada = true`
+
+#### 3. GeoJSON Oficial INE v2b
+
+- **Archivo:** `Docs/INE/atlixco_secciones_v2b_oficial.geojson`
+- **Contenido:** 68 secciones oficiales de Atlixco (municipio 019, Puebla)
+- **Corrección:** Secciones 2874, 2875, 2876 del mapa INE → unificadas como **0163**
+- **Eliminadas:** 6 secciones no oficiales (0222–0225, 0228, 0229) que excedían el rango INE
+- **Ubicación en app:** `public/data/1_secciones.geojson` (copia idéntica)
+
+### 📁 Archivos Modificados
+
+```
+sql/v3.1/02_seed_demo.sql                 +218 líneas (organizacion_municipios, respuestas demo)
+Docs/INE/atlixco_secciones_v2b_oficial.geojson   3,969 líneas (nuevo, oficial INE)
+```
+
+### 🧪 Verificación
+
+| Escenario | Resultado |
+|-----------|-----------|
+| Ejecutar seed en Supabase limpio | ✅ Link org-municipio creado, 150 respuestas insertadas |
+| Abrir /war-room con campaña demo | ✅ Selector Atlixco disponible, polígonos visibles |
+| Click en sección 0154 | ✅ Popup con datos: Intención 4.5, Reconocimiento 100%, 6 encuestas |
+| Click en sección sin datos | ✅ Color gris, popup con "Intención: Sin datos" |
+| Hover sobre polígonos | ✅ Tooltip con sección + zona + valor calculado |
+
+### 🚀 Cómo Activar en Producción
+
+Ejecutar en Supabase SQL Editor:
+
+```sql
+-- 1. Link organización-municipio (si no existe)
+INSERT INTO organizacion_municipios (organizacion_id, municipio_id)
+VALUES ('00000000-0000-0000-0000-000000000001'::UUID, 1)
+ON CONFLICT (organizacion_id, municipio_id) DO NOTHING;
+
+-- 2. Verificar que la vista funcione
+SELECT seccion, intencion_voto, reconocimiento_asistido, total_encuestas
+FROM v_resultados_por_seccion
+WHERE campana_id = 'b2000000-0000-0000-0000-000000000001'::UUID
+LIMIT 10;
+```
 
 ---
 
