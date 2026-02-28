@@ -13,16 +13,18 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { C } from '@/lib/theme';
 import { supabase } from '@/lib/supabase';
+import { useOrganizacion } from '@/hooks/useOrganizacion';
 
 export default function CampanasList() {
   const router = useRouter();
+  const { organizacion, loading: orgLoading } = useOrganizacion();
+  const orgId = organizacion?.id;
   const [campanas, setCampanas] = useState([]);
   const [candidatos, setCandidatos] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [orgId, setOrgId] = useState(null);
   const [showNuevoCandidato, setShowNuevoCandidato] = useState(false);
   const [formCandidato, setFormCandidato] = useState({ nombre: '', cargo: 'Presidente Municipal', partido: '' });
   const [savingCandidato, setSavingCandidato] = useState(false);
@@ -41,32 +43,19 @@ export default function CampanasList() {
 
   // Cargar campañas y datos necesarios
   useEffect(() => {
-    loadData();
-  }, []);
+    if (orgId) loadData();
+  }, [orgId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadData = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      // Obtener usuario y organización
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('No autenticado');
-
-      const { data: miembro } = await supabase
-        .from('organizacion_miembros')
-        .select('organizacion_id')
-        .eq('user_id', user.id)
-        .single();
-
-      if (!miembro) throw new Error('No perteneces a una organización');
-      setOrgId(miembro.organizacion_id);
-
       // Cargar campañas de la organización
       const { data: campanasData, error: campanasError } = await supabase
         .from('campanas')
         .select('*, candidato:candidato_id(nombre, cargo, partido)')
-        .eq('organizacion_id', miembro.organizacion_id)
+        .eq('organizacion_id', orgId)
         .order('created_at', { ascending: false });
 
       if (campanasError) throw campanasError;
@@ -76,7 +65,7 @@ export default function CampanasList() {
       const { data: candidatosData } = await supabase
         .from('candidatos')
         .select('id, nombre, cargo, partido')
-        .eq('organizacion_id', miembro.organizacion_id)
+        .eq('organizacion_id', orgId)
         .eq('activo', true);
 
       setCandidatos(candidatosData || []);
@@ -193,7 +182,7 @@ export default function CampanasList() {
     router.push(`/admin?campana=${id}`);
   };
 
-  if (loading) {
+  if (orgLoading || loading) {
     return (
       <div style={{ minHeight: '100vh', background: C.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <div style={{ color: C.textMut }}>Cargando campañas...</div>

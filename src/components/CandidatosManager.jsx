@@ -12,14 +12,16 @@
 import { useState, useEffect } from 'react';
 import { C } from '@/lib/theme';
 import { supabase } from '@/lib/supabase';
+import { useOrganizacion } from '@/hooks/useOrganizacion';
 
 export default function CandidatosManager({ campanaId = null }) {
+  const { organizacion, loading: orgLoading } = useOrganizacion();
+  const orgId = organizacion?.id;
   const [activeTab, setActiveTab] = useState('principales'); // 'principales' | 'rivales'
   const [candidatos, setCandidatos] = useState([]);
   const [rivales, setRivales] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [orgId, setOrgId] = useState(null);
 
   // Modales
   const [showNuevoPrincipal, setShowNuevoPrincipal] = useState(false);
@@ -44,32 +46,19 @@ export default function CandidatosManager({ campanaId = null }) {
   });
 
   useEffect(() => {
-    loadData();
-  }, []);
+    if (orgId) loadData();
+  }, [orgId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadData = async () => {
     setLoading(true);
     setError(null);
 
     try {
-      // Obtener organización del usuario
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('No autenticado');
-
-      const { data: miembro } = await supabase
-        .from('organizacion_miembros')
-        .select('organizacion_id, rol')
-        .eq('user_id', user.id)
-        .single();
-
-      if (!miembro) throw new Error('No perteneces a una organización');
-      setOrgId(miembro.organizacion_id);
-
       // Cargar candidatos principales
       const { data: candidatosData } = await supabase
         .from('candidatos')
         .select('*')
-        .eq('organizacion_id', miembro.organizacion_id)
+        .eq('organizacion_id', orgId)
         .order('created_at', { ascending: false });
 
       setCandidatos(candidatosData || []);
@@ -78,7 +67,7 @@ export default function CandidatosManager({ campanaId = null }) {
       const { data: rivalesData } = await supabase
         .from('candidatos_rivales')
         .select('*')
-        .eq('organizacion_id', miembro.organizacion_id)
+        .eq('organizacion_id', orgId)
         .order('orden', { ascending: true });
 
       setRivales(rivalesData || []);
@@ -184,7 +173,7 @@ export default function CandidatosManager({ campanaId = null }) {
     }
   };
 
-  if (loading) {
+  if (orgLoading || loading) {
     return (
       <div style={{ padding: 40, textAlign: 'center', color: C.textMut }}>
         Cargando candidatos...
