@@ -19,14 +19,23 @@ export default function LandingPage() {
         justifyContent: 'center',
         padding: '40px 20px',
         background: `
-          radial-gradient(ellipse 80% 50% at 50% -20%, rgba(201, 162, 39, 0.12), transparent),
-          radial-gradient(ellipse 60% 40% at 50% 120%, rgba(45, 122, 58, 0.08), transparent),
+          radial-gradient(ellipse 80% 50% at 50% -20%, ${C.gold}1f, transparent),
+          radial-gradient(ellipse 60% 40% at 50% 120%, ${C.green}14, transparent),
           ${C.bg}
         `,
         textAlign: 'center'
       }}>
         {/* Logo */}
-        <div style={{ fontSize: 64, marginBottom: 24 }}>🗳️</div>
+        <div style={{
+          width: 64, height: 64,
+          background: `linear-gradient(135deg, ${C.gold}, ${C.goldDim})`,
+          borderRadius: 16,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          marginBottom: 24,
+          fontSize: 22, fontWeight: 700, color: C.bg, letterSpacing: '-0.5px',
+        }}>
+          PE
+        </div>
         
         {/* Título */}
         <h1 style={{
@@ -103,7 +112,7 @@ export default function LandingPage() {
               key={i}
               style={{
                 padding: '24px',
-                background: 'rgba(15, 29, 18, 0.6)',
+                background: C.surfaceEl,
                 backdropFilter: 'blur(10px)',
                 border: `1px solid ${C.border}`,
                 borderRadius: 16,
@@ -130,7 +139,7 @@ export default function LandingPage() {
         background: C.surface
       }}>
         <p style={{ color: C.textMut, fontSize: 13, margin: 0 }}>
-          © 2026 PulsoElectoral v3.0 — Desarrollado para campañas electorales en Puebla
+          © 2026 PulsoElectoral v3.2 — Desarrollado para campañas electorales en Puebla
         </p>
       </footer>
     </div>

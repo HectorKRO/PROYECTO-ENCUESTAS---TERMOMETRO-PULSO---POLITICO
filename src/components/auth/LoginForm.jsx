@@ -33,7 +33,16 @@ export function LoginForm() {
     }}>
       {/* Header */}
       <div style={{ textAlign: 'center', marginBottom: 32 }}>
-        <div style={{ fontSize: 48, marginBottom: 16 }}>🗳️</div>
+        <div style={{
+          width: 56, height: 56,
+          background: `linear-gradient(135deg, ${C.gold}, ${C.goldDim})`,
+          borderRadius: 14,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          margin: '0 auto 16px',
+          fontSize: 18, fontWeight: 700, color: C.bg, letterSpacing: '-0.5px',
+        }}>
+          PE
+        </div>
         <h1 style={{
           fontSize: 24,
           fontWeight: 600,

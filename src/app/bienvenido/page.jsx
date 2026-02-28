@@ -73,7 +73,7 @@ export default function BienvenidoPage() {
       display: 'flex', alignItems: 'center', justifyContent: 'center'
     }}>
       <div style={{
-        background: 'rgba(15, 29, 18, 0.98)',
+        background: C.surface,
         border: '1px solid ' + C.gold + '40',
         borderRadius: 24,
         padding: '48px 64px',

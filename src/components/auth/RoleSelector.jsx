@@ -26,9 +26,9 @@ export function RoleSelector({ selected, onSelect }) {
             alignItems: 'center',
             gap: 16,
             padding: '16px 20px',
-            background: selected === rol.id 
-              ? 'rgba(201, 162, 39, 0.15)' 
-              : 'rgba(15, 29, 18, 0.6)',
+            background: selected === rol.id
+              ? `${C.gold}26`
+              : C.surfaceEl,
             border: `1px solid ${selected === rol.id ? C.gold : C.border}`,
             borderRadius: 12,
             cursor: 'pointer',
