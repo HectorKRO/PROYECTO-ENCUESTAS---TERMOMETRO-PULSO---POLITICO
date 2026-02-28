@@ -43,7 +43,7 @@ function useDashboardData(campanaId, municipioId) {
       
       // v3.0: Filtrar por campana_id Y municipio_id
       const [kpisRes, tendRes, demoRes, agendaRes, seccionesRes] = await Promise.all([
-        supabase.from('v_metricas_por_campana').select('*').eq('campana_id', campanaId).eq('municipio_id', municipioId).single(),
+        supabase.from('v_metricas_por_campana').select('*').eq('campana_id', campanaId).eq('municipio_id', municipioId).maybeSingle(),
         supabase.from('v_tendencia_semanal').select('*').eq('campana_id', campanaId).eq('municipio_id', municipioId).order('semana'),
         supabase.from('v_demograficos').select('*').eq('campana_id', campanaId).eq('municipio_id', municipioId),
         supabase.from('v_agenda_ciudadana').select('*').eq('campana_id', campanaId).eq('municipio_id', municipioId).limit(10),
@@ -327,21 +327,50 @@ export default function DashboardPolitico({ onNavigateToMapa }) {
 
   // Fusionar datos reales o mock según modo
   const D = useMemo(() => {
-    if (IS_DEMO || !realData) return MOCK;
+    // Modo demo puro (sin campaña seleccionada): mostrar datos de demostración
+    if (IS_DEMO || !campanaId) return MOCK;
+
+    // Candidato desde campanaInfo (disponible incluso con 0 encuestas)
+    const candidatoBase = campanaInfo?.candidato ? {
+      ...MOCK.candidato,
+      nombre:  campanaInfo.candidato.nombre,
+      alias:   (campanaInfo.candidato.nombre || '').split(' ')[0] || 'Candidato',
+      cargo:   campanaInfo.candidato.cargo   || MOCK.candidato.cargo,
+      partido: campanaInfo.candidato.partido || '',
+    } : MOCK.candidato;
+
+    // Campaña real con 0 encuestas levantadas: mostrar ceros (no datos de demo)
+    if (!realData || !realData.kpis) {
+      return {
+        ...MOCK,
+        candidato: candidatoBase,
+        kpis: {
+          total_encuestas: 0, total: 0,
+          meta: campanaInfo?.meta_encuestas ?? 500,
+          reconocimiento: 0, intencion: 0, imagen: 0,
+          pct_reconocimiento: 0, pct_intencion_positiva: 0, pct_imagen_positiva: 0,
+        },
+        tendencia: [],
+        agenda: [],
+        secciones: [],
+      };
+    }
+
+    // Campaña con datos reales
     return {
       ...MOCK,
-      kpis:      realData.kpis      || MOCK.kpis,
-      tendencia: realData.tendencia || MOCK.tendencia,
-      agenda:    realData.agenda    || MOCK.agenda,
-      secciones: realData.secciones || MOCK.secciones,
-      // ✅ FIX: Asegurar que arrays existan para evitar crashes
-      conoce_candidato: realData.conoce_candidato || MOCK.conoce_candidato,
+      candidato:           candidatoBase,
+      kpis:                realData.kpis,
+      tendencia:           realData.tendencia           || [],
+      agenda:              realData.agenda              || [],
+      secciones:           realData.secciones           || [],
+      conoce_candidato:    realData.conoce_candidato    || MOCK.conoce_candidato,
       evaluacion_gobierno: realData.evaluacion_gobierno || MOCK.evaluacion_gobierno,
-      demografia_genero: realData.demografia_genero || MOCK.demografia_genero,
-      demografia_edad: realData.demografia_edad || MOCK.demografia_edad,
-      medios: realData.medios || MOCK.medios,
+      demografia_genero:   realData.demografia_genero   || MOCK.demografia_genero,
+      demografia_edad:     realData.demografia_edad     || MOCK.demografia_edad,
+      medios:              realData.medios              || MOCK.medios,
     };
-  }, [realData]);
+  }, [realData, campanaId, campanaInfo]);
   
   // ✅ P0: Exportación a Excel/CSV
   const handleExportEncuestas = async () => {

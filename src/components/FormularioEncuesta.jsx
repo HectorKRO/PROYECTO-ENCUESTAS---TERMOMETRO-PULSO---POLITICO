@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { supabase, syncOfflineQueue, savePendingOffline, getPendingCount, fetchColonias } from '@/lib/supabase';
 import { useOrganizacion } from '@/hooks/useOrganizacion';
 import { C } from '@/lib/theme';
@@ -25,19 +26,7 @@ const PROPUESTAS  = ['Mejora de calles','Seguridad con más patrullas','Apoyos a
 const MEDIOS      = ['Facebook','Instagram','WhatsApp','TV local','Radio','Periódico','Cartelería','Boca a boca'];
 const PARTIDOS    = ['MORENA','PAN','PRI','PRD','MC','PVEM','PT','Ninguno','No sabe/No contesta'];
 
-// ─── CONFIG desde URL params ───────────────────────────────────────────────────
-function getConfig() {
-  if (typeof window === 'undefined') return { candidato:'Paco García', cargo:'Presidente Municipal', municipio:'Atlixco', campanaId:null, fuente:'campo' };
-  const p = new URLSearchParams(window.location.search);
-  return {
-    candidato:  p.get('candidato')  || 'Paco García',
-    cargo:      p.get('cargo')      || 'Presidente Municipal',
-    municipio:  p.get('municipio')  || 'Atlixco',
-    campanaId:  p.get('campana')    || null,
-    fuente:     p.get('fuente')     || 'campo',
-    experto:    p.get('experto')    === 'true', // ✅ UX: Modo experto
-  };
-}
+// ─── CONFIG: getConfig eliminado — se usa useSearchParams() en el componente ─────
 
 // ─── GPS HOOK con validación de precisión ──────────────────────────────────────
 function useGPS() {
@@ -922,6 +911,17 @@ function Step4({ form, update, candidato }) {
 // ─── COMPONENTE PRINCIPAL ──────────────────────────────────────────────────────
 export default function FormularioEncuesta({ onSubmit, encuestadorId: propEncId, encuestadorNombre: propEncNombre }) {
   const router = useRouter();
+  // ✅ FIX: useSearchParams evita bug de hidratación SSR (window.location.search no funciona en SSR)
+  const searchParams = useSearchParams();
+  const config = {
+    candidato: searchParams.get('candidato') || '',
+    cargo:     searchParams.get('cargo')     || 'Presidente Municipal',
+    municipio: searchParams.get('municipio') || '',
+    campanaId: searchParams.get('campana')   || null,
+    fuente:    searchParams.get('fuente')    || 'campo',
+    experto:   searchParams.get('experto')   === 'true',
+  };
+
   const [step, setStep] = useState(1);
   const [form, setForm] = useState(initForm);
   const [errors, setErrors] = useState([]);
@@ -931,7 +931,6 @@ export default function FormularioEncuesta({ onSubmit, encuestadorId: propEncId,
   const [submitted, setSubmitted] = useState(false);
   const [isOnline, setIsOnline] = useState(true);
   const [pendingCount, setPendingCount] = useState(0);
-  const [config] = useState(getConfig);
   const [encuestadorId, setEncuestadorId] = useState(propEncId || null);
   const [encuestadorNombre, setEncuestadorNombre] = useState(propEncNombre || '');
   const [modoExperto, setModoExperto] = useState(config.experto);
