@@ -209,6 +209,7 @@ function useCampanaData(campanaId, municipioId) {
 
 // Legend memoizado
 const Legend = memo(function Legend() {
+  const isMobile = useIsMobile();
   const items = [
     { color: INTENCION_COLORS.muy_alta, label: '≥55% (Muy Alta)' },
     { color: INTENCION_COLORS.alta, label: '45-54% (Alta)' },
@@ -221,21 +222,24 @@ const Legend = memo(function Legend() {
   return (
     <div style={{
       position: 'absolute',
-      bottom: 20,
-      right: 20,
+      // En mobile: top-right para no quedar tapado por el bottom sheet
+      // En desktop: bottom-right
+      ...(isMobile
+        ? { top: 10, right: 10 }
+        : { bottom: 20, right: 20 }),
       background: 'rgba(7, 16, 10, 0.95)',
-      padding: '12px 16px',
+      padding: isMobile ? '8px 10px' : '12px 16px',
       borderRadius: 8,
       border: `1px solid ${C.border}`,
       zIndex: 1000,
-      fontSize: 12,
+      fontSize: isMobile ? 10 : 12,
     }}>
-      <div style={{ fontWeight: 700, color: C.goldLight, marginBottom: 8 }}>
+      <div style={{ fontWeight: 700, color: C.goldLight, marginBottom: 6 }}>
         Intención de Voto
       </div>
       {items.map((item) => (
-        <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-          <div style={{ width: 16, height: 16, borderRadius: 3, background: item.color }} />
+        <div key={item.label} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
+          <div style={{ width: isMobile ? 10 : 16, height: isMobile ? 10 : 16, borderRadius: 2, background: item.color, flexShrink: 0 }} />
           <span style={{ color: C.textSec }}>{item.label}</span>
         </div>
       ))}
@@ -255,10 +259,10 @@ const StatsPanel = memo(function StatsPanel({ data, selectedSeccion, onClose }) 
     border: `1px solid ${C.border}`,
     borderBottom: 'none',
     background: 'rgba(7, 16, 10, 0.99)',
-    padding: '12px 16px 20px',
+    padding: '8px 14px 14px',
     zIndex: 1001,
     overflow: 'auto',
-    maxHeight: '52vh',
+    maxHeight: '40vh',
   } : {
     position: 'absolute',
     top: 20, left: 20,
@@ -310,34 +314,34 @@ const StatsPanel = memo(function StatsPanel({ data, selectedSeccion, onClose }) 
   const intencionColor = getIntencionColor(seccionData.pct_intencion_positiva);
 
   return (
-    <div style={{ ...baseStyle, width: isMobile ? '100%' : 320, maxHeight: isMobile ? '52vh' : '80vh' }}>
+    <div style={{ ...baseStyle, width: isMobile ? '100%' : 320, maxHeight: isMobile ? '40vh' : '80vh' }}>
       {dragHandle}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <h3 style={{ color: C.goldLight, margin: 0, fontSize: isMobile ? 16 : 18 }}>Sección {selectedSeccion}</h3>
-        <button onClick={onClose} style={{ background: 'none', border: 'none', color: C.textMut, cursor: 'pointer', fontSize: 22, padding: '2px 8px', lineHeight: 1 }}>×</button>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isMobile ? 8 : 12 }}>
+        <h3 style={{ color: C.goldLight, margin: 0, fontSize: isMobile ? 14 : 18 }}>Sección {selectedSeccion}</h3>
+        <button onClick={onClose} style={{ background: 'none', border: 'none', color: C.textMut, cursor: 'pointer', fontSize: 20, padding: '2px 6px', lineHeight: 1 }}>×</button>
       </div>
 
       <div style={{
         background: C.surfaceEl,
         borderRadius: 8,
-        padding: isMobile ? 10 : 12,
-        marginBottom: 12,
+        padding: isMobile ? 8 : 12,
+        marginBottom: isMobile ? 8 : 12,
         border: `1px solid ${intencionColor}33`,
       }}>
-        <div style={{ fontSize: 11, color: C.textMut, marginBottom: 2 }}>Intención Positiva</div>
-        <div style={{ fontSize: isMobile ? 28 : 32, fontWeight: 900, color: intencionColor }}>
+        <div style={{ fontSize: 10, color: C.textMut, marginBottom: 2 }}>Intención Positiva</div>
+        <div style={{ fontSize: isMobile ? 22 : 32, fontWeight: 900, color: intencionColor }}>
           {seccionData.pct_intencion_positiva?.toFixed(1) || '0.0'}%
         </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-        <div style={{ background: C.surfaceEl, padding: 10, borderRadius: 6 }}>
+        <div style={{ background: C.surfaceEl, padding: isMobile ? 7 : 10, borderRadius: 6 }}>
           <div style={{ fontSize: 10, color: C.textMut }}>Encuestas</div>
-          <div style={{ fontSize: 18, fontWeight: 700, color: C.textPri }}>{seccionData.total || 0}</div>
+          <div style={{ fontSize: isMobile ? 15 : 18, fontWeight: 700, color: C.textPri }}>{seccionData.total || 0}</div>
         </div>
-        <div style={{ background: C.surfaceEl, padding: 10, borderRadius: 6 }}>
+        <div style={{ background: C.surfaceEl, padding: isMobile ? 7 : 10, borderRadius: 6 }}>
           <div style={{ fontSize: 10, color: C.textMut }}>Reconocimiento</div>
-          <div style={{ fontSize: 18, fontWeight: 700, color: C.textPri }}>{seccionData.pct_reconocimiento?.toFixed(1) || '0.0'}%</div>
+          <div style={{ fontSize: isMobile ? 15 : 18, fontWeight: 700, color: C.textPri }}>{seccionData.pct_reconocimiento?.toFixed(1) || '0.0'}%</div>
         </div>
       </div>
     </div>
@@ -403,8 +407,9 @@ const MapaWarRoom = memo(function MapaWarRoom({
     const recoPct = reconocimiento ?? null;
     const count = total_encuestas || 0;
 
-    // Tooltip en hover (bindTooltip, no bindPopup → evita doble popup al hacer click)
-    // La zona/colonia principal se omite para no confundir: cada sección tiene varias localidades
+    // Tooltip en hover: solo en desktop (en mobile touch no hay mouseout → se congela)
+    // En mobile el bottom sheet (StatsPanel) reemplaza toda la info del tooltip
+    if (typeof window !== 'undefined' && window.innerWidth >= 640) {
     layer.bindTooltip(`
       <div style="font-family: system-ui, sans-serif; min-width: 220px; padding: 2px 0;">
         <div style="border-left: 4px solid ${baseColor}; padding-left: 10px; margin-bottom: 12px; display:flex; align-items:center; gap:8px;">
@@ -437,6 +442,7 @@ const MapaWarRoom = memo(function MapaWarRoom({
         </div>
       </div>
     `, { direction: 'top', sticky: false, opacity: 1, offset: [0, -8], className: 'warroom-tooltip' });
+    } // end if desktop
 
     layer.on({
       mouseover: (e) => {
