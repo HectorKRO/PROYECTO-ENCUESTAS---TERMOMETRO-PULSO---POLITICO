@@ -400,45 +400,40 @@ const MapaWarRoom = memo(function MapaWarRoom({
     const recoPct = reconocimiento ?? null;
     const count = total_encuestas || 0;
 
-    // Popup rico con barras de progreso y badge de tipo
-    layer.bindPopup(`
-      <div class="wrp-popup" style="font-family: system-ui, sans-serif; min-width: 230px; padding: 4px 0;">
-        <div style="border-left: 4px solid ${baseColor}; padding-left: 10px; margin-bottom: 14px;">
-          <div style="font-size: 15px; font-weight: 700; color: #e4be45;">Sección ${seccion}</div>
-          <div style="display:flex; align-items:center; gap:6px; margin-top:4px; flex-wrap:wrap;">
-            <span style="font-size:11px; color:#9ca3af;">${zona || 'Sin zona'}</span>
-            ${tipo ? `<span style="font-size:9px; background:#0f2018; color:#6ee7b7; padding:1px 7px; border-radius:4px; font-weight:700; letter-spacing:.06em;">${tipo}</span>` : ''}
-          </div>
+    // Tooltip en hover (bindTooltip, no bindPopup → evita doble popup al hacer click)
+    // La zona/colonia principal se omite para no confundir: cada sección tiene varias localidades
+    layer.bindTooltip(`
+      <div style="font-family: system-ui, sans-serif; min-width: 220px; padding: 2px 0;">
+        <div style="border-left: 4px solid ${baseColor}; padding-left: 10px; margin-bottom: 12px; display:flex; align-items:center; gap:8px;">
+          <span style="font-size: 14px; font-weight: 700; color: #e4be45;">Sección ${seccion}</span>
+          ${tipo ? `<span style="font-size:9px; background:#1a3525; color:#6ee7b7; padding:2px 7px; border-radius:4px; font-weight:700; letter-spacing:.06em;">${tipo}</span>` : ''}
         </div>
 
-        <div style="margin-bottom:10px;">
-          <div style="display:flex; justify-content:space-between; font-size:11px; color:#9ca3af; margin-bottom:4px;">
+        <div style="margin-bottom:9px;">
+          <div style="display:flex; justify-content:space-between; font-size:11px; color:#a3b8a8; margin-bottom:4px;">
             <span>Intención positiva</span>
             <strong style="color:${baseColor};">${intPct != null ? intPct.toFixed(1) + '%' : '—'}</strong>
           </div>
-          <div style="background:#0a1a10; border-radius:3px; height:6px; overflow:hidden;">
-            <div style="width:${Math.min(intPct ?? 0, 100)}%; height:100%; background:${baseColor}; border-radius:3px; transition:width .4s;"></div>
+          <div style="background:#0a1a10; border-radius:3px; height:5px; overflow:hidden;">
+            <div style="width:${Math.min(intPct ?? 0, 100)}%; height:100%; background:${baseColor}; border-radius:3px;"></div>
           </div>
         </div>
 
-        <div style="margin-bottom:14px;">
-          <div style="display:flex; justify-content:space-between; font-size:11px; color:#9ca3af; margin-bottom:4px;">
+        <div style="margin-bottom:12px;">
+          <div style="display:flex; justify-content:space-between; font-size:11px; color:#a3b8a8; margin-bottom:4px;">
             <span>Reconocimiento</span>
             <strong style="color:#60a5fa;">${recoPct != null ? recoPct.toFixed(1) + '%' : '—'}</strong>
           </div>
-          <div style="background:#0a1a10; border-radius:3px; height:6px; overflow:hidden;">
-            <div style="width:${Math.min(recoPct ?? 0, 100)}%; height:100%; background:#60a5fa; border-radius:3px; transition:width .4s;"></div>
+          <div style="background:#0a1a10; border-radius:3px; height:5px; overflow:hidden;">
+            <div style="width:${Math.min(recoPct ?? 0, 100)}%; height:100%; background:#60a5fa; border-radius:3px;"></div>
           </div>
         </div>
 
-        <div style="border-top:1px solid #1e3a2a; padding-top:9px; display:flex; justify-content:space-between; align-items:center;">
-          <span style="font-size:11px; color:${count > 0 ? '#6ee7b7' : '#6b7280'};">
-            ${count > 0 ? `📋 ${count} encuesta${count !== 1 ? 's' : ''}` : 'Sin encuestas aún'}
-          </span>
-          ${count > 0 ? `<span style="font-size:10px; color:#4b5563;">Ver detalles →</span>` : `<span style="font-size:10px; color:#374151;">Selecciona campaña</span>`}
+        <div style="border-top:1px solid #1e3a2a; padding-top:8px; font-size:11px; color:${count > 0 ? '#6ee7b7' : '#8aaf96'};">
+          ${count > 0 ? `📋 ${count} encuesta${count !== 1 ? 's' : ''} · haz clic para detalles` : 'Sin encuestas · haz clic para ver'}
         </div>
       </div>
-    `, { maxWidth: 300, offset: [0, -4] });
+    `, { direction: 'top', sticky: false, opacity: 1, offset: [0, -8], className: 'warroom-tooltip' });
 
     layer.on({
       mouseover: (e) => {

@@ -183,6 +183,14 @@ const TooltipStyle = {
   color: C.textPri,
   fontSize: 12,
 };
+// El wrapperStyle elimina el rectángulo blanco por defecto de Recharts
+// (contentStyle estiliza el interior; wrapperStyle estiliza el contenedor externo)
+const TooltipWrapperStyle = {
+  background: 'none',
+  border: 'none',
+  outline: 'none',
+  boxShadow: 'none',
+};
 
 // ─── UTILIDADES PARA SEMÁFORO VISUAL ───────────────────────────────────────────
 function getEstadoSemaforo(valor) {
@@ -633,7 +641,7 @@ export default function DashboardPolitico({ onNavigateToMapa }) {
                   <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
                   <XAxis dataKey="semana" tick={{ fill:C.textMut, fontSize:11 }} axisLine={{ stroke:C.border }} />
                   <YAxis domain={yDomain} tick={{ fill:C.textMut, fontSize:11 }} axisLine={{ stroke:C.border }} />
-                  <RTooltip contentStyle={TooltipStyle} formatter={(v,n) => [`${v}%`, n]} />
+                  <RTooltip contentStyle={TooltipStyle} wrapperStyle={TooltipWrapperStyle} formatter={(v,n) => [`${v}%`, n]} />
                   <Legend wrapperStyle={{ fontSize:11, color:C.textSec }} />
                   <Area type="monotone" dataKey="reconocimiento" stroke={C.greenLight} fill="url(#gReconocimiento)" strokeWidth={2} name="Reconocimiento" />
                   <Area type="monotone" dataKey="intencion"      stroke={C.greenAcc}  fill="url(#gIntencion)"     strokeWidth={2} name="Intención" />
@@ -650,7 +658,7 @@ export default function DashboardPolitico({ onNavigateToMapa }) {
                   <Pie data={D.conoce_candidato || []} cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={3} dataKey="value">
                     {(D.conoce_candidato || []).map((e,i) => <Cell key={i} fill={e.color} />)}
                   </Pie>
-                  <RTooltip contentStyle={TooltipStyle} formatter={v=>`${v}%`} />
+                  <RTooltip contentStyle={TooltipStyle} wrapperStyle={TooltipWrapperStyle} formatter={v=>`${v}%`} />
                   <Legend wrapperStyle={{ fontSize:11, color:C.textSec }} />
                 </PieChart>
               </ResponsiveContainer>
@@ -664,7 +672,7 @@ export default function DashboardPolitico({ onNavigateToMapa }) {
                   <Pie data={D.evaluacion_gobierno || []} cx="50%" cy="50%" innerRadius={50} outerRadius={80} paddingAngle={3} dataKey="value">
                     {(D.evaluacion_gobierno || []).map((e,i) => <Cell key={i} fill={e.color} />)}
                   </Pie>
-                  <RTooltip contentStyle={TooltipStyle} formatter={v=>`${v}%`} />
+                  <RTooltip contentStyle={TooltipStyle} wrapperStyle={TooltipWrapperStyle} formatter={v=>`${v}%`} />
                   <Legend wrapperStyle={{ fontSize:11, color:C.textSec }} />
                 </PieChart>
               </ResponsiveContainer>
@@ -686,7 +694,7 @@ export default function DashboardPolitico({ onNavigateToMapa }) {
                   <Pie data={D.demografia_genero || []} cx="50%" cy="50%" outerRadius={90} paddingAngle={4} dataKey="value">
                     {(D.demografia_genero || []).map((e,i) => <Cell key={i} fill={e.color} />)}
                   </Pie>
-                  <RTooltip contentStyle={TooltipStyle} formatter={v=>`${v}%`} />
+                  <RTooltip contentStyle={TooltipStyle} wrapperStyle={TooltipWrapperStyle} formatter={v=>`${v}%`} />
                   <Legend wrapperStyle={{ fontSize:11, color:C.textSec }} />
                 </PieChart>
               </ResponsiveContainer>
@@ -700,7 +708,7 @@ export default function DashboardPolitico({ onNavigateToMapa }) {
                   <CartesianGrid strokeDasharray="3 3" stroke={C.border} horizontal={false} />
                   <XAxis type="number" tick={{ fill:C.textMut, fontSize:11 }} axisLine={{ stroke:C.border }} domain={[0,70]} tickFormatter={v=>`${v}%`} />
                   <YAxis type="category" dataKey="rango" tick={{ fill:C.textSec, fontSize:11 }} axisLine={{ stroke:C.border }} width={45} />
-                  <RTooltip contentStyle={TooltipStyle} formatter={v=>`${v}%`} />
+                  <RTooltip contentStyle={TooltipStyle} wrapperStyle={TooltipWrapperStyle} formatter={v=>`${v}%`} />
                   <Bar dataKey="intencion" name="Intención" radius={[0,5,5,0]}>
                     {(D.demografia_edad || []).map((d,i) => <Cell key={i} fill={getColorPct(d.intencion)} />)}
                   </Bar>
@@ -741,7 +749,7 @@ export default function DashboardPolitico({ onNavigateToMapa }) {
                   <CartesianGrid strokeDasharray="3 3" stroke={C.border} horizontal={false} />
                   <XAxis type="number" tick={{ fill:C.textMut, fontSize:11 }} axisLine={{ stroke:C.border }} domain={[0,70]} tickFormatter={v=>`${v}%`} />
                   <YAxis type="category" dataKey="tema" tick={{ fill:C.textSec, fontSize:12 }} axisLine={{ stroke:C.border }} width={120} />
-                  <RTooltip contentStyle={TooltipStyle} formatter={v=>`${v}%`} />
+                  <RTooltip contentStyle={TooltipStyle} wrapperStyle={TooltipWrapperStyle} formatter={v=>`${v}%`} />
                   <Bar dataKey="pct" name="% ciudadanos" radius={[0,6,6,0]}>
                     {(D.agenda || []).map((_,i) => <Cell key={i} fill={i<3?C.gold:i<5?C.green:C.greenDark} />)}
                   </Bar>
