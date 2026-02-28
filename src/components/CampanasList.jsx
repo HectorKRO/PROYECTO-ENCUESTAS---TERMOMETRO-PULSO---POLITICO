@@ -14,9 +14,11 @@ import { useRouter } from 'next/navigation';
 import { C } from '@/lib/theme';
 import { supabase } from '@/lib/supabase';
 import { useOrganizacion } from '@/hooks/useOrganizacion';
+import { useIsMobile } from '@/hooks/useIsMobile';
 
 export default function CampanasList() {
   const router = useRouter();
+  const isMobile = useIsMobile();
   const { organizacion, loading: orgLoading, municipioActual } = useOrganizacion();
   const orgId = organizacion?.id;
   const [campanas, setCampanas] = useState([]);
@@ -197,7 +199,7 @@ export default function CampanasList() {
       <div style={{
         background: C.surface,
         borderBottom: `1px solid ${C.border}`,
-        padding: '24px 32px',
+        padding: isMobile ? '16px' : '24px 32px',
       }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
@@ -241,7 +243,7 @@ export default function CampanasList() {
       )}
 
       {/* Lista de campañas */}
-      <div style={{ padding: '32px', maxWidth: 1200, margin: '0 auto' }}>
+      <div style={{ padding: isMobile ? '16px' : '32px', maxWidth: 1200, margin: '0 auto' }}>
         {campanas.length === 0 ? (
           <div style={{
             background: C.surface,
@@ -279,10 +281,12 @@ export default function CampanasList() {
                   background: C.surface,
                   border: `1px solid ${campana.activa ? C.gold + '40' : C.border}`,
                   borderRadius: 12,
-                  padding: 20,
+                  padding: isMobile ? 14 : 20,
                   display: 'flex',
+                  flexDirection: isMobile ? 'column' : 'row',
                   justifyContent: 'space-between',
-                  alignItems: 'center',
+                  alignItems: isMobile ? 'flex-start' : 'center',
+                  gap: isMobile ? 12 : 0,
                   cursor: 'pointer',
                   transition: 'all 0.2s',
                 }}
@@ -326,7 +330,7 @@ export default function CampanasList() {
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', width: isMobile ? '100%' : 'auto' }}>
                   {confirmarEliminar?.id === campana.id ? (
                     /* Confirmación inline */
                     <div

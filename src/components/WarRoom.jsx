@@ -23,6 +23,7 @@ import { supabase } from '@/lib/supabase';
 import { C, NAV_HEIGHT } from '@/lib/theme';
 import { IS_DEMO } from '@/lib/constants';
 import { useWarRoomComparison } from '@/hooks/useWarRoomComparison';
+import { useIsMobile } from '@/hooks/useIsMobile';
 import 'leaflet/dist/leaflet.css';
 
 // Coordenadas por defecto (Atlixco)
@@ -242,23 +243,45 @@ const Legend = memo(function Legend() {
   );
 });
 
-// Stats Panel (simplificado)
-const StatsPanel = memo(function StatsPanel({ data, selectedSeccion, onClose, onExport }) {
+// Stats Panel — desktop: card top-left / mobile: bottom sheet
+const StatsPanel = memo(function StatsPanel({ data, selectedSeccion, onClose }) {
+  const isMobile = useIsMobile();
+
+  // Estilos base del panel según dispositivo
+  const baseStyle = isMobile ? {
+    position: 'fixed',
+    bottom: 0, left: 0, right: 0,
+    borderRadius: '14px 14px 0 0',
+    border: `1px solid ${C.border}`,
+    borderBottom: 'none',
+    background: 'rgba(7, 16, 10, 0.99)',
+    padding: '12px 16px 20px',
+    zIndex: 1001,
+    overflow: 'auto',
+    maxHeight: '52vh',
+  } : {
+    position: 'absolute',
+    top: 20, left: 20,
+    borderRadius: 12,
+    border: `1px solid ${C.border}`,
+    background: 'rgba(7, 16, 10, 0.98)',
+    padding: 20,
+    zIndex: 1000,
+    overflow: 'auto',
+  };
+
+  // Barra de arrastre visual para mobile
+  const dragHandle = isMobile ? (
+    <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: '0 auto 12px' }} />
+  ) : null;
+
+  // Estado vacío — en mobile no mostrar para no tapar el mapa
   if (!selectedSeccion) {
+    if (isMobile) return null;
     return (
-      <div style={{
-        position: 'absolute',
-        top: 20,
-        left: 20,
-        width: 240,
-        background: 'rgba(7, 16, 10, 0.92)',
-        borderRadius: 10,
-        border: `1px solid ${C.border}`,
-        padding: '14px 16px',
-        zIndex: 1000,
-      }}>
+      <div style={{ ...baseStyle, width: 240 }}>
         <p style={{ color: C.textMut, fontSize: 12, margin: '0 0 10px' }}>
-          Selecciona una sección para ver detalles
+          Toca una sección para ver detalles
         </p>
         {data && (
           <div style={{ color: C.textSec, fontSize: 12, display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -273,22 +296,13 @@ const StatsPanel = memo(function StatsPanel({ data, selectedSeccion, onClose, on
   const seccionData = data?.secciones?.find(s => s.seccion_id === selectedSeccion);
   if (!seccionData) {
     return (
-      <div style={{
-        position: 'absolute',
-        top: 20,
-        left: 20,
-        width: 280,
-        background: 'rgba(7, 16, 10, 0.95)',
-        borderRadius: 12,
-        border: `1px solid ${C.border}`,
-        padding: 20,
-        zIndex: 1000,
-      }}>
+      <div style={{ ...baseStyle, width: isMobile ? '100%' : 280 }}>
+        {dragHandle}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h3 style={{ color: C.goldLight, margin: 0 }}>Sección {selectedSeccion}</h3>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: C.textMut, cursor: 'pointer', fontSize: 20 }}>×</button>
+          <h3 style={{ color: C.goldLight, margin: 0, fontSize: 16 }}>Sección {selectedSeccion}</h3>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: C.textMut, cursor: 'pointer', fontSize: 22, padding: '2px 6px', lineHeight: 1 }}>×</button>
         </div>
-        <p style={{ color: C.textMut, marginTop: 16 }}>Sin datos para esta sección</p>
+        <p style={{ color: C.textMut, marginTop: 12, fontSize: 13 }}>Sin datos para esta sección</p>
       </div>
     );
   }
@@ -296,38 +310,27 @@ const StatsPanel = memo(function StatsPanel({ data, selectedSeccion, onClose, on
   const intencionColor = getIntencionColor(seccionData.pct_intencion_positiva);
 
   return (
-    <div style={{
-      position: 'absolute',
-      top: 20,
-      left: 20,
-      width: 320,
-      maxHeight: '80vh',
-      overflow: 'auto',
-      background: 'rgba(7, 16, 10, 0.98)',
-      borderRadius: 12,
-      border: `1px solid ${C.border}`,
-      padding: 20,
-      zIndex: 1000,
-    }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <h3 style={{ color: C.goldLight, margin: 0, fontSize: 18 }}>Sección {selectedSeccion}</h3>
-        <button onClick={onClose} style={{ background: 'none', border: 'none', color: C.textMut, cursor: 'pointer', fontSize: 20 }}>×</button>
+    <div style={{ ...baseStyle, width: isMobile ? '100%' : 320, maxHeight: isMobile ? '52vh' : '80vh' }}>
+      {dragHandle}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <h3 style={{ color: C.goldLight, margin: 0, fontSize: isMobile ? 16 : 18 }}>Sección {selectedSeccion}</h3>
+        <button onClick={onClose} style={{ background: 'none', border: 'none', color: C.textMut, cursor: 'pointer', fontSize: 22, padding: '2px 8px', lineHeight: 1 }}>×</button>
       </div>
 
       <div style={{
         background: C.surfaceEl,
         borderRadius: 8,
-        padding: 12,
-        marginBottom: 16,
+        padding: isMobile ? 10 : 12,
+        marginBottom: 12,
         border: `1px solid ${intencionColor}33`,
       }}>
-        <div style={{ fontSize: 11, color: C.textMut, marginBottom: 4 }}>Intención Positiva</div>
-        <div style={{ fontSize: 32, fontWeight: 900, color: intencionColor }}>
+        <div style={{ fontSize: 11, color: C.textMut, marginBottom: 2 }}>Intención Positiva</div>
+        <div style={{ fontSize: isMobile ? 28 : 32, fontWeight: 900, color: intencionColor }}>
           {seccionData.pct_intencion_positiva?.toFixed(1) || '0.0'}%
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 16 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
         <div style={{ background: C.surfaceEl, padding: 10, borderRadius: 6 }}>
           <div style={{ fontSize: 10, color: C.textMut }}>Encuestas</div>
           <div style={{ fontSize: 18, fontWeight: 700, color: C.textPri }}>{seccionData.total || 0}</div>
@@ -567,18 +570,21 @@ const MapaWarRoom = memo(function MapaWarRoom({
 // COMPONENTE PRINCIPAL
 // Estilo compacto para selects del header
 const selectHeaderStyle = {
-  padding: '5px 10px',
+  padding: '6px 10px',
   background: 'rgba(7, 16, 10, 0.7)',
   color: C.textPri,
   border: `1px solid ${C.border}`,
   borderRadius: 6,
   fontSize: 12,
   cursor: 'pointer',
-  minWidth: 130,
   outline: 'none',
+  flex: 1,
+  minWidth: 0,       // permite comprimir por debajo del contenido
+  maxWidth: 200,
 };
 
 export default function WarRoom() {
+  const isMobile = useIsMobile();
   const {
     ladoA,
     ladoB,
@@ -597,77 +603,130 @@ export default function WarRoom() {
       display: 'flex',
       flexDirection: 'column'
     }}>
-      {/* ── HEADER WAR ROOM v3.2 — compacto ── */}
+      {/* ── HEADER WAR ROOM — responsive ── */}
       <div style={{
         background: C.surface,
         borderBottom: `1px solid ${C.border}`,
         flexShrink: 0,
       }}>
-        {/* Fila principal (siempre visible, 56px) */}
-        <div style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '0 24px',
-          height: 56,
-          gap: 16,
-        }}>
-          {/* Zona izquierda: título */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-            <span style={{ fontSize: 16 }}>🗺️</span>
-            <span style={{ fontWeight: 700, fontSize: 15, color: C.textPri }}>War Room</span>
-            <span style={{ color: C.border, fontSize: 14 }}>·</span>
-            <span style={{ fontSize: 12, color: C.textMut }}>
-              {municipiosDisponibles.find(m => m.id === ladoA.municipioId)?.nombre || 'Mapa electoral'}
-            </span>
+        {isMobile ? (
+          /* ── MOBILE: dos filas ── */
+          <div>
+            {/* Fila 1: título + botón comparar */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 16px', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontSize: 15 }}>🗺️</span>
+                <span style={{ fontWeight: 700, fontSize: 14, color: C.textPri }}>War Room</span>
+              </div>
+              <button
+                onClick={toggleComparison}
+                style={{
+                  padding: '5px 12px',
+                  background: showComparison ? C.gold : 'transparent',
+                  color: showComparison ? C.bg : C.gold,
+                  border: `1.5px solid ${C.gold}`,
+                  borderRadius: 6,
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                  fontSize: 11,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                {showComparison ? '⚡ Comparando' : '⊞ Comparar'}
+              </button>
+            </div>
+            {/* Fila 2: selectors full-width */}
+            <div style={{ display: 'flex', gap: 8, padding: '0 16px 10px', alignItems: 'center' }}>
+              <select
+                value={ladoA.municipioId || ''}
+                onChange={(e) => setMunicipioA(e.target.value ? Number(e.target.value) : null)}
+                disabled={ladoA.loading}
+                style={{ ...selectHeaderStyle, maxWidth: 'none' }}
+              >
+                <option value="">📍 Municipio</option>
+                {municipiosDisponibles.map(m => (
+                  <option key={m.id} value={m.id}>{m.nombre}</option>
+                ))}
+              </select>
+              <select
+                value={ladoA.campanaId || ''}
+                onChange={(e) => setCampanaA(e.target.value || null)}
+                disabled={ladoA.loading || !ladoA.municipioId}
+                style={{ ...selectHeaderStyle, maxWidth: 'none', opacity: !ladoA.municipioId ? 0.5 : 1 }}
+              >
+                <option value="">{ladoA.loading ? 'Cargando...' : '🗳️ Campaña'}</option>
+                {ladoA.campanasDisponibles?.map(c => (
+                  <option key={c.id} value={c.id}>{c.nombre}</option>
+                ))}
+              </select>
+            </div>
           </div>
+        ) : (
+          /* ── DESKTOP: una fila ── */
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            padding: '0 24px',
+            height: 56,
+            gap: 16,
+          }}>
+            {/* Zona izquierda: título */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+              <span style={{ fontSize: 16 }}>🗺️</span>
+              <span style={{ fontWeight: 700, fontSize: 15, color: C.textPri }}>War Room</span>
+              <span style={{ color: C.border, fontSize: 14 }}>·</span>
+              <span style={{ fontSize: 12, color: C.textMut }}>
+                {municipiosDisponibles.find(m => m.id === ladoA.municipioId)?.nombre || 'Mapa electoral'}
+              </span>
+            </div>
 
-          {/* Zona central: selectors Lado A inline */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, justifyContent: 'center' }}>
-            <select
-              value={ladoA.municipioId || ''}
-              onChange={(e) => setMunicipioA(e.target.value ? Number(e.target.value) : null)}
-              disabled={ladoA.loading}
-              style={selectHeaderStyle}
-            >
-              <option value="">📍 Municipio</option>
-              {municipiosDisponibles.map(m => (
-                <option key={m.id} value={m.id}>{m.nombre}</option>
-              ))}
-            </select>
+            {/* Zona central: selectors */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, justifyContent: 'center' }}>
+              <select
+                value={ladoA.municipioId || ''}
+                onChange={(e) => setMunicipioA(e.target.value ? Number(e.target.value) : null)}
+                disabled={ladoA.loading}
+                style={selectHeaderStyle}
+              >
+                <option value="">📍 Municipio</option>
+                {municipiosDisponibles.map(m => (
+                  <option key={m.id} value={m.id}>{m.nombre}</option>
+                ))}
+              </select>
+              <select
+                value={ladoA.campanaId || ''}
+                onChange={(e) => setCampanaA(e.target.value || null)}
+                disabled={ladoA.loading || !ladoA.municipioId}
+                style={{ ...selectHeaderStyle, opacity: !ladoA.municipioId ? 0.5 : 1 }}
+              >
+                <option value="">{ladoA.loading ? 'Cargando...' : '🗳️ Campaña'}</option>
+                {ladoA.campanasDisponibles?.map(c => (
+                  <option key={c.id} value={c.id}>{c.nombre}</option>
+                ))}
+              </select>
+            </div>
 
-            <select
-              value={ladoA.campanaId || ''}
-              onChange={(e) => setCampanaA(e.target.value || null)}
-              disabled={ladoA.loading || !ladoA.municipioId}
-              style={{ ...selectHeaderStyle, opacity: !ladoA.municipioId ? 0.5 : 1 }}
+            {/* Zona derecha: toggle comparar */}
+            <button
+              onClick={toggleComparison}
+              style={{
+                padding: '6px 14px',
+                background: showComparison ? C.gold : 'transparent',
+                color: showComparison ? C.bg : C.gold,
+                border: `1.5px solid ${C.gold}`,
+                borderRadius: 6,
+                cursor: 'pointer',
+                fontWeight: 600,
+                fontSize: 12,
+                whiteSpace: 'nowrap',
+                flexShrink: 0,
+              }}
             >
-              <option value="">{ladoA.loading ? 'Cargando...' : '🗳️ Campaña'}</option>
-              {ladoA.campanasDisponibles?.map(c => (
-                <option key={c.id} value={c.id}>{c.nombre}</option>
-              ))}
-            </select>
+              {showComparison ? '⚡ Comparando' : '⊞ Comparar'}
+            </button>
           </div>
-
-          {/* Zona derecha: toggle comparar */}
-          <button
-            onClick={toggleComparison}
-            style={{
-              padding: '6px 14px',
-              background: showComparison ? C.gold : 'transparent',
-              color: showComparison ? C.bg : C.gold,
-              border: `1.5px solid ${C.gold}`,
-              borderRadius: 6,
-              cursor: 'pointer',
-              fontWeight: 600,
-              fontSize: 12,
-              whiteSpace: 'nowrap',
-              flexShrink: 0,
-            }}
-          >
-            {showComparison ? '⚡ Comparando' : '⊞ Comparar'}
-          </button>
-        </div>
+        )}
 
         {/* Fila comparación (solo cuando showComparison, ~40px) */}
         {showComparison && (
