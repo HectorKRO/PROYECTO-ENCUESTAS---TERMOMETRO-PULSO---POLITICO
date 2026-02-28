@@ -364,7 +364,7 @@ const MapaWarRoom = memo(function MapaWarRoom({
   const selectedSeccionRef = useRef(null);
   useEffect(() => { selectedSeccionRef.current = selectedSeccion; }, [selectedSeccion]);
 
-  // Calcular estado global de la campaña para el semáforo
+  // Estado global (cuando ninguna sección está seleccionada)
   const campaignStatus = useMemo(() => {
     if (!data?.secciones) return null;
     const withData = data.secciones.filter(s => s.total > 0);
@@ -377,7 +377,23 @@ const MapaWarRoom = memo(function MapaWarRoom({
     return 'red';
   }, [data?.secciones]);
 
-  useEffect(() => { onStatusChange?.(campaignStatus); }, [campaignStatus, onStatusChange]);
+  // Estado activo del semáforo:
+  // - Si hay sección seleccionada con datos → muestra su estado individual
+  // - Si no → muestra el estado global de la campaña
+  const activeStatus = useMemo(() => {
+    if (selectedSeccion && data?.secciones) {
+      const sec = data.secciones.find(s => s.seccion_id === selectedSeccion);
+      if (sec && sec.total > 0) {
+        const pct = sec.pct_intencion_positiva;
+        if (pct >= 45) return 'green';
+        if (pct >= 35) return 'yellow';
+        return 'red';
+      }
+    }
+    return campaignStatus;
+  }, [selectedSeccion, data?.secciones, campaignStatus]);
+
+  useEffect(() => { onStatusChange?.(activeStatus); }, [activeStatus, onStatusChange]);
 
   const loading = geoLoading || dataLoading;
   const error = geoError || dataError;
