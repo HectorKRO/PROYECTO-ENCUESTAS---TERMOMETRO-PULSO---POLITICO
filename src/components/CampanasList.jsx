@@ -27,6 +27,9 @@ export default function CampanasList() {
   const [formCandidato, setFormCandidato] = useState({ nombre: '', cargo: 'Presidente Municipal', partido: '' });
   const [savingCandidato, setSavingCandidato] = useState(false);
 
+  // Confirmación de eliminación de campaña { id, nombre }
+  const [confirmarEliminar, setConfirmarEliminar] = useState(null);
+
   // Formulario nueva campaña
   const [form, setForm] = useState({
     nombre: '',
@@ -167,6 +170,22 @@ export default function CampanasList() {
     } catch (err) {
       console.error('Error actualizando campaña:', err);
       setError('Error al actualizar: ' + err.message);
+    }
+  };
+
+  const handleEliminarCampana = async () => {
+    if (!confirmarEliminar) return;
+    try {
+      const { error } = await supabase
+        .from('campanas')
+        .delete()
+        .eq('id', confirmarEliminar.id);
+      if (error) throw error;
+      setCampanas(prev => prev.filter(c => c.id !== confirmarEliminar.id));
+      setConfirmarEliminar(null);
+    } catch (err) {
+      setError('No se puede eliminar: ' + err.message);
+      setConfirmarEliminar(null);
     }
   };
 
@@ -318,37 +337,78 @@ export default function CampanasList() {
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  {/* Estado */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleActiva(campana.id, campana.activa);
-                    }}
-                    style={{
-                      padding: '6px 12px',
-                      borderRadius: 20,
-                      border: `1px solid ${campana.activa ? C.greenAcc + '40' : C.border}`,
-                      background: campana.activa ? `${C.greenAcc}15` : C.surfaceEl,
-                      color: campana.activa ? C.greenAcc : C.textMut,
-                      fontSize: 12,
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 6,
-                    }}
-                  >
-                    <span style={{
-                      width: 6,
-                      height: 6,
-                      borderRadius: '50%',
-                      background: campana.activa ? C.greenAcc : C.textMut,
-                    }} />
-                    {campana.activa ? 'Activa' : 'Inactiva'}
-                  </button>
+                  {confirmarEliminar?.id === campana.id ? (
+                    /* Confirmación inline */
+                    <div
+                      onClick={(e) => e.stopPropagation()}
+                      style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+                    >
+                      <span style={{ fontSize: 12, color: C.danger }}>¿Eliminar?</span>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setConfirmarEliminar(null); }}
+                        style={{ padding: '5px 10px', borderRadius: 6, border: `1px solid ${C.border}`, background: 'transparent', color: C.textMut, fontSize: 11, cursor: 'pointer' }}
+                      >
+                        No
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleEliminarCampana(); }}
+                        style={{ padding: '5px 10px', borderRadius: 6, border: 'none', background: C.danger, color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
+                      >
+                        Sí, eliminar
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      {/* Estado activa/inactiva */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleActiva(campana.id, campana.activa);
+                        }}
+                        style={{
+                          padding: '6px 12px',
+                          borderRadius: 20,
+                          border: `1px solid ${campana.activa ? C.greenAcc + '40' : C.border}`,
+                          background: campana.activa ? `${C.greenAcc}15` : C.surfaceEl,
+                          color: campana.activa ? C.greenAcc : C.textMut,
+                          fontSize: 12,
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6,
+                        }}
+                      >
+                        <span style={{
+                          width: 6,
+                          height: 6,
+                          borderRadius: '50%',
+                          background: campana.activa ? C.greenAcc : C.textMut,
+                        }} />
+                        {campana.activa ? 'Activa' : 'Inactiva'}
+                      </button>
 
-                  {/* Flecha */}
-                  <span style={{ fontSize: 20, color: C.textMut }}>→</span>
+                      {/* Botón eliminar */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setConfirmarEliminar({ id: campana.id, nombre: campana.nombre });
+                        }}
+                        title="Eliminar campaña"
+                        style={{
+                          padding: '6px 10px', borderRadius: 8,
+                          border: `1px solid ${C.danger}30`,
+                          background: 'transparent', color: C.danger,
+                          fontSize: 15, cursor: 'pointer', lineHeight: 1,
+                        }}
+                      >
+                        🗑️
+                      </button>
+
+                      {/* Flecha */}
+                      <span style={{ fontSize: 20, color: C.textMut }}>→</span>
+                    </>
+                  )}
                 </div>
               </div>
             ))}

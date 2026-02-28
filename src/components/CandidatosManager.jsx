@@ -25,6 +25,9 @@ export default function CandidatosManager({ campanaId = null }) {
   const [showNuevoPrincipal, setShowNuevoPrincipal] = useState(false);
   const [showNuevoRival, setShowNuevoRival] = useState(false);
 
+  // Confirmación de eliminación inline { tipo: 'principal'|'rival', id, nombre }
+  const [confirmarEliminar, setConfirmarEliminar] = useState(null);
+
   // Formularios
   const [formPrincipal, setFormPrincipal] = useState({
     nombre: '',
@@ -139,6 +142,25 @@ export default function CandidatosManager({ campanaId = null }) {
       loadData();
     } catch (err) {
       setError('Error creando rival: ' + err.message);
+    }
+  };
+
+  const handleEliminar = async () => {
+    if (!confirmarEliminar) return;
+    const { tipo, id } = confirmarEliminar;
+    const tabla = tipo === 'principal' ? 'candidatos' : 'candidatos_rivales';
+    try {
+      const { error } = await supabase.from(tabla).delete().eq('id', id);
+      if (error) throw error;
+      if (tipo === 'principal') {
+        setCandidatos(prev => prev.filter(c => c.id !== id));
+      } else {
+        setRivales(prev => prev.filter(r => r.id !== id));
+      }
+      setConfirmarEliminar(null);
+    } catch (err) {
+      setError('No se puede eliminar: ' + err.message);
+      setConfirmarEliminar(null);
     }
   };
 
@@ -293,20 +315,39 @@ export default function CandidatosManager({ campanaId = null }) {
                     </div>
                   </div>
 
-                  <button
-                    onClick={() => toggleActivo('principal', c.id, c.activo)}
-                    style={{
-                      padding: '6px 12px',
-                      borderRadius: 20,
-                      border: `1px solid ${c.activo ? C.greenAcc + '40' : C.border}`,
-                      background: c.activo ? `${C.greenAcc}15` : C.surfaceEl,
-                      color: c.activo ? C.greenAcc : C.textMut,
-                      fontSize: 12,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    {c.activo ? '✓ Activo' : 'Inactivo'}
-                  </button>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    {confirmarEliminar?.id === c.id ? (
+                      <>
+                        <span style={{ fontSize: 11, color: C.danger }}>¿Eliminar?</span>
+                        <button onClick={() => setConfirmarEliminar(null)} style={btnSmallCancel}>No</button>
+                        <button onClick={handleEliminar} style={btnSmallDanger}>Sí</button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => toggleActivo('principal', c.id, c.activo)}
+                          style={{
+                            padding: '6px 12px',
+                            borderRadius: 20,
+                            border: `1px solid ${c.activo ? C.greenAcc + '40' : C.border}`,
+                            background: c.activo ? `${C.greenAcc}15` : C.surfaceEl,
+                            color: c.activo ? C.greenAcc : C.textMut,
+                            fontSize: 12,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          {c.activo ? '✓ Activo' : 'Inactivo'}
+                        </button>
+                        <button
+                          onClick={() => setConfirmarEliminar({ tipo: 'principal', id: c.id, nombre: c.nombre })}
+                          style={btnSmallDelete}
+                          title="Eliminar candidato"
+                        >
+                          🗑️
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -370,20 +411,39 @@ export default function CandidatosManager({ campanaId = null }) {
                     </div>
                   </div>
 
-                  <button
-                    onClick={() => toggleActivo('rival', r.id, r.activo)}
-                    style={{
-                      padding: '6px 12px',
-                      borderRadius: 20,
-                      border: `1px solid ${r.activo ? C.greenAcc + '40' : C.border}`,
-                      background: r.activo ? `${C.greenAcc}15` : C.surfaceEl,
-                      color: r.activo ? C.greenAcc : C.textMut,
-                      fontSize: 12,
-                      cursor: 'pointer',
-                    }}
-                  >
-                    {r.activo ? '✓ Activo' : 'Inactivo'}
-                  </button>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    {confirmarEliminar?.id === r.id ? (
+                      <>
+                        <span style={{ fontSize: 11, color: C.danger }}>¿Eliminar?</span>
+                        <button onClick={() => setConfirmarEliminar(null)} style={btnSmallCancel}>No</button>
+                        <button onClick={handleEliminar} style={btnSmallDanger}>Sí</button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          onClick={() => toggleActivo('rival', r.id, r.activo)}
+                          style={{
+                            padding: '6px 12px',
+                            borderRadius: 20,
+                            border: `1px solid ${r.activo ? C.greenAcc + '40' : C.border}`,
+                            background: r.activo ? `${C.greenAcc}15` : C.surfaceEl,
+                            color: r.activo ? C.greenAcc : C.textMut,
+                            fontSize: 12,
+                            cursor: 'pointer',
+                          }}
+                        >
+                          {r.activo ? '✓ Activo' : 'Inactivo'}
+                        </button>
+                        <button
+                          onClick={() => setConfirmarEliminar({ tipo: 'rival', id: r.id, nombre: r.nombre })}
+                          style={btnSmallDelete}
+                          title="Eliminar rival"
+                        >
+                          🗑️
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -542,6 +602,21 @@ function ButtonPrimary({ children, onClick }) {
     </button>
   );
 }
+
+const btnSmallDelete = {
+  padding: '4px 8px', borderRadius: 6, border: `1px solid ${C.danger}30`,
+  background: 'transparent', color: C.danger, fontSize: 13, cursor: 'pointer', lineHeight: 1,
+};
+
+const btnSmallCancel = {
+  padding: '4px 10px', borderRadius: 6, border: `1px solid ${C.border}`,
+  background: 'transparent', color: C.textMut, fontSize: 11, cursor: 'pointer',
+};
+
+const btnSmallDanger = {
+  padding: '4px 10px', borderRadius: 6, border: 'none',
+  background: C.danger, color: '#fff', fontSize: 11, fontWeight: 700, cursor: 'pointer',
+};
 
 function ButtonSecondary({ children, onClick }) {
   return (
