@@ -118,3 +118,11 @@ body {
 
 .animate-fade-up { animation: fadeUp .5s ease forwards; }
 .animate-pulse-gold { animation: pulse-gold 2s infinite; }
+
+/* ── Mobile: evitar scroll horizontal global ── */
+html, body { overflow-x: hidden; max-width: 100vw; }
+
+/* ── Mobile: ocultar tooltip Leaflet (se congela en touch, el bottom sheet reemplaza) ── */
+@media (max-width: 640px) {
+  .warroom-tooltip { display: none !important; }
+}

@@ -298,7 +298,7 @@ export default function AdminPanel({ campanaId }) {
       </div>
 
       {/* ── TABS HORIZONTAL ── */}
-      <div style={{ display: 'flex', gap: 0, borderBottom: `2px solid ${C.border}`, padding: '0 24px' }}>
+      <div style={{ display: 'flex', gap: 0, borderBottom: `2px solid ${C.border}`, padding: '0 24px', overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
         {TABS.map(t => (
           <button
             key={t.key}
@@ -314,6 +314,8 @@ export default function AdminPanel({ campanaId }) {
               cursor: 'pointer',
               transition: 'color .2s, border-color .2s',
               fontFamily: 'inherit',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
             }}
           >
             {t.label}
@@ -350,11 +352,11 @@ export default function AdminPanel({ campanaId }) {
                 <Input value={campana.nombre} onChange={v => updateCampana("nombre", v)} />
               </FormGroup>
               
-              <div style={{ display: "flex", gap: 16 }}>
-                <FormGroup label="Candidato" style={{ flex: 1 }}>
+              <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+                <FormGroup label="Candidato" style={{ flex: 1, minWidth: 160 }}>
                   <Input value={campana.candidato} onChange={v => updateCampana("candidato", v)} />
                 </FormGroup>
-                <FormGroup label="Cargo" style={{ flex: 1 }}>
+                <FormGroup label="Cargo" style={{ flex: 1, minWidth: 160 }}>
                   <Input value={campana.candidatoObj?.cargo || ''} onChange={v => updateCampana("cargo", v)} />
                 </FormGroup>
               </div>
@@ -371,14 +373,14 @@ export default function AdminPanel({ campanaId }) {
                 </div>
               </FormGroup>
 
-              <div style={{ display: "flex", gap: 16 }}>
-                <FormGroup label="Color primario" style={{ flex: 1 }}>
+              <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
+                <FormGroup label="Color primario" style={{ flex: 1, minWidth: 160 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <input type="color" value={campana.candidatoObj?.color_primario || '#c9a84c'} onChange={e => updateCampana("colorPrimario", e.target.value)} style={{ width: 40, height: 32, border: "none", borderRadius: 4, cursor: "pointer" }} />
                     <span style={{ color: C.textSec, fontSize: 12 }}>{campana.candidatoObj?.color_primario || '#c9a84c'}</span>
                   </div>
                 </FormGroup>
-                <FormGroup label="Estado" style={{ flex: 1 }}>
+                <FormGroup label="Estado" style={{ flex: 1, minWidth: 160 }}>
                   <button
                     onClick={() => updateCampana("activa", !campana.activa)}
                     style={{
