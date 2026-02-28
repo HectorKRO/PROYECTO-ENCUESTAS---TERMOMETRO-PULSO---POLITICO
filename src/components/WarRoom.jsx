@@ -69,7 +69,7 @@ function MapController({ center, zoom }) {
 // Cache de GeoJSON por municipio
 // WR5 FIX: Cache con versión para invalidación entre deploys
 const geoDataCache = new Map();
-const CACHE_VERSION = 'v1'; // Incrementar cuando cambien los GeoJSON
+const CACHE_VERSION = 'v2'; // Incrementar cuando cambien los GeoJSON
 
 // Hook para cargar GeoJSON de un municipio
 function useMunicipioGeoJSON(municipioId) {
