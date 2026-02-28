@@ -1,16 +1,35 @@
-# 🗳️ PulsoElectoral — Plataforma de Inteligencia Política
+# 🗳️ PulsoElectoral — Plataforma de Inteligencia Política v3.2.0
 
-Sistema profesional de encuestas electorales con análisis en tiempo real, mapas de calor por sección electoral y modo offline para captura en campo.
+Sistema profesional de encuestas electorales con análisis en tiempo real, mapas de calor por sección electoral y modo offline para captura en campo.  
+**Versión actual:** `v3.2.0` — Sistema de diseño unificado (QuickSight-inspired)
 
 ## ✨ Características Principales
 
-- 📊 **Dashboard Analítico** — Visualización de KPIs, tendencias semanales y demográficos
+- 📊 **Dashboard Analítico** — Visualización de KPIs, tendencias semanales y demográficos (layout profesional v3.2)
 - 📱 **Formulario de Encuestas** — Captura en campo con geolocalización GPS
 - 🗺️ **Mapas de Calor** — Visualización por sección electoral (INE)
 - 📴 **Modo Offline** — Sincronización automática cuando recupera conexión
 - 🔐 **Autenticación OTP** — Login sin contraseña vía email
 - 📄 **Exportación CSV** — Datos listos para Excel
 - 📊 **Gráficos Interactivos** — Recharts para visualización avanzada
+
+## 🎨 Sistema de Diseño v3.2
+
+El rediseño profesional v3.2 aplica patrones de interfaces enterprise (AWS QuickSight) a todo el proyecto:
+
+| Patrón | Descripción |
+|--------|-------------|
+| **Headers Compactos** | 64px fijos, una sola fila, información esencial inline |
+| **Tabs Underline** | Estilo underline dorado activo, sin border-radius ni backgrounds |
+| **Contenido Full-Width** | Sin sidebars innecesarios, máximo 860px centrado |
+| **Tokens Unificados** | Todos los colores vía `C.*` de `@/lib/theme.js`, cero hardcodeados |
+| **Badge PE** | Logo consistente (gradiente gold) reemplaza emojis |
+
+**Archivos del sistema de diseño:**
+- `src/lib/theme.js` — Tokens de color, alturas, tipografía
+- `src/components/NavBar.jsx` — Navegación global coherente
+
+Ver [CHANGELOG.md](./CHANGELOG.md) para detalles completos del rediseño (Fases 1-4).
 
 ## 🏗️ Estructura del Proyecto
 

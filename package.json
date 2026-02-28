@@ -1,6 +1,6 @@
 {
   "name": "encuestadora-saas",
-  "version": "3.0.0",
+  "version": "3.2.0",
   "description": "Plataforma SaaS de inteligencia política multi-municipio",
   "private": true,
   "scripts": {

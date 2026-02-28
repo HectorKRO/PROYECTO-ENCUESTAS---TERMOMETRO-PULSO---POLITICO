@@ -20,6 +20,7 @@
 
 | Versión | Fecha | Estado | Cambios Principales |
 |---------|-------|--------|---------------------|
+| **v3.2.0** | 2026-02-27 | ✅ Estable | Rediseño profesional UI/UX — 4 fases (Dashboard, War Room, Admin, Login) |
 | **v3.1.0** | 2026-02-27 | 🚧 Parche | NavBar global, gestión campañas/candidatos, fixes P1-P4 |
 | **v3.0.1** | 2026-02-27 | ✅ Estable | Fix crítico login loop: createBrowserClient + bienvenido rewrite |
 | **v3.0.0** | 2026-02-27 | 🚀 Deploy | Deploy v3.0 multi-municipio, superadmin setup, SQL v3.0 |
@@ -29,6 +30,143 @@
 | **v2.4.0** | 2026-02-25 | ✅ Estable | Catálogo de colonias INE (417 colonias), War Room v1 |
 | **v2.3.0** | 2026-02-25 | ✅ Estable | Secciones electorales 68 oficiales, campos v2.3 |
 | **v2.2.x** | 2026-02-24 | 🏛️ Base | Versión inicial de referencia |
+
+---
+
+## ✨ v3.2.0 (2026-02-27) — "Rediseño Profesional v3.2 — Sistema de Diseño Unificado"
+
+**Estado:** ✅ Completo y auditado  
+**Contexto:** Rediseño integral de toda la interfaz siguiendo patrones profesionales (AWS QuickSight, dark theme). Sistema de diseño coherente: headers compactos, tabs underline, tokens `C.*` unificados, cero sidebars innecesarios.  
+**Impacto:** -222 líneas en Dashboard, -112 en War Room, -46 en Admin, +18 en Login/Landing. Build: 0 errores.
+
+---
+
+### 🎨 Resumen por Fase
+
+| Fase | Área | Cambio Principal | Líneas |
+|------|------|------------------|--------|
+| **Fase 1** | Dashboard | Header compacto (64px), sidebar 280px eliminado, KPIs full-width, tabs underline | -222 |
+| **Fase 2** | War Room | Header 56px, selects inline, sin MunicipioCampanaSelector, StatsPanel limpio | -112 |
+| **Fase 3** | Admin | Paleta local eliminada (14 tokens), sidebar → tabs horizontales, tokens unificados | -46 |
+| **Fase 4** | Login/Landing | Badge PE reemplaza emoji 🗳️, cero rgba hardcodeados, versión v3.0→v3.2 | +18 |
+
+---
+
+### 📐 Fase 1 — Dashboard: Layout Profesional QuickSight
+
+**Archivo:** `src/components/DashboardPolitico.jsx`
+
+#### Antes vs Después
+
+| Elemento | Antes | Después |
+|----------|-------|---------|
+| Header | 2 filas (~154 líneas), 80-90px alto | 1 fila compacta (~55 líneas), **64px** |
+| Sidebar | 280px fijo, 134 líneas de código | ❌ **Eliminado** — contenido full-width |
+| KPI Cards | Glow decorativo, badge con borde+bg, 34px | Sin glow, badge texto plano, **40px** |
+| Tabs | Border-radius estilo pestaña | **Underline dorado** (estilo AWS) |
+| Grid | `1fr 280px` (con sidebar) | `1fr` puro (+280px para charts) |
+
+#### Cambios Técnicos
+
+- **KpiCard simplificada:** Eliminado `div` decorativo con glow absolute top-right. Badge reducido a texto coloreado sin fondo ni borde. Número principal: 34px→40px.
+- **Header compacto:** Avatar 56px→40px, nombre + cargo + municipio en línea, progress bar inline (`347/400 · 87%`), export buttons más pequeños.
+- **Sidebar eliminado:** 134 líneas removidas. Info relevante (progreso 347/400) movida al header.
+- **Tabs underline:** `borderRadius: '10px 10px 0 0'` → `borderBottom: 2px solid ${C.gold}`, `marginBottom: -2`.
+
+---
+
+### 🗺️ Fase 2 — War Room: Header Inline y Selectores Compactos
+
+**Archivo:** `src/components/WarRoom.jsx`
+
+#### Antes vs Después
+
+| Elemento | Antes | Después |
+|----------|-------|---------|
+| Header | 2 filas rígidas, 72px fijo | 1 fila **56px** + sub-fila opcional (~40px) solo cuando compara |
+| Selectors | `MunicipioCampanaSelector` vertical (2 selects apilados) | **Inline selects** (fontSize: 12, padding: 5px) |
+| Toggle comparar | Borde+background pesado | Estilo gold transparente/relleno, texto "⊞ Comparar" |
+| StatsPanel empty | Título "🗺️ War Room v3.0" + párrafo grande | Solo stats inline, **240px**, sin redundancia |
+
+#### Cambios Técnicos
+
+- **Import limpio:** Eliminados `WARROOM_HEADER` y `MunicipioCampanaSelector` del header.
+- **Selectores inline:** Nuevo `selectHeaderStyle` con `minWidth: 130`, `fontSize: 12`.
+- **Sub-fila condicional:** Selectores B aparecen solo en modo comparación, con fondo `C.surfaceEl` y altura compacta.
+
+---
+
+### 🛠️ Fase 3 — Admin: Tokens Unificados y Navegación Horizontal
+
+**Archivo:** `src/components/AdminPanel.jsx`
+
+#### Antes vs Después
+
+| Elemento | Antes | Después |
+|----------|-------|---------|
+| Paleta de colores | 14 tokens locales (`C.bg1`, `C.accent`, etc.) | **C directo de `@/lib/theme`** |
+| Header | Gradiente pesado + 2px solid gold | **Compacto 64px**, 1px solid border |
+| Navegación | Sidebar 200px vertical con border-left indicator | **Tabs underline horizontal** (mismo patrón que Dashboard) |
+| Max-width | 800px (fijado en sidebar layout) | **860px** centrado con `margin: 0 auto` |
+
+#### Mapeo de Tokens Eliminados
+
+| Token Local | Token Theme |
+|-------------|-------------|
+| `C.bg1` | `C.bg` |
+| `C.bg2` | `C.surface` |
+| `C.bg3` | `C.surfaceEl` |
+| `C.accent` | `C.gold` |
+| `C.accentDark` | `C.goldDim` |
+| `C.textMain` | `C.textPri` |
+| `C.textSub` | `C.textSec` |
+| `C.textMuted` | `C.textMut` |
+| `C.borderSub` | `C.border` |
+| `C.cardBg` | `C.surfaceEl` |
+| `C.positive` | `C.greenAcc` |
+| `C.negative` | `C.danger` |
+| `C.warning` | `C.amber` |
+
+---
+
+### 🔐 Fase 4 — Login + Landing: Badge PE y Cero Hardcode
+
+**Archivos:** `src/app/page.jsx`, `src/components/auth/LoginForm.jsx`, `src/components/auth/RoleSelector.jsx`, `src/app/bienvenido/page.jsx`
+
+#### Cambios Visuales
+
+| Archivo | Cambio |
+|---------|--------|
+| `page.jsx` (Landing) | 🗳️ emoji 64px → **Badge PE** con gradiente gold; radial gradients usan `${C.gold}1f` y `${C.green}14`; feature cards `C.surfaceEl`; footer **v3.2** |
+| `LoginForm.jsx` | 🗳️ emoji → **Badge PE** 56px, borderRadius 14 en header del formulario |
+| `RoleSelector.jsx` | `rgba(201,162,39,0.15)` → `${C.gold}26`; `rgba(15,29,18,0.6)` → `C.surfaceEl` |
+| `bienvenido/page.jsx` | `rgba(15,29,18,0.98)` → `C.surface` |
+
+#### Principio Aplicado
+**Cero colores hardcodeados:** Todos los componentes de autenticación ahora usan tokens `C.*` del sistema de diseño unificado.
+
+---
+
+### 📊 Métricas del Rediseño
+
+| Métrica | Valor |
+|---------|-------|
+| Fases completadas | 4/4 |
+| Commits | 4 (`bbd6b8c`, `997a06e`, `537b63e`, `bc59765`) |
+| Líneas netas eliminadas | ~362 líneas |
+| Componentes refactorizados | 4 principales + 3 de auth |
+| Errores de build | 0 |
+| Tokens unificados | 14 locales → 1 global (`C` de `@/lib/theme`) |
+
+---
+
+### 🎯 Patrones Establecidos (para futuros componentes)
+
+1. **Header compacto:** `height: 64px`, `display: flex`, `alignItems: center`, `borderBottom: 1px solid ${C.border}`
+2. **Tabs underline:** `borderBottom: 2px solid ${active ? C.gold : 'transparent'}`, `marginBottom: -2`, sin `borderRadius`
+3. **Badge PE:** `width: 56-64px`, `background: linear-gradient(135deg, ${C.gold}, ${C.goldDim})`, `borderRadius: 14-16px`, texto "PE" weight 800
+4. **Selectores inline:** `padding: 5px 10px`, `fontSize: 12`, `minWidth: 130`, fondo `rgba(7,16,10,0.7)`
+5. **Cero sidebars innecesarios:** Contenido siempre full-width con `maxWidth: 860px` y `margin: 0 auto`
 
 ---
 
